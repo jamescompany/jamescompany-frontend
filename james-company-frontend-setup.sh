@@ -507,7 +507,7 @@ EOF
 cat > src/components/auth/ProtectedRoute.tsx << 'EOF'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -567,7 +567,7 @@ EOF
 
 # src/components/ui/Input.tsx
 cat > src/components/ui/Input.tsx << 'EOF'
-import { InputHTMLAttributes, forwardRef } from 'react'
+import type { InputHTMLAttributes, forwardRef } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -608,7 +608,7 @@ EOF
 
 # src/components/ui/Card.tsx
 cat > src/components/ui/Card.tsx << 'EOF'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface CardProps {
   children: ReactNode

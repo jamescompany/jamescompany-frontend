@@ -447,7 +447,7 @@ Button.displayName = 'Button'
 
 export default Button`,
 
-  'src/components/ui/Input.tsx': `import { InputHTMLAttributes, forwardRef } from 'react'
+  'src/components/ui/Input.tsx': `import type { InputHTMLAttributes, forwardRef } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -485,7 +485,7 @@ Input.displayName = 'Input'
 
 export default Input`,
 
-  'src/components/ui/Card.tsx': `import { ReactNode } from 'react'
+  'src/components/ui/Card.tsx': `import type { ReactNode } from 'react'
 
 interface CardProps {
   children: ReactNode
@@ -507,7 +507,7 @@ export default function Card({ children, className = '', hoverable = false }: Ca
 
   'src/components/auth/ProtectedRoute.tsx': `import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode
