@@ -40,7 +40,7 @@ export default function Home() {
             다양한 형태의 성장을 돕습니다
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            QA 자동화부터 교육, 컨설팅까지 James Company와 함께 
+            QA 자동화부터 교육, 컨설팅까지 James Company와 함께 <br />
             더 나은 소프트웨어 품질을 만들어가세요.
           </p>
           <div className="flex gap-4 justify-center">
