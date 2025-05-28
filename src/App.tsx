@@ -1,6 +1,7 @@
+// src/App.tsx
+
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Layout from "./components/layout/Layout";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 // Pages
 import Home from "./pages/Home";
@@ -8,7 +9,6 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
-import Dashboard from "./pages/Dashboard";
 import Contact from "./pages/Contact";
 import Insights from "./pages/insights/Insights";
 import CoffeeChat from "./pages/services/CoffeeChat";
@@ -17,6 +17,8 @@ import Education from "./pages/services/Education";
 import BugBounty from "./pages/services/BugBounty";
 import ImwebCallback from "./pages/auth/ImwebCallback";
 import ScrollToTop from "./components/ScrollToTop";
+import QAMentorChatbot from './components/QAMentorChatbot'
+// QAMentorSection은 필요한 페이지에서만 import
 
 function App() {
   return (
@@ -37,16 +39,12 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="auth/imweb-callback" element={<ImwebCallback />} />
           <Route path="/auth/callback/imweb" element={<ImwebCallback />} />
-          <Route
-            path="dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          {/* QA 멘토 관련 라우트 제거 - 플로팅 챗봇으로만 사용 */}
         </Route>
       </Routes>
+      
+      {/* QA 멘토 챗봇 - 모든 페이지에서 플로팅으로 표시 */}
+      <QAMentorChatbot />
     </BrowserRouter>
   );
 }
