@@ -8,13 +8,13 @@ export default function Home() {
     {
       icon: <Coffee className="w-8 h-8 text-primary" />,
       title: '커피챗',
-      description: 'Google Calendar와 연동되는 1:1 상담 서비스',
+      description: 'Google Calendar와 연동되는\n1:1 상담 서비스',
       link: '/services/coffee-chat'
     },
     {
       icon: <Code className="w-8 h-8 text-primary" />,
       title: 'CaseMaker',
-      description: '테스트 케이스 자동 생성 웹 서비스',
+      description: '테스트 케이스 자동 생성\n웹 서비스',
       link: '/services/casemaker'
     },
     {
@@ -65,7 +65,9 @@ export default function Home() {
                   <div className="flex flex-col items-center text-center">
                     <div className="mb-4">{service.icon}</div>
                     <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                    <p className="text-gray-600 mb-4">{service.description}</p>
+                    <p className="text-gray-600 mb-4 text-center max-w-[200px] mx-auto whitespace-pre-line">
+                      {service.description}
+                    </p>
                     <span className="text-primary flex items-center">
                       자세히 보기 <ArrowRight className="w-4 h-4 ml-1" />
                     </span>

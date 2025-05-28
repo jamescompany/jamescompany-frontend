@@ -527,7 +527,7 @@ EOF
 
 # src/components/ui/Button.tsx
 cat > src/components/ui/Button.tsx << 'EOF'
-import { ButtonHTMLAttributes, forwardRef } from 'react'
+import type { ButtonHTMLAttributes, forwardRef } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline'

@@ -30,25 +30,59 @@ export default function Login() {
     }
   }
 
+  const handleImwebLogin = () => {
+    // imweb OAuth 설정
+    const CLIENT_ID = 'YOUR_IMWEB_CLIENT_ID' // 실제 Client ID로 교체
+    const REDIRECT_URI = `${window.location.origin}/auth/callback/imweb`
+    const IMWEB_AUTH_URL = 'https://api.imweb.me/oauth/authorize' // imweb OAuth URL
+    
+    // OAuth 인증 페이지로 리다이렉트
+    const authUrl = `${IMWEB_AUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user_info`
+    
+    window.location.href = authUrl
+  }
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold">로그인</h2>
-          <p className="mt-2 text-gray-600">
-            계정이 없으신가요?{' '}
-            <Link to="/signup" className="text-primary hover:underline">
-              회원가입
-            </Link>
-          </p>
         </div>
 
         <Card>
+          {/* imweb 로그인 버튼 */}
+          <Button
+            onClick={handleImwebLogin}
+            variant="outline"
+            className="w-full mb-4 flex items-center justify-center"
+            size="lg"
+          >
+            <img 
+              src="/imweb-logo.png" 
+              alt="imweb" 
+              className="w-5 h-5 mr-2"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+            imweb 계정으로 로그인
+          </Button>
+
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               label="이메일"
               type="email"
-              value={email}
+              // value={email}
+              value="test@example.com"
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="이메일을 입력하세요"
@@ -57,7 +91,8 @@ export default function Login() {
             <Input
               label="비밀번호"
               type="password"
-              value={password}
+              // value={password}
+              value="password" 
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="비밀번호를 입력하세요"
@@ -79,20 +114,11 @@ export default function Login() {
               size="lg"
               disabled={loading}
             >
-              {loading ? '로그인 중...' : '로그인'}
+              {loading ? '로그인 중...' : '이메일로 로그인'}
             </Button>
           </form>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">또는</span>
-              </div>
-            </div>
-
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 테스트 계정: test@example.com / password
@@ -100,6 +126,18 @@ export default function Login() {
             </div>
           </div>
         </Card>
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            기존 imweb 회원이시라면 imweb 계정으로 바로 로그인하실 수 있습니다.
+          </p>
+          <p className="text-sm text-gray-600">
+            계정이 없으신가요?{' '}
+            <Link to="/signup" className="text-primary hover:underline">
+              회원가입
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

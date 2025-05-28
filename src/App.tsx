@@ -15,6 +15,7 @@ import CoffeeChat from './pages/services/CoffeeChat'
 import CaseMaker from './pages/services/CaseMaker'
 import Education from './pages/services/Education'
 import BugBounty from './pages/services/BugBounty'
+import ImwebCallback from './pages/auth/ImwebCallback'
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
         <Route path="contact" element={<Contact />} />
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
+        <Route path="auth/imweb-callback" element={<ImwebCallback />} />
+        <Route path="/auth/callback/imweb" element={<ImwebCallback />} />
         <Route
           path="dashboard"
           element={
