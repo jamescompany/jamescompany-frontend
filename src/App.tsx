@@ -1,34 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from 'react-router-dom'
+import Layout from './components/layout/Layout'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+
+// Pages
+import Home from './pages/Home'
+import About from './pages/About'
+import Services from './pages/Services'
+import Login from './pages/auth/Login'
+import Signup from './pages/auth/Signup'
+import Dashboard from './pages/Dashboard'
+import Contact from './pages/Contact'
+import Insights from './pages/insights/Insights'
+import CoffeeChat from './pages/services/CoffeeChat'
+import CaseMaker from './pages/services/CaseMaker'
+import Education from './pages/services/Education'
+import BugBounty from './pages/services/BugBounty'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="services" element={<Services />} />
+        <Route path="services/coffee-chat" element={<CoffeeChat />} />
+        <Route path="services/casemaker" element={<CaseMaker />} />
+        <Route path="services/education" element={<Education />} />
+        <Route path="services/bug-bounty" element={<BugBounty />} />
+        <Route path="insights" element={<Insights />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="login" element={<Login />} />
+        <Route path="signup" element={<Signup />} />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+    </Routes>
   )
 }
 
