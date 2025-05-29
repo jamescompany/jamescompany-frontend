@@ -150,7 +150,7 @@ export default function About() {
                     안녕하세요, James Company 대표 James입니다.
                   </p>
                   <p className="text-gray-700 mb-4">
-                    저는 지난 15년간 다양한 IT 기업에서 QA 엔지니어로, 그리고 QA
+                    저는 지난 12년간 다양한 IT 기업에서 QA 엔지니어로, 그리고 QA
                     조직의 리더로 일해왔습니다. 그 시간 동안 늘 고민했던 것은
                     "어떻게 하면 QA가 단순한 검증자가 아닌, 제품 품질의 설계자가
                     될 수 있을까?"였습니다.

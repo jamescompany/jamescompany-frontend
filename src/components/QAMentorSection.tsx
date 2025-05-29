@@ -23,7 +23,7 @@ export default function QAMentorSection() {
             </div>
             
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              15년차 시니어 QA와<br />
+              시니어 QA 엔지니어 제이와<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
                 실시간 상담
               </span>
@@ -96,7 +96,7 @@ export default function QAMentorSection() {
                 </div>
                 <div>
                   <h4 className="font-semibold">시니어 QA 멘토</h4>
-                  <p className="text-sm text-gray-500">15년차 QA 엔지니어</p>
+                  <p className="text-sm text-gray-500">시니어 QA 엔지니어 제이</p>
                 </div>
               </div>
               

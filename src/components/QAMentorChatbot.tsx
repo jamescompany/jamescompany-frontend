@@ -102,7 +102,7 @@ export default function QAMentorChatbot() {
     if (isOpen && messages.length === 0) {
       const welcomeMessage: Message = {
         role: 'assistant',
-        content: `안녕하세요! 👋 저는 15년차 시니어 QA 엔지니어입니다.
+        content: `안녕하세요! 👋 저는 시니어 QA 엔지니어 제이입니다.
 
 요즘 트렌드와 현업 경험을 바탕으로 여러분의 QA 고민을 함께 해결해드리고 싶어요.
 
@@ -229,7 +229,7 @@ export default function QAMentorChatbot() {
                 <span className="text-xl">🧑‍💼</span>
               </div>
               <div>
-                <h3 className="font-semibold">시니어 QA 멘토</h3>
+                <h3 className="font-semibold">시니어 QA 엔지니어 제이</h3>
                 <p className="text-xs text-blue-100">15년차 QA 엔지니어</p>
               </div>
             </div>
