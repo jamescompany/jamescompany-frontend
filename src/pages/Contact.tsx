@@ -98,7 +98,7 @@ export default function Contact() {
         <div className="mt-12 text-center text-gray-600">
           <p>또는 직접 연락주세요</p>
           <p className="mt-2">
-            <strong>이메일:</strong> contact@jamescompany.com
+            <strong>이메일:</strong> contact@jamescompany.kr
           </p>
         </div>
       </div>

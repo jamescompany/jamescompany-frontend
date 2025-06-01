@@ -164,7 +164,7 @@ export interface PolicyVersion {
               <li>성명: 강홍재</li>
               <li>직책: 대표</li>
               <li>연락처: 010-8327-6861</li>
-              <li>이메일: contact@jamescompany.com</li>
+              <li>이메일: contact@jamescompany.kr</li>
             </ul>
             
             <h3>11. 개인정보 처리방침의 변경</h3>

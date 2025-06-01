@@ -115,10 +115,10 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">연락처</h4>
             <p className="text-gray-400">
               <a 
-                href="mailto:contact@jamescompany.com" 
+                href="mailto:contact@jamescompany.kr" 
                 className="hover:text-white transition-colors"
               >
-                contact@jamescompany.com
+                contact@jamescompany.kr
               </a>
             </p>
           </div>
