@@ -1,3 +1,4 @@
+// src/pages/auth/Login.tsx
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
@@ -9,6 +10,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const login = useAuthStore(state => state.login)
   const navigate = useNavigate()
   const location = useLocation()
@@ -18,13 +20,14 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     
     try {
       await login(email, password)
       navigate(from, { replace: true })
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error)
-      alert('로그인에 실패했습니다.')
+      setError(error.message || '로그인에 실패했습니다.')
     } finally {
       setLoading(false)
     }
@@ -32,9 +35,9 @@ export default function Login() {
 
   const handleImwebLogin = () => {
     // imweb OAuth 설정
-    const CLIENT_ID = 'YOUR_IMWEB_CLIENT_ID' // 실제 Client ID로 교체
-    const REDIRECT_URI = `${window.location.origin}/auth/callback/imweb`
-    const IMWEB_AUTH_URL = 'https://api.imweb.me/oauth/authorize' // imweb OAuth URL
+    const CLIENT_ID = import.meta.env.VITE_IMWEB_CLIENT_ID
+    const REDIRECT_URI = import.meta.env.VITE_IMWEB_REDIRECT_URI || `${window.location.origin}/auth/callback/imweb`
+    const IMWEB_AUTH_URL = 'https://api.imweb.me/oauth/authorize'
     
     // OAuth 인증 페이지로 리다이렉트
     const authUrl = `${IMWEB_AUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user_info`
@@ -77,25 +80,31 @@ export default function Login() {
             </div>
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               label="이메일"
               type="email"
-              // value={email}
-              value="test@example.com"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="이메일을 입력하세요"
+              autoComplete="email"
             />
 
             <Input
               label="비밀번호"
               type="password"
-              // value={password}
-              value="password" 
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="비밀번호를 입력하세요"
+              autoComplete="current-password"
             />
 
             <div className="flex items-center justify-between">
@@ -117,21 +126,13 @@ export default function Login() {
               {loading ? '로그인 중...' : '이메일로 로그인'}
             </Button>
           </form>
-
-          <div className="mt-6">
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                테스트 계정: test@example.com / password
-              </p>
-            </div>
-          </div>
         </Card>
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600">
             기존 imweb 회원이시라면 imweb 계정으로 바로 로그인하실 수 있습니다.
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 mt-2">
             계정이 없으신가요?{' '}
             <Link to="/signup" className="text-primary hover:underline">
               회원가입

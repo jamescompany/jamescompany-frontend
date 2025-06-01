@@ -1,0 +1,17 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+        "destination": "https://api.jamescompany.kr/api/:path*"
+      },
+      {
+        "source": "/casemaker",
+        "destination": "https://casemaker.jamescompany.kr"
+      },
+      {
+        "source": "/qauto",
+        "destination": "https://qauto.jamescompany.kr"
+      }
+    ]
+  }
+  

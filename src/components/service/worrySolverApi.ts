@@ -1,9 +1,6 @@
-// src/services/worrySolverApi.ts
-
-import axios from 'axios'
+// src/components/service/worrySolverApi.ts
+import api from '../../services/api'
 import { worryPrompts, categorizeWorry } from '../../config/worryPrompts'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 interface SolveWorryParams {
   worry: string
@@ -24,20 +21,25 @@ export async function solveWorry({
   previousMessages = []
 }: SolveWorryParams): Promise<WorryResponse> {
   try {
-    const response = await axios.post<WorryResponse>(
-      `${API_BASE_URL}/api/worry-solver`,
-      {
-        worry,
-        systemPrompt: worryPrompts.system.base,
-        previousMessages
-      }
-    )
+    const response = await api.post<WorryResponse>('/api/worry-solver', {
+      worry,
+      systemPrompt: worryPrompts.system.base,
+      previousMessages
+    })
     
     return response.data
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error solving worry:', error)
     
-    // 폴백 응답
+    // 네트워크 오류시 오프라인 응답 생성
+    if (!navigator.onLine || error.code === 'ECONNABORTED') {
+      return {
+        response: generateOfflineResponse(worry),
+        category: categorizeWorry(worry)
+      }
+    }
+    
+    // 기타 에러
     return {
       response: '죄송해요, 지금은 연결이 원활하지 않네요. 😔 잠시 후 다시 시도해주세요.',
       category: 'error'
@@ -45,11 +47,12 @@ export async function solveWorry({
   }
 }
 
-// 고민 수집
+// 고민 수집 (익명 통계용)
 export async function collectWorry(worry: string): Promise<void> {
   try {
-    await axios.post(`${API_BASE_URL}/api/collect-worry`, {
+    await api.post('/api/worry-solver/collect', {
       worry,
+      category: categorizeWorry(worry),
       timestamp: new Date().toISOString()
     })
   } catch (error) {
@@ -83,5 +86,23 @@ export async function typewriterEffect(
     partial += text[i]
     onUpdate(partial)
     await new Promise(resolve => setTimeout(resolve, speed))
+  }
+}
+
+// 사용 통계 가져오기
+export async function getWorryStatistics(): Promise<{
+  totalWorries: number
+  todayCount: number
+}> {
+  try {
+    const response = await api.get('/api/worry-solver/statistics')
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch statistics:', error)
+    // 폴백 데이터
+    return {
+      totalWorries: 1234,
+      todayCount: 42
+    }
   }
 }

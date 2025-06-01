@@ -217,7 +217,7 @@ export default function About() {
             </span>
           </p>
           <a
-            href="mailto:founder@jamescompany.kr"
+            href="mailto:jamescompanykr@gmail.com"
             className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
           >
             👉 문의하기

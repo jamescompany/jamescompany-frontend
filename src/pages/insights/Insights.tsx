@@ -31,7 +31,7 @@ export default function Insights() {
       title: 'QA 자동화의 ROI를 높이는 5가지 방법',
       excerpt: '많은 기업들이 QA 자동화를 도입하지만 기대한 만큼의 효과를 보지 못합니다. 실제 사례를 통해 ROI를 높이는 방법을 알아봅시다.',
       category: 'story',
-      author: 'James Lee',
+      author: 'James Kang',
       date: '2024-01-18',
       tags: ['QA', '자동화', 'ROI']
     },
@@ -49,7 +49,7 @@ export default function Insights() {
       title: '스타트업에서 QA 문화 만들기',
       excerpt: '리소스가 부족한 스타트업에서 어떻게 효과적인 QA 문화를 만들 수 있을까요? 실제 경험을 바탕으로 한 인사이트를 공유합니다.',
       category: 'story',
-      author: 'James Lee',
+      author: 'James Kang',
       date: '2024-01-12',
       tags: ['스타트업', 'QA', '문화']
     }
