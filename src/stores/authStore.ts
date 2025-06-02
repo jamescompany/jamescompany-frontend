@@ -3,7 +3,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api from '../services/api'
-import axios from 'axios'
 
 interface User {
   id: string
@@ -11,6 +10,7 @@ interface User {
   name: string
   role: 'user' | 'admin'
   imwebId?: string
+  membership_tier?: string
 }
 
 interface AuthState {
@@ -51,7 +51,6 @@ export const useAuthStore = create<AuthState>()(
             email, 
             password 
           });
-
 
           const { access_token, user } = response.data
 
@@ -129,6 +128,13 @@ export const useAuthStore = create<AuthState>()(
 
       checkAuth: async () => {
         const token = localStorage.getItem('access_token')
+        const currentState = get()
+        
+        // 이미 인증된 상태이고 토큰이 있으면 API 호출 스킵
+        if (currentState.isAuthenticated && currentState.token && token) {
+          return
+        }
+        
         if (!token) {
           set({ isAuthenticated: false, user: null, token: null })
           return
@@ -143,9 +149,17 @@ export const useAuthStore = create<AuthState>()(
           })
         } catch (error) {
           console.error('Auth check failed:', error)
-          // 토큰이 유효하지 않으면 초기화
-          localStorage.removeItem('access_token')
-          set({ isAuthenticated: false, user: null, token: null })
+          // 네트워크 에러인 경우 상태를 유지
+          if (!navigator.onLine) {
+            console.log('Offline - keeping auth state')
+            return
+          }
+          // 401 에러인 경우만 로그아웃 처리
+          if ((error as any).response?.status === 401) {
+            localStorage.removeItem('access_token')
+            set({ isAuthenticated: false, user: null, token: null })
+          }
+          // 다른 에러는 상태 유지
         }
       },
 
@@ -158,7 +172,8 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
-        isAuthenticated: state.isAuthenticated
+        isAuthenticated: state.isAuthenticated,
+        token: state.token  // token도 persist에 추가
       }),
     }
   )

@@ -1,137 +1,133 @@
-import { useState, useEffect } from 'react'
-import { useServiceStore } from '../../stores/serviceStore'
-import { useAuthStore } from '../../stores/authStore'
-import { useNavigate } from 'react-router-dom'
-import Button from '../../components/ui/Button'
-import Card from '../../components/ui/Card'
-import { Calendar, Clock, MapPin, Video } from 'lucide-react'
+// src/pages/services/CoffeeChat.tsx
+import React, { useEffect, useState } from 'react';
+import { useServiceStore } from '../../stores/serviceStore';
 
-export default function CoffeeChat() {
-  const { coffeeSlots, fetchCoffeeSlots, bookCoffeeSlot } = useServiceStore()
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
-  const navigate = useNavigate()
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
+const CoffeeChat: React.FC = () => {
+  const { coffeeSlots, fetchCoffeeSlots, loading, error } = useServiceStore();
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    fetchCoffeeSlots()
-  }, [fetchCoffeeSlots])
+    let mounted = true;
+    
+    // API 호출을 try-catch로 감싸고 에러 처리
+    const loadSlots = async () => {
+      try {
+        if (mounted) {
+          await fetchCoffeeSlots();
+        }
+      } catch (err) {
+        if (mounted) {
+          console.log('Coffee chat API not available yet');
+          setShowError(true);
+        }
+      }
+    };
+    
+    loadSlots();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []); // fetchCoffeeSlots 의존성 제거
 
-  const handleBooking = async () => {
-    if (!isAuthenticated) {
-      navigate('/login', { state: { from: location } })
-      return
+  // 임시 데이터
+  const mockSlots = [
+    {
+      id: 1,
+      mentorName: '김철수',
+      title: 'QA 자동화 전문가',
+      date: '2024-02-01',
+      time: '14:00-15:00',
+      available: true
+    },
+    {
+      id: 2,
+      mentorName: '이영희',
+      title: '시니어 QA 엔지니어',
+      date: '2024-02-02',
+      time: '15:00-16:00',
+      available: true
+    },
+    {
+      id: 3,
+      mentorName: '박민수',
+      title: '테스트 아키텍트',
+      date: '2024-02-03',
+      time: '10:00-11:00',
+      available: false
     }
+  ];
 
-    if (selectedSlot) {
-      await bookCoffeeSlot(selectedSlot)
-      alert('커피챗이 예약되었습니다!')
-      setSelectedSlot(null)
-    }
-  }
+  const displaySlots = coffeeSlots?.length > 0 ? coffeeSlots : mockSlots;
 
   return (
-    <div className="py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">커피챗</h1>
-          <p className="text-xl text-gray-600">
-            편안한 분위기에서 1:1 맞춤 상담을 받아보세요
-          </p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">커피챗</h1>
+          <p className="text-xl text-gray-600">QA 전문가와 1:1 대화를 나눠보세요</p>
         </div>
 
-        <Card className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">서비스 소개</h2>
-          <p className="text-gray-700 mb-6">
-            커피챗은 QA 자동화, 테스트 전략, 커리어 개발 등 다양한 주제로 
-            전문가와 1:1 상담을 받을 수 있는 서비스입니다.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-start space-x-3">
-              <Video className="w-5 h-5 text-primary mt-1" />
-              <div>
-                <h3 className="font-semibold">온라인 미팅</h3>
-                <p className="text-sm text-gray-600">Zoom을 통한 화상 상담</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <MapPin className="w-5 h-5 text-primary mt-1" />
-              <div>
-                <h3 className="font-semibold">오프라인 미팅</h3>
-                <p className="text-sm text-gray-600">서울 강남 카페에서 만남</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <Clock className="w-5 h-5 text-primary mt-1" />
-              <div>
-                <h3 className="font-semibold">1시간 상담</h3>
-                <p className="text-sm text-gray-600">충분한 시간으로 깊이 있는 대화</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <Calendar className="w-5 h-5 text-primary mt-1" />
-              <div>
-                <h3 className="font-semibold">유연한 일정</h3>
-                <p className="text-sm text-gray-600">원하는 시간대 선택 가능</p>
-              </div>
-            </div>
+        {error && showError && (
+          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800">
+              서비스가 준비 중입니다. 곧 실제 멘토 정보를 확인하실 수 있습니다.
+            </p>
           </div>
-        </Card>
+        )}
 
-        <Card>
-          <h2 className="text-2xl font-semibold mb-6">예약 가능한 시간</h2>
-          
-          <div className="space-y-3">
-            {coffeeSlots.map((slot) => (
-              <div
-                key={slot.id}
-                className={`
-                  border rounded-lg p-4 cursor-pointer transition-all
-                  ${selectedSlot === slot.id ? 'border-primary bg-blue-50' : 'border-gray-300'}
-                  ${!slot.available ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary'}
-                `}
-                onClick={() => slot.available && setSelectedSlot(slot.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <span className="font-medium">{slot.date}</span>
-                    <Clock className="w-5 h-5 text-gray-500" />
-                    <span>{slot.time}</span>
-                    {slot.type === 'online' ? (
-                      <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                        온라인
-                      </span>
-                    ) : (
-                      <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">
-                        오프라인
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    {slot.available ? (
-                      <span className="text-green-600">예약 가능</span>
-                    ) : (
-                      <span className="text-red-600">예약 완료</span>
-                    )}
-                  </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">로딩 중...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displaySlots.map((slot: any) => (
+              <div key={slot.id} className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {slot.mentorName}
+                </h3>
+                <p className="text-gray-600 mb-4">{slot.title}</p>
+                <div className="space-y-2 text-sm text-gray-500">
+                  <p>📅 {slot.date}</p>
+                  <p>⏰ {slot.time}</p>
                 </div>
+                <button
+                  className={`mt-4 w-full py-2 px-4 rounded-lg font-medium ${
+                    slot.available
+                      ? 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  }`}
+                  disabled={!slot.available}
+                >
+                  {slot.available ? '예약하기' : '예약 마감'}
+                </button>
               </div>
             ))}
           </div>
+        )}
 
-          <div className="mt-6">
-            <Button
-              onClick={handleBooking}
-              disabled={!selectedSlot}
-              className="w-full"
-              size="lg"
-            >
-              {isAuthenticated ? '예약하기' : '로그인 후 예약하기'}
-            </Button>
-          </div>
-        </Card>
+        <div className="mt-12 bg-gray-50 rounded-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">커피챗 안내</h2>
+          <ul className="space-y-3 text-gray-600">
+            <li className="flex items-start">
+              <span className="text-blue-600 mr-2">✓</span>
+              <span>QA 분야 전문가와 1:1로 대화할 수 있습니다</span>
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-600 mr-2">✓</span>
+              <span>커리어 상담, 기술 질문, 업계 동향 등 다양한 주제로 대화 가능</span>
+            </li>
+            <li className="flex items-start">
+              <span className="text-blue-600 mr-2">✓</span>
+              <span>Google Calendar와 연동하여 편리하게 일정 관리</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default CoffeeChat;

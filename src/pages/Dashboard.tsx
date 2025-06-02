@@ -1,101 +1,156 @@
-import { useAuthStore } from '../stores/authStore'
-import Card from '../components/ui/Card'
-import { Calendar, BookOpen, Bug, Coffee } from 'lucide-react'
+// src/pages/Dashboard.tsx
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 
-export default function Dashboard() {
-  const user = useAuthStore(state => state.user)
+interface StatCard {
+  title: string;
+  value: number;
+  icon: string;
+  description?: string;
+}
 
-  const dashboardItems = [
+const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const stats: StatCard[] = [
+    { title: '예약된 커피챗', value: 2, icon: '☕' },
+    { title: '수강 중인 강의', value: 1, icon: '📚' },
+    { title: '참여 중인 베타 테스트', value: 3, icon: '🐛' },
+    { title: '다가오는 일정', value: 5, icon: '📅' }
+  ];
+
+  const recentActivities = [
     {
-      icon: <Coffee className="w-6 h-6" />,
-      title: '예약된 커피챗',
-      count: 2,
-      link: '/coffee-chat/my'
+      title: '커피챗 예약 완료',
+      date: '2024년 1월 25일 오후 2:00',
+      description: 'QA 자동화 입문 강의 수강 시작'
     },
     {
-      icon: <BookOpen className="w-6 h-6" />,
-      title: '수강 중인 강의',
-      count: 1,
-      link: '/my-courses'
+      title: 'QA 자동화 입문 강의 수강 시작',
+      date: '2024년 1월 20일',
+      description: '진도율 30% 완료'
     },
     {
-      icon: <Bug className="w-6 h-6" />,
-      title: '참여 중인 베타 테스트',
-      count: 3,
-      link: '/my-beta-tests'
-    },
-    {
-      icon: <Calendar className="w-6 h-6" />,
-      title: '다가오는 일정',
-      count: 5,
-      link: '/calendar'
+      title: '쇼핑 앱 v2.0 베타 테스트 참여',
+      date: '2024년 1월 18일',
+      description: '7개의 버그 리포트 제출'
     }
-  ]
+  ];
 
   return (
     <div className="py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">대시보드</h1>
-          <p className="text-gray-600 mt-2">안녕하세요, {user?.name}님!</p>
-        </div>
+      {/* Welcome Section */}
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold text-gray-900">대시보드</h2>
+        <p className="text-gray-600 mt-2">안녕하세요, {user?.name || 'Admin'}님!</p>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {dashboardItems.map((item, index) => (
-            <Card key={index} hoverable>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-gray-500 mb-2">{item.icon}</div>
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-2xl font-bold text-primary mt-1">{item.count}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card>
-              <h2 className="text-xl font-semibold mb-4">최근 활동</h2>
-              <div className="space-y-4">
-                <div className="border-b pb-3">
-                  <p className="font-medium">커피챗 예약 완료</p>
-                  <p className="text-sm text-gray-600">2024년 1월 25일 오후 2:00</p>
-                </div>
-                <div className="border-b pb-3">
-                  <p className="font-medium">QA 자동화 입문 강의 수강 시작</p>
-                  <p className="text-sm text-gray-600">2024년 1월 20일</p>
-                </div>
-                <div>
-                  <p className="font-medium">쇼핑 앱 v2.0 베타 테스트 참여</p>
-                  <p className="text-sm text-gray-600">2024년 1월 18일</p>
-                </div>
-              </div>
-            </Card>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {stats.map((stat, index) => (
+          <div key={index} className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-3xl">{stat.icon}</span>
+              <span className="text-2xl font-bold text-blue-600">{stat.value}</span>
+            </div>
+            <h3 className="text-gray-700 text-sm font-medium">{stat.title}</h3>
           </div>
+        ))}
+      </div>
 
-          <div>
-            <Card>
-              <h2 className="text-xl font-semibold mb-4">프로필 정보</h2>
+      {/* Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Activities */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg shadow">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">최근 활동</h3>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className="border-b border-gray-100 pb-4 last:border-0">
+                    <h4 className="font-medium text-gray-900">{activity.title}</h4>
+                    <p className="text-sm text-gray-500 mt-1">{activity.date}</p>
+                    <p className="text-sm text-gray-600 mt-2">{activity.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Info */}
+        <div>
+          <div className="bg-white rounded-lg shadow">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">프로필 정보</h3>
+            </div>
+            <div className="p-6">
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">이메일</p>
-                  <p className="font-medium">{user?.email}</p>
+                  <p className="text-sm text-gray-500">이메일</p>
+                  <p className="font-medium">{user?.email || 'admin@jamescompany.kr'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">가입일</p>
+                  <p className="text-sm text-gray-500">가입일</p>
                   <p className="font-medium">2024년 1월 15일</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">회원 등급</p>
-                  <p className="font-medium">일반 회원</p>
+                  <p className="text-sm text-gray-500">회원 등급</p>
+                  <p className="font-medium">{(user as any)?.membership_tier || 'Pro'}</p>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Services Quick Access */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold text-gray-900 mb-4">빠른 서비스 접근</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => navigate('/services/coffee-chat')}
+            className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-left"
+          >
+            <div className="text-2xl mb-2">☕</div>
+            <h4 className="font-medium text-gray-900">커피챗</h4>
+            <p className="text-sm text-gray-600">멘토와의 1:1 대화</p>
+          </button>
+          
+          <button
+            onClick={() => window.open('https://casemaker.jamescompany.kr', '_blank')}
+            className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-left"
+          >
+            <div className="text-2xl mb-2">📝</div>
+            <h4 className="font-medium text-gray-900">CaseMaker</h4>
+            <p className="text-sm text-gray-600">테스트 케이스 생성</p>
+          </button>
+          
+          <button
+            onClick={() => window.open('https://qauto.jamescompany.kr', '_blank')}
+            className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-left"
+          >
+            <div className="text-2xl mb-2">🤖</div>
+            <h4 className="font-medium text-gray-900">QAuto</h4>
+            <p className="text-sm text-gray-600">자동화 테스트 도구</p>
+          </button>
+          
+          <button
+            onClick={() => navigate('/services/education')}
+            className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-left"
+          >
+            <div className="text-2xl mb-2">🎓</div>
+            <h4 className="font-medium text-gray-900">교육 서비스</h4>
+            <p className="text-sm text-gray-600">QA 전문 교육</p>
+          </button>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default Dashboard;

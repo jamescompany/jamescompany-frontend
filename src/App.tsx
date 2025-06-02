@@ -25,11 +25,15 @@ import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
   const checkAuth = useAuthStore(state => state.checkAuth)
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
 
   useEffect(() => {
-    // 앱 시작시 인증 상태 확인
-    checkAuth()
-  }, [checkAuth])
+    // 토큰이 있지만 인증되지 않은 상태에서만 체크
+    const token = localStorage.getItem('access_token')
+    if (token && !isAuthenticated) {
+      checkAuth()
+    }
+  }, []) // 의존성 배열을 빈 배열로 변경
 
   return (
     <BrowserRouter>
@@ -44,7 +48,6 @@ function App() {
           <Route path="services/education" element={<Education />} />
           <Route path="services/bug-bounty" element={<BugBounty />} />
           <Route path="insights" element={<Insights />} />
-          <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           
@@ -60,6 +63,16 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Contact 페이지도 인증이 필요한 경우 */}
+          <Route 
+            path="contact" 
+            element={
+              <ProtectedRoute>
+                <Contact />
               </ProtectedRoute>
             } 
           />
