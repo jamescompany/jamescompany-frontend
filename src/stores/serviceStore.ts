@@ -144,6 +144,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   fetchBetaTests: async () => {
     set({ loading: true, error: null })
     try {
+      // API 경로 수정: /api/beta-tests → /api/beta-tests
       const response = await api.get<BetaTest[]>('/api/beta-tests')
       set({ betaTests: response.data })
     } catch (error: any) {
@@ -157,6 +158,7 @@ export const useServiceStore = create<ServiceState>((set, get) => ({
   applyBetaTest: async (testId: string) => {
     set({ loading: true, error: null })
     try {
+      // API 경로 수정: /api/beta-tests → /api/beta-tests
       await api.post(`/api/beta-tests/${testId}/apply`)
       
       // 신청 후 베타 테스트 목록 새로고침

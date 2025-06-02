@@ -17,6 +17,7 @@ import CaseMaker from "./pages/services/CaseMaker"
 import Education from "./pages/services/Education"
 import BugBounty from "./pages/services/BugBounty"
 import ImwebCallback from "./pages/auth/ImwebCallback"
+import OAuthCallback from "./components/auth/OAuthCallback"
 import Dashboard from "./pages/Dashboard"
 import ScrollToTop from "./components/ScrollToTop"
 import QAMentorChatbot from './components/QAMentorChatbot'
@@ -46,8 +47,12 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
+          
+          {/* OAuth Callbacks */}
           <Route path="auth/imweb-callback" element={<ImwebCallback />} />
-          <Route path="/auth/callback/imweb" element={<ImwebCallback />} />
+          <Route path="auth/callback/imweb" element={<ImwebCallback />} />
+          <Route path="auth/success" element={<OAuthCallback />} />
+          <Route path="auth/error" element={<OAuthCallback />} />
           
           {/* Protected Routes */}
           <Route 
