@@ -71,9 +71,7 @@ function App() {
           <Route 
             path="contact" 
             element={
-              <ProtectedRoute>
                 <Contact />
-              </ProtectedRoute>
             } 
           />
         </Route>
