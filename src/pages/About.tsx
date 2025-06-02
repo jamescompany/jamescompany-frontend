@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function About() {
   return (
     <div className="py-16">
@@ -61,7 +63,7 @@ export default function About() {
         </div>
 
         {/* 제품 소개 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
           <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
             <h3 className="text-xl font-semibold mb-2">
               ✅ 체크리스트 자동 생성 플랫폼
@@ -216,12 +218,12 @@ export default function About() {
               James Company와 함께 만들어가세요.
             </span>
           </p>
-          <a
-            href="mailto:jamescompanykr@gmail.com"
+          <Link
+            to="/contact"
             className="inline-block bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
           >
             👉 문의하기
-          </a>
+          </Link>
         </div>
       </div>
     </div>

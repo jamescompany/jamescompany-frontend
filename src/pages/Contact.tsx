@@ -21,6 +21,18 @@ const Contact: React.FC = () => {
     message: ''
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 폼 유효성 검사
+  const isFormValid = () => {
+    return (
+      form.name.trim().length > 0 &&
+      form.email.trim().length > 0 &&
+      form.subject.length > 0 &&
+      form.message.trim().length >= 5
+    );
+  };
+
   // 로그인된 사용자 정보 자동 기입
   useEffect(() => {
     if (user) {
@@ -40,20 +52,30 @@ const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isFormValid()) return;
+
+    setIsSubmitting(true);
+    
     try {
       // API 호출 로직
       console.log('문의 제출:', form);
+      
+      // 실제 API 호출 시뮬레이션
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       alert('문의가 성공적으로 제출되었습니다.');
       navigate('/dashboard');
     } catch (error) {
       console.error('문의 제출 실패:', error);
       alert('문의 제출에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="py-12">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">문의하기</h2>
           
@@ -61,7 +83,7 @@ const Contact: React.FC = () => {
             {/* Name Field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                이름
+                이름 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -78,7 +100,7 @@ const Contact: React.FC = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                이메일
+                이메일 <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -95,7 +117,7 @@ const Contact: React.FC = () => {
             {/* Subject Field */}
             <div>
               <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                문의 유형
+                문의 유형 <span className="text-red-500">*</span>
               </label>
               <select
                 id="subject"
@@ -116,7 +138,8 @@ const Contact: React.FC = () => {
             {/* Message Field */}
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                문의 내용
+                문의 내용 <span className="text-red-500">*</span>
+                <span className="text-xs text-gray-500 ml-2">(최소 5자 이상)</span>
               </label>
               <textarea
                 id="message"
@@ -128,22 +151,30 @@ const Contact: React.FC = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="문의 내용을 입력하세요"
               />
+              <p className="mt-1 text-sm text-gray-500">
+                {form.message.length}/5자
+              </p>
             </div>
 
             {/* Submit Button */}
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate(-1)}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 취소
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                disabled={!isFormValid() || isSubmitting}
+                className={`px-6 py-2 rounded-lg transition-colors ${
+                  isFormValid() && !isSubmitting
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
               >
-                문의 제출
+                {isSubmitting ? '제출 중...' : '문의 제출'}
               </button>
             </div>
           </form>

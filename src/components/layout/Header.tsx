@@ -1,7 +1,9 @@
+// src/components/layout/Header.tsx
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
-import { Menu, X, User } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import ProfileMenu from './ProfileMenu'
 
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore()
@@ -40,16 +42,10 @@ export default function Header() {
             
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link to="/dashboard" className="flex items-center text-gray-700 hover:text-primary">
-                  <User className="w-5 h-5 mr-1" />
-                  {user?.name}
+                <Link to="/dashboard" className="text-gray-700 hover:text-primary">
+                  대시보드
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-gray-700 hover:text-primary"
-                >
-                  로그아웃
-                </button>
+                <ProfileMenu />
               </div>
             ) : (
               <div className="flex items-center space-x-4">
@@ -84,9 +80,17 @@ export default function Header() {
             {isAuthenticated ? (
               <>
                 <Link to="/dashboard" className="block py-2 text-gray-700">대시보드</Link>
-                <button onClick={handleLogout} className="block py-2 text-gray-700 w-full text-left">
-                  로그아웃
-                </button>
+                <div className="border-t border-gray-200 mt-2 pt-2">
+                  <div className="px-2 py-2 text-sm">
+                    <p className="font-medium text-gray-900">{user?.name}</p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
+                  </div>
+                  <Link to="/profile" className="block py-2 text-gray-700">내 정보</Link>
+                  <Link to="/settings" className="block py-2 text-gray-700">계정 설정</Link>
+                  <button onClick={handleLogout} className="block py-2 text-gray-700 w-full text-left">
+                    로그아웃
+                  </button>
+                </div>
               </>
             ) : (
               <>
