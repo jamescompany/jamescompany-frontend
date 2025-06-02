@@ -77,14 +77,6 @@ export default function Login() {
               className="w-full flex items-center justify-center"
               size="lg"
             >
-              <img 
-                src="/imweb-logo.png" 
-                alt="imweb" 
-                className="w-5 h-5 mr-2"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-              />
               imweb 계정으로 로그인
             </Button>
 
