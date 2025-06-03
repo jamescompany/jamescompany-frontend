@@ -24,7 +24,7 @@ const BookingSuccess: React.FC = () => {
       // 개발 환경용 임시 데이터
       setBookingDetails({
         sessionId: '12345',
-        mentorName: '김철수',
+        mentorName: '홍지현',
         scheduledDate: '2024-02-15T14:00:00',
         calendarEventId: 'google-calendar-id'
       });
@@ -156,7 +156,7 @@ const BookingSuccess: React.FC = () => {
                 {/* 액션 버튼 */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
-                    onClick={() => navigate('/my-page/bookings')}
+                    onClick={() => navigate('/profile')}
                     className="flex-1 flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
                   >
                     내 예약 확인

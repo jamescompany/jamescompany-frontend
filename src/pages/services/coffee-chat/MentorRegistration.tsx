@@ -1,9 +1,7 @@
-// src/pages/services/coffeechat/MentorRegistration.tsx
-
 import React, { useState } from 'react';
 import { Upload, LinkedinIcon, CreditCard, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../../services/api';
+import { api } from '../../../config/api';
 
 interface MentorRegistrationData {
   name: string;
@@ -119,7 +117,7 @@ const MentorRegistration: React.FC = () => {
     }
 
     try {
-      const response = await api.post('/api/mentors/register', submitData, {
+      const response = await api.post('/api/coffee-chat/mentor/register', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         }

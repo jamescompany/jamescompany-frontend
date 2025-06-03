@@ -1,20 +1,20 @@
-// src/pages/services/CoffeeChatBooking.tsx
+// src/pages/services/coffee-chat/CoffeeChatBooking.tsx
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, AlertCircle, Check } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import api from '../../../services/api';
+import { coffeeChatApi } from './api';
 
 interface Mentor {
-  id: number;
+  id: string;
   name: string;
   title: string;
   expertise: string[];
   session_price: number;
   bio: string;
-  qa_experience: string;
+  qa_experience?: string;
 }
 
 interface TimeSlot {
@@ -37,7 +37,9 @@ const CoffeeChatBooking: React.FC = () => {
   const [step, setStep] = useState(1); // 1: 날짜/시간 선택, 2: 정보 입력, 3: 결제
 
   useEffect(() => {
-    fetchMentorDetails();
+    if (mentorId) {
+      fetchMentorDetails();
+    }
   }, [mentorId]);
 
   useEffect(() => {
@@ -47,72 +49,38 @@ const CoffeeChatBooking: React.FC = () => {
   }, [selectedDate, mentor]);
 
   const fetchMentorDetails = async () => {
-    const isDevelopment = import.meta.env.DEV;
-    
-    if (isDevelopment) {
-      // 개발 환경: 임시 데이터 사용
-      setTimeout(() => {
-        setMentor({
-          id: parseInt(mentorId || '1'),
-          name: mentorId === '1' ? '김철수' : mentorId === '2' ? '이영희' : '박민수',
-          title: mentorId === '1' ? 'QA 자동화 전문가' : mentorId === '2' ? '시니어 QA 엔지니어' : '테스트 아키텍트',
-          expertise: mentorId === '1' ? ['웹 테스팅', '자동화 테스팅', 'CI/CD'] : 
-                     mentorId === '2' ? ['모바일 테스팅', 'API 테스팅', '성능 테스팅'] :
-                     ['테스트 전략', 'QA 리더십', 'SDET'],
-          session_price: mentorId === '1' ? 50000 : mentorId === '2' ? 60000 : 80000,
-          bio: mentorId === '1' ? '10년차 QA 엔지니어로 다양한 자동화 프레임워크 경험이 있습니다.' :
-               mentorId === '2' ? '모바일 앱 테스팅 전문가로 대규모 서비스 QA 경험이 풍부합니다.' :
-               '테스트 전략 수립과 QA 팀 빌딩 경험이 풍부한 리더입니다.',
-          qa_experience: '삼성전자, 네이버, 카카오에서 QA 엔지니어로 근무했습니다.'
-        });
-      }, 300);
-    } else {
-      // 프로덕션 환경: 실제 API 호출
-      try {
-        const response = await api.get(`/api/mentors/${mentorId}`);
-        setMentor(response.data);
-      } catch (error) {
-        console.error('Failed to fetch mentor details:', error);
-        // 에러 발생 시 임시 데이터
-        setMentor({
-          id: parseInt(mentorId || '1'),
-          name: '김철수',
-          title: 'QA 자동화 전문가',
-          expertise: ['웹 테스팅', '자동화 테스팅', 'CI/CD'],
-          session_price: 50000,
-          bio: '10년차 QA 엔지니어로 다양한 자동화 프레임워크 경험이 있습니다.',
-          qa_experience: '삼성전자, 네이버, 카카오에서 QA 엔지니어로 근무했습니다.'
-        });
-      }
+    try {
+      const data = await coffeeChatApi.getMentorById(mentorId!);
+      setMentor(data);
+    } catch (error) {
+      console.error('Failed to fetch mentor details:', error);
+      // 에러 발생 시 임시 데이터
+      setMentor({
+        id: mentorId || '1',
+        name: mentorId === '1' ? '홍지현' : mentorId === '2' ? '이영희' : '박민수',
+        title: mentorId === '1' ? 'QA 자동화 전문가' : mentorId === '2' ? '시니어 QA 엔지니어' : '테스트 아키텍트',
+        expertise: mentorId === '1' ? ['웹 테스팅', '자동화 테스팅', 'CI/CD'] : 
+                   mentorId === '2' ? ['모바일 테스팅', 'API 테스팅', '성능 테스팅'] :
+                   ['테스트 전략', 'QA 리더십', 'SDET'],
+        session_price: mentorId === '1' ? 50000 : mentorId === '2' ? 60000 : 80000,
+        bio: mentorId === '1' ? '10년차 QA 엔지니어로 다양한 자동화 프레임워크 경험이 있습니다.' :
+             mentorId === '2' ? '모바일 앱 테스팅 전문가로 대규모 서비스 QA 경험이 풍부합니다.' :
+             '테스트 전략 수립과 QA 팀 빌딩 경험이 풍부한 리더입니다.',
+        qa_experience: '삼성전자, 네이버, 카카오에서 QA 엔지니어로 근무했습니다.'
+      });
     }
   };
 
   const fetchAvailableSlots = async () => {
-    const isDevelopment = import.meta.env.DEV;
+    const startDate = format(selectedDate, 'yyyy-MM-dd');
+    const endDate = format(selectedDate, 'yyyy-MM-dd');
     
-    if (isDevelopment) {
-      // 개발 환경: 임시 슬롯 생성
-      setTimeout(() => {
-        generateMockSlots();
-      }, 200);
-    } else {
-      // 프로덕션 환경: 실제 API 호출
-      const startDate = new Date(selectedDate);
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date(selectedDate);
-      endDate.setHours(23, 59, 59, 999);
-
-      try {
-        const response = await api.get(
-          `/api/coffee-chat/mentors/${mentorId}/availability?` +
-          `start_date=${startDate.toISOString()}&end_date=${endDate.toISOString()}`
-        );
-        
-        setAvailableSlots(response.data.slots);
-      } catch (error) {
-        console.error('Failed to fetch available slots:', error);
-        generateMockSlots();
-      }
+    try {
+      const data = await coffeeChatApi.getMentorAvailableSlots(mentorId!, startDate, endDate);
+      setAvailableSlots(data);
+    } catch (error) {
+      console.error('Failed to fetch available slots:', error);
+      generateMockSlots();
     }
   };
 
@@ -158,48 +126,29 @@ const CoffeeChatBooking: React.FC = () => {
     setLoading(true);
     
     const bookingData = {
-      mentor_id: mentor.id,
-      scheduled_date: `${format(selectedDate, 'yyyy-MM-dd')} ${selectedSlot.start}:00`,
-      message: message
+      mentorId: mentor.id,
+      slotId: `${format(selectedDate, 'yyyy-MM-dd')}-${selectedSlot.start}`,
+      topic: '커피챗 세션',
+      message: message,
+      duration: 60
     };
 
-    const isDevelopment = import.meta.env.DEV;
-    
-    if (isDevelopment) {
-      // 개발 환경: 성공 페이지로 바로 이동 (또는 실패 시뮬레이션)
-      setTimeout(() => {
-        // 10% 확률로 실패 시뮬레이션
-        if (Math.random() < 0.1) {
-          navigate('/services/coffee-chat/booking-failed?type=payment_failed');
-        } else {
-          navigate('/services/coffee-chat/booking-success');
-        }
-      }, 1000);
-    } else {
-      // 프로덕션 환경: 실제 API 호출
-      try {
-        const response = await api.post('/api/coffee-chat/sessions/book', bookingData);
-
-        // 결제 페이지로 리다이렉트
-        if (response.data.payment_url) {
-          window.location.href = response.data.payment_url;
-        } else {
-          navigate('/services/coffee-chat/booking-success');
-        }
-      } catch (error: any) {
-        console.error('Booking failed:', error);
-        
-        // 에러 유형에 따라 다른 실패 페이지로 이동
-        if (error.response?.status === 402) {
-          navigate('/services/coffee-chat/booking-failed?type=payment_failed');
-        } else if (error.response?.status === 408) {
-          navigate('/services/coffee-chat/booking-failed?type=timeout');
-        } else {
-          navigate('/services/coffee-chat/booking-failed?type=error');
-        }
-      } finally {
-        setLoading(false);
+    try {
+      const response = await coffeeChatApi.createBooking(bookingData);
+      navigate('/services/coffee-chat/booking-success');
+    } catch (error: any) {
+      console.error('Booking failed:', error);
+      
+      // 에러 유형에 따라 다른 실패 페이지로 이동
+      if (error.response?.status === 402) {
+        navigate('/services/coffee-chat/booking-failed?type=payment_failed');
+      } else if (error.response?.status === 408) {
+        navigate('/services/coffee-chat/booking-failed?type=timeout');
+      } else {
+        navigate('/services/coffee-chat/booking-failed?type=error');
       }
+    } finally {
+      setLoading(false);
     }
   };
 

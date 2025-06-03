@@ -1,27 +1,29 @@
-// src/pages/services/CoffeeChat.tsx
+// src/pages/services/coffee-chat/CoffeeChat.tsx
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/authStore';
 import { UserPlus, Coffee, Calendar, Clock, ChevronRight } from 'lucide-react';
-import api from '../../../services/api';
+import { coffeeChatApi } from './api';
 
 // 임시 멘토 데이터
 const mockMentors = [
   {
-    id: 1,
+    id: '1',
     name: '홍지현',
     title: '미들레벨 QA 엔지니어',
+    company: 'JamesCompany',
     expertise: ['웹 테스팅', '1인 QA'],
-    session_price: 999990,
+    session_price: 50000,
     bio: '6년차 QA 엔지니어로 1인 QA 팀 경험이 있습니다.',
     rating: 5.0,
     total_sessions: 999
   },
   {
-    id: 2,
+    id: '2',
     name: '이영희',
     title: '시니어 QA 엔지니어',
+    company: 'Tech Corp',
     expertise: ['모바일 테스팅', 'API 테스팅', '성능 테스팅'],
     session_price: 60000,
     bio: '모바일 앱 테스팅 전문가로 대규모 서비스 QA 경험이 풍부합니다.',
@@ -29,9 +31,10 @@ const mockMentors = [
     total_sessions: 32
   },
   {
-    id: 3,
+    id: '3',
     name: '박민수',
     title: '테스트 아키텍트',
+    company: 'QA Solutions',
     expertise: ['테스트 전략', 'QA 리더십', 'SDET'],
     session_price: 80000,
     bio: '테스트 전략 수립과 QA 팀 빌딩 경험이 풍부한 리더입니다.',
@@ -48,49 +51,23 @@ const CoffeeChat: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-    
-    const loadData = async () => {
-      // 개발 환경에서는 임시 데이터 사용 (백엔드가 준비될 때까지)
-      const isDevelopment = import.meta.env.DEV;
-      
-      if (isDevelopment) {
-        // 개발 환경: 임시 데이터 사용
-        setTimeout(() => {
-          if (mounted) {
-            setMentors(mockMentors);
-            setShowError(false);
-            setLoading(false);
-          }
-        }, 500); // 로딩 효과를 위한 딜레이
-      } else {
-        // 프로덕션 환경: 실제 API 호출
-        try {
-          const response = await api.get('/api/mentors');
-          if (mounted) {
-            setMentors(response.data);
-            setShowError(false);
-          }
-        } catch (err: any) {
-          if (mounted) {
-            console.error('Failed to fetch mentors:', err);
-            setMentors(mockMentors);
-            setShowError(true);
-          }
-        } finally {
-          if (mounted) {
-            setLoading(false);
-          }
-        }
-      }
-    };
-    
-    loadData();
-    
-    return () => {
-      mounted = false;
-    };
+    fetchMentors();
   }, []);
+
+  const fetchMentors = async () => {
+    try {
+      const data = await coffeeChatApi.getMentors();
+      setMentors(data);
+      setShowError(false);
+    } catch (error) {
+      console.error('Failed to fetch mentors:', error);
+      // 에러 발생 시 mock 데이터 사용
+      setMentors(mockMentors);
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const displayMentors = mentors.length > 0 ? mentors : [];
 
@@ -103,7 +80,7 @@ const CoffeeChat: React.FC = () => {
     navigate('/services/coffee-chat/mentor-registration');
   };
 
-  const handleBooking = (mentorId: number) => {
+  const handleBooking = (mentorId: string) => {
     if (!isAuthenticated) {
       alert('예약을 위해 먼저 로그인해주세요.');
       navigate('/login');
