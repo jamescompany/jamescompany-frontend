@@ -36,7 +36,7 @@ import MentorDashboard from "./pages/mentor/MentorDashboard"
 import RevenueDashboard from "./pages/mentor/RevenueDashboard"
 
 // My Page
-import MyBookings from "./pages/mypage/MyBookings"
+import MyBookings from './pages/mypage/MyBookings'
 
 // Admin
 import MentorApprovalPage from "./pages/admin/MentorApprovalPage"
