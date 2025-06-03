@@ -8,9 +8,12 @@ interface User {
   id: string
   email: string
   name: string
-  role: 'user' | 'admin'
+  role: 'user' | 'admin'  // 기존 구조 유지
   imwebId?: string
   membership_tier?: string
+  // 멘토 관련 추가 필드
+  mentorId?: number  // 멘토로 등록된 경우 멘토 ID
+  mentorStatus?: 'pending' | 'approved' | 'rejected'  // 멘토 승인 상태
 }
 
 interface AuthState {
@@ -23,6 +26,7 @@ interface AuthState {
   logout: () => void
   checkAuth: () => Promise<void>
   setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
+  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
 }
 
 interface SignupData {
@@ -142,6 +146,18 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           const response = await api.get<User>('/api/users/me')
+          
+          // 멘토 상태 확인 (선택사항)
+          try {
+            const mentorResponse = await api.get('/api/mentors/my-status')
+            if (mentorResponse.data) {
+              response.data.mentorId = mentorResponse.data.mentorId
+              response.data.mentorStatus = mentorResponse.data.status
+            }
+          } catch (mentorError) {
+            // 멘토가 아닌 경우 에러 무시
+          }
+          
           set({
             user: response.data,
             isAuthenticated: true,
@@ -166,6 +182,17 @@ export const useAuthStore = create<AuthState>()(
       // OAuth 로그인 후 인증 상태 설정을 위한 메서드
       setAuth: (isAuthenticated: boolean, user: User | null = null, token: string | null = null) => {
         set({ isAuthenticated, user, token })
+      },
+
+      // 멘토 상태 업데이트 (멘토 승인/거절 후 사용)
+      updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => {
+        set((state) => ({
+          user: state.user ? { 
+            ...state.user, 
+            mentorStatus,
+            mentorId: mentorId || state.user.mentorId 
+          } : null
+        }))
       }
     }),
     {

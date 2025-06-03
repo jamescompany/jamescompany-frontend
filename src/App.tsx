@@ -1,4 +1,5 @@
 // src/App.tsx
+
 import { useEffect } from 'react'
 import { Routes, Route, BrowserRouter } from "react-router-dom"
 import { useAuthStore } from './stores/authStore'
@@ -12,13 +13,35 @@ import Login from "./pages/auth/Login"
 import Signup from "./pages/auth/Signup"
 import Contact from "./pages/Contact"
 import Insights from "./pages/insights/Insights"
-import CoffeeChat from "./pages/services/CoffeeChat"
-import CaseMaker from "./pages/services/CaseMaker"
-import Education from "./pages/services/Education"
-import BugBounty from "./pages/services/BugBounty"
+
+// Service Pages
+import CoffeeChat from "./pages/services/coffeechat/CoffeeChat"
+import CoffeeChatBooking from "./pages/services/coffeechat/CoffeeChatBooking"
+import BookingSuccess from "./pages/services/coffeechat/BookingSuccess"
+import BookingFailed from "./pages/services/coffeechat/BookingFailed"
+import MentorRegistration from "./pages/services/coffeechat/MentorRegistration"
+
+// Other Services
+import CaseMaker from "./pages/services/casemaker/CaseMaker"
+import Education from "./pages/services/education/Education"
+import BugBounty from "./pages/services/bugbounty/BugBounty"
+
+// Auth
 import ImwebCallback from "./pages/auth/ImwebCallback"
 import OAuthCallback from "./components/auth/OAuthCallback"
+
+// Dashboard
 import Dashboard from "./pages/Dashboard"
+import MentorDashboard from "./pages/mentor/MentorDashboard"
+import RevenueDashboard from "./pages/mentor/RevenueDashboard"
+
+// My Page
+import MyBookings from "./pages/mypage/MyBookings"
+
+// Admin
+import MentorApprovalPage from "./pages/admin/MentorApprovalPage"
+
+// Components
 import ScrollToTop from "./components/ScrollToTop"
 import QAMentorChatbot from './components/QAMentorChatbot'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -43,11 +66,39 @@ function App() {
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="services" element={<Services />} />
+          
+          {/* Coffee Chat Service Routes */}
           <Route path="services/coffee-chat" element={<CoffeeChat />} />
+          <Route path="services/coffee-chat/booking/:mentorId" element={
+            <ProtectedRoute>
+              <CoffeeChatBooking />
+            </ProtectedRoute>
+          } />
+          <Route path="services/coffee-chat/booking-success" element={
+            <ProtectedRoute>
+              <BookingSuccess />
+            </ProtectedRoute>
+          } />
+          <Route path="services/coffee-chat/booking-failed" element={
+            <ProtectedRoute>
+              <BookingFailed />
+            </ProtectedRoute>
+          } />
+          <Route path="services/coffee-chat/mentor-registration" element={
+            <ProtectedRoute>
+              <MentorRegistration />
+            </ProtectedRoute>
+          } />
+          
+          {/* Other Services */}
           <Route path="services/casemaker" element={<CaseMaker />} />
           <Route path="services/education" element={<Education />} />
           <Route path="services/bug-bounty" element={<BugBounty />} />
+          
+          {/* Insights */}
           <Route path="insights" element={<Insights />} />
+          
+          {/* Auth Routes */}
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           
@@ -67,7 +118,45 @@ function App() {
             } 
           />
           
-          {/* Contact 페이지도 인증이 필요한 경우 */}
+          {/* Mentor Dashboard Routes */}
+          <Route 
+            path="mentor/dashboard" 
+            element={
+              <ProtectedRoute requiredRole="mentor">
+                <MentorDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="mentor/revenue" 
+            element={
+              <ProtectedRoute requiredRole="mentor">
+                <RevenueDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Admin Routes */}
+          <Route 
+            path="admin/mentor-approval" 
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <MentorApprovalPage />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* My Page Routes */}
+          <Route 
+            path="my-page/bookings" 
+            element={
+              <ProtectedRoute>
+                <MyBookings />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Contact */}
           <Route 
             path="contact" 
             element={

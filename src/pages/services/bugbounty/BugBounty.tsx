@@ -1,6 +1,6 @@
 // src/pages/services/BugBounty.tsx
 import React, { useEffect, useState } from 'react';
-import { useServiceStore } from '../../stores/serviceStore';
+import { useServiceStore } from '../../../stores/serviceStore';
 
 const BugBounty: React.FC = () => {
   const { betaTests, fetchBetaTests, loading, error } = useServiceStore();

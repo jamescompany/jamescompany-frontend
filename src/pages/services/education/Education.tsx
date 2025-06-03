@@ -1,6 +1,6 @@
 // src/pages/services/Education.tsx
 import React, { useEffect, useState } from 'react';
-import { useServiceStore } from '../../stores/serviceStore';
+import { useServiceStore } from '../../../stores/serviceStore';
 
 const Education: React.FC = () => {
   const { courses, fetchCourses, loading, error } = useServiceStore();

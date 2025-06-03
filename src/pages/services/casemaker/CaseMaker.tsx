@@ -1,6 +1,6 @@
-import Button from '../../components/ui/Button'
+import Button from '../../../components/ui/Button'
 import { CheckCircle, Zap, Users, FileText, ExternalLink } from 'lucide-react'
-import Card from '../../components/ui/Card'
+import Card from '../../../components/ui/Card'
 
 export default function CaseMaker() {
   const features = [
