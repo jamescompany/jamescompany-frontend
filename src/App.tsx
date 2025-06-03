@@ -1,17 +1,14 @@
-// src/App.tsx
-
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
+import Register from './pages/auth/Register';  // 경로 수정: ./components/auth → ./pages/auth
 import Profile from './pages/Profile';
 
 // Services
 import Services from './pages/services/Services';
 
-// Coffee Chat - 경로 수정
+// Coffee Chat
 import CoffeeChat from './pages/services/coffee-chat/CoffeeChat';
 import CoffeeChatBooking from './pages/services/coffee-chat/CoffeeChatBooking';
 import BookingSuccess from './pages/services/coffee-chat/BookingSuccess';

@@ -1,3 +1,5 @@
+// src/pages/services/coffee-chat/MentorRegistration.tsx
+
 import React, { useState } from 'react';
 import { Upload, LinkedinIcon, CreditCard, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

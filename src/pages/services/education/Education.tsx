@@ -1,164 +1,275 @@
-// src/pages/services/Education.tsx
-import React, { useEffect, useState } from 'react';
-import { useServiceStore } from '../../../stores/serviceStore';
+// src/pages/services/education/Education.tsx
+import { useState } from 'react';
+import { BookOpen, Clock, Users, Award, PlayCircle, Lock } from 'lucide-react';
 
-const Education: React.FC = () => {
-  const { courses, fetchCourses, loading, error } = useServiceStore();
-  const [showError, setShowError] = useState(false);
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  duration: string;
+  students: number;
+  price: number;
+  modules: number;
+  isLocked: boolean;
+}
 
-  useEffect(() => {
-    let mounted = true;
-    
-    const loadCourses = async () => {
-      try {
-        if (mounted) {
-          await fetchCourses();
-        }
-      } catch (err) {
-        if (mounted) {
-          console.log('Education API not available yet');
-          setShowError(true);
-        }
-      }
-    };
-    
-    loadCourses();
-    
-    return () => {
-      mounted = false;
-    };
-  }, []); // fetchCourses 의존성 제거
+const courses: Course[] = [
+  {
+    id: '1',
+    title: 'QA 기초 과정',
+    description: '소프트웨어 테스팅의 기본 개념과 원칙을 배우는 입문 과정',
+    level: 'beginner',
+    duration: '4주',
+    students: 1234,
+    price: 0,
+    modules: 8,
+    isLocked: false
+  },
+  {
+    id: '2',
+    title: '웹 애플리케이션 테스팅',
+    description: '웹 애플리케이션 테스팅 전략과 실전 기법을 익히는 과정',
+    level: 'intermediate',
+    duration: '6주',
+    students: 856,
+    price: 99000,
+    modules: 12,
+    isLocked: false
+  },
+  {
+    id: '3',
+    title: '테스트 자동화 마스터',
+    description: 'Selenium, Cypress 등을 활용한 E2E 자동화 테스트 구축',
+    level: 'advanced',
+    duration: '8주',
+    students: 423,
+    price: 199000,
+    modules: 16,
+    isLocked: true
+  },
+  {
+    id: '4',
+    title: 'API 테스팅 완벽 가이드',
+    description: 'Postman, REST Assured를 활용한 API 테스팅 전문 과정',
+    level: 'intermediate',
+    duration: '5주',
+    students: 567,
+    price: 149000,
+    modules: 10,
+    isLocked: true
+  },
+  {
+    id: '5',
+    title: '성능 테스팅과 최적화',
+    description: 'JMeter, LoadRunner를 활용한 성능 테스팅 실무',
+    level: 'advanced',
+    duration: '6주',
+    students: 234,
+    price: 179000,
+    modules: 14,
+    isLocked: true
+  },
+  {
+    id: '6',
+    title: 'SDET 실무 과정',
+    description: '개발과 테스팅을 아우르는 SDET 역량 강화 프로그램',
+    level: 'advanced',
+    duration: '10주',
+    students: 189,
+    price: 299000,
+    modules: 20,
+    isLocked: true
+  }
+];
 
-  // 임시 데이터
-  const mockCourses = [
-    {
-      id: 1,
-      title: 'QA 자동화 입문',
-      description: 'Selenium, Cypress 등 자동화 도구의 기초를 배웁니다',
-      instructor: '김철수',
-      duration: '8주',
-      level: '초급',
-      price: '299,000원',
-      thumbnail: '🤖'
-    },
-    {
-      id: 2,
-      title: 'API 테스팅 마스터',
-      description: 'Postman, REST Assured를 활용한 API 테스팅 완벽 가이드',
-      instructor: '이영희',
-      duration: '6주',
-      level: '중급',
-      price: '399,000원',
-      thumbnail: '🔌'
-    },
-    {
-      id: 3,
-      title: '성능 테스팅 실전',
-      description: 'JMeter, K6를 활용한 성능 테스팅 실무',
-      instructor: '박민수',
-      duration: '10주',
-      level: '고급',
-      price: '499,000원',
-      thumbnail: '📊'
-    },
-    {
-      id: 4,
-      title: '모바일 앱 테스팅',
-      description: 'Appium을 활용한 모바일 자동화 테스팅',
-      instructor: '정수진',
-      duration: '8주',
-      level: '중급',
-      price: '349,000원',
-      thumbnail: '📱'
-    }
-  ];
+const Education = () => {
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
 
-  const displayCourses = courses?.length > 0 ? courses : mockCourses;
+  const filteredCourses = selectedLevel === 'all' 
+    ? courses 
+    : courses.filter(course => course.level === selectedLevel);
 
-  const getLevelColor = (level: string) => {
+  const getLevelBadge = (level: string) => {
     switch (level) {
-      case '초급': return 'bg-green-100 text-green-800';
-      case '중급': return 'bg-yellow-100 text-yellow-800';
-      case '고급': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-blue-100 text-blue-800';
+      case 'advanced':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return '초급';
+      case 'intermediate':
+        return '중급';
+      case 'advanced':
+        return '고급';
+      default:
+        return level;
     }
   };
 
   return (
-    <div className="py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">교육 서비스</h1>
-          <p className="text-xl text-gray-600">QA 전문가로 성장하기 위한 체계적인 교육 과정</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            QA 교육 프로그램
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            체계적인 커리큘럼으로 QA 전문가로 성장하세요
+          </p>
         </div>
 
-        {error && showError && (
-          <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800">
-              새로운 교육 과정을 준비 중입니다. 곧 더 많은 강의를 만나보실 수 있습니다.
-            </p>
+        {/* 필터 */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => setSelectedLevel('all')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              전체
+            </button>
+            <button
+              onClick={() => setSelectedLevel('beginner')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'beginner'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              초급
+            </button>
+            <button
+              onClick={() => setSelectedLevel('intermediate')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'intermediate'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              중급
+            </button>
+            <button
+              onClick={() => setSelectedLevel('advanced')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'advanced'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              고급
+            </button>
           </div>
-        )}
+        </div>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <p className="mt-2 text-gray-600">로딩 중...</p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {displayCourses.map((course: any) => (
-                <div key={course.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-6xl">{course.thumbnail}</span>
+        {/* 코스 그리드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map((course) => (
+            <div
+              key={course.id}
+              className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow ${
+                course.isLocked ? 'opacity-75' : ''
+              }`}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getLevelBadge(course.level)}`}>
+                    {getLevelText(course.level)}
+                  </span>
+                  {course.isLocked && (
+                    <Lock className="w-5 h-5 text-gray-400" />
+                  )}
+                </div>
+
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {course.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {course.description}
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Clock className="w-4 h-4 mr-2" />
+                    <span>{course.duration}</span>
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">
-                        {course.title}
-                      </h3>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getLevelColor(course.level)}`}>
-                        {course.level}
-                      </span>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    <span>{course.modules}개 모듈</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Users className="w-4 h-4 mr-2" />
+                    <span>{course.students.toLocaleString()}명 수강</span>
+                  </div>
+                </div>
+
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      {course.price === 0 ? (
+                        <span className="text-2xl font-bold text-green-600">무료</span>
+                      ) : (
+                        <span className="text-2xl font-bold text-gray-900">
+                          ₩{course.price.toLocaleString()}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-gray-600 mb-4">{course.description}</p>
-                    <div className="space-y-2 text-sm text-gray-500 mb-4">
-                      <p>👨‍🏫 강사: {course.instructor}</p>
-                      <p>⏱️ 기간: {course.duration}</p>
-                      <p>💰 수강료: {course.price}</p>
-                    </div>
-                    <button className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
-                      수강 신청
+                    <button
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        course.isLocked
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                      disabled={course.isLocked}
+                    >
+                      {course.isLocked ? '준비 중' : '수강하기'}
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">교육 과정 특징</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🎯 실무 중심 커리큘럼</h3>
-                  <p className="text-gray-600">현업에서 바로 활용 가능한 실무 위주의 교육</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">📚 체계적인 학습 자료</h3>
-                  <p className="text-gray-600">동영상 강의, 실습 자료, 퀴즈 등 다양한 학습 콘텐츠</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">💬 실시간 Q&A</h3>
-                  <p className="text-gray-600">강사와 직접 소통하며 궁금증을 해결</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🏆 수료증 발급</h3>
-                  <p className="text-gray-600">과정 수료 시 공식 수료증 발급</p>
-                </div>
               </div>
             </div>
-          </>
-        )}
+          ))}
+        </div>
+
+        {/* 추가 정보 */}
+        <div className="mt-16 bg-white rounded-lg shadow-md p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <Award className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">수료증 발급</h3>
+              <p className="text-gray-600 text-sm">
+                과정 완료 시 공식 수료증을 발급해드립니다
+              </p>
+            </div>
+            <div>
+              <PlayCircle className="w-12 h-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">실습 중심 교육</h3>
+              <p className="text-gray-600 text-sm">
+                이론과 실습을 병행하는 실무 중심 커리큘럼
+              </p>
+            </div>
+            <div>
+              <Users className="w-12 h-12 text-purple-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">멘토링 지원</h3>
+              <p className="text-gray-600 text-sm">
+                현직 QA 전문가의 1:1 멘토링 제공
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

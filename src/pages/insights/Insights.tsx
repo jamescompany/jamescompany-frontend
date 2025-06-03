@@ -1,183 +1,233 @@
-import { useState } from 'react'
-import Card from '../../components/ui/Card'
-import { Calendar, User, Tag } from 'lucide-react'
+// src/pages/insights/Insights.tsx
 
-interface Post {
-  id: string
-  title: string
-  excerpt: string
-  category: 'notice' | 'story'
-  author: string
-  date: string
-  tags: string[]
+import { Link } from 'react-router-dom';
+import { Bell, BookOpen, FileText, Users, ArrowRight } from 'lucide-react';
+
+interface InsightItem {
+  id: string;
+  category: 'notice' | 'story' | 'studynote' | 'interview';
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime?: string;
+  author?: string;
+  isPinned?: boolean;
 }
 
-export default function Insights() {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'notice' | 'story'>('all')
+const recentInsights: InsightItem[] = [
+  {
+    id: '1',
+    category: 'notice',
+    title: 'JamesCompany 서비스 업데이트 안내',
+    excerpt: '새로운 기능이 추가되었습니다. 커피챗 서비스가 정식 오픈했습니다.',
+    date: '2024-02-20',
+    isPinned: true
+  },
+  {
+    id: '2',
+    category: 'story',
+    title: '1인 QA로 살아남기: 스타트업에서의 QA 역할',
+    excerpt: '작은 팀에서 QA 엔지니어로 일하며 겪은 경험과 노하우를 공유합니다.',
+    date: '2024-02-18',
+    readTime: '5분',
+    author: '김철수'
+  },
+  {
+    id: '3',
+    category: 'studynote',
+    title: 'Cypress E2E 테스트 자동화 완벽 가이드',
+    excerpt: 'Cypress를 활용한 End-to-End 테스트 자동화 구축 방법을 단계별로 설명합니다.',
+    date: '2024-02-15',
+    readTime: '15분'
+  },
+  {
+    id: '4',
+    category: 'interview',
+    title: '테스트 케이스 작성 과제 해결 전략',
+    excerpt: 'QA 엔지니어 면접에서 자주 나오는 테스트 케이스 작성 과제를 효과적으로 해결하는 방법',
+    date: '2024-02-12',
+    readTime: '10분'
+  }
+];
 
-  // Mock data
-  const posts: Post[] = [
-    {
-      id: '1',
-      title: '새로운 Bug Bounty Arena 서비스 출시',
-      excerpt: 'James Company에서 새롭게 선보이는 Bug Bounty Arena 서비스를 소개합니다. 앱 출시 전 실제 사용자들의 피드백을 받아보세요.',
-      category: 'notice',
-      author: 'James Company',
-      date: '2024-01-20',
-      tags: ['서비스', '출시', 'Bug Bounty']
-    },
-    {
-      id: '2',
-      title: 'QA 자동화의 ROI를 높이는 5가지 방법',
-      excerpt: '많은 기업들이 QA 자동화를 도입하지만 기대한 만큼의 효과를 보지 못합니다. 실제 사례를 통해 ROI를 높이는 방법을 알아봅시다.',
-      category: 'story',
-      author: 'James Kang',
-      date: '2024-01-18',
-      tags: ['QA', '자동화', 'ROI']
-    },
-    {
-      id: '3',
-      title: '2024년 1분기 교육 일정 안내',
-      excerpt: '2024년 1분기 QA/SDET 교육 과정 일정이 확정되었습니다. 조기 등록 시 20% 할인 혜택을 받으실 수 있습니다.',
-      category: 'notice',
-      author: 'James Company',
-      date: '2024-01-15',
-      tags: ['교육', '일정', '할인']
-    },
-    {
-      id: '4',
-      title: '스타트업에서 QA 문화 만들기',
-      excerpt: '리소스가 부족한 스타트업에서 어떻게 효과적인 QA 문화를 만들 수 있을까요? 실제 경험을 바탕으로 한 인사이트를 공유합니다.',
-      category: 'story',
-      author: 'James Kang',
-      date: '2024-01-12',
-      tags: ['스타트업', 'QA', '문화']
+const categories = [
+  {
+    id: 'notice',
+    title: '공지사항',
+    description: '서비스 업데이트 및 중요 공지사항',
+    icon: Bell,
+    link: '/insights/notice',
+    color: 'bg-red-500'
+  },
+  {
+    id: 'story',
+    title: '스토리',
+    description: 'QA 전문가들의 경험과 인사이트',
+    icon: BookOpen,
+    link: '/insights/story',
+    color: 'bg-blue-500'
+  },
+  {
+    id: 'studynote',
+    title: '학습 자료',
+    description: 'QA 역량 향상을 위한 학습 콘텐츠',
+    icon: FileText,
+    link: '/insights/study-note',
+    color: 'bg-green-500'
+  },
+  {
+    id: 'interview',
+    title: '인터뷰 준비',
+    description: 'QA 취업 및 이직을 위한 면접 가이드',
+    icon: Users,
+    link: '/insights/interview',
+    color: 'bg-purple-500'
+  }
+];
+
+const Insights = () => {
+  const getCategoryInfo = (category: string) => {
+    return categories.find(cat => cat.id === category);
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const info = getCategoryInfo(category);
+    if (!info) return 'bg-gray-100 text-gray-800';
+    
+    switch (category) {
+      case 'notice':
+        return 'bg-red-100 text-red-800';
+      case 'story':
+        return 'bg-blue-100 text-blue-800';
+      case 'studynote':
+        return 'bg-green-100 text-green-800';
+      case 'interview':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
-  ]
-
-  const filteredPosts = selectedCategory === 'all' 
-    ? posts 
-    : posts.filter(post => post.category === selectedCategory)
-
-  const getCategoryBadgeColor = (category: string) => {
-    return category === 'notice' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
-  }
-
-  const getCategoryText = (category: string) => {
-    return category === 'notice' ? '공지사항' : '스토리'
-  }
+  };
 
   return (
-    <div className="py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">인사이트</h1>
-          <p className="text-xl text-gray-600">
-            James Company의 소식과 QA 관련 인사이트를 만나보세요
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            인사이트
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            QA 전문가들의 지식과 경험을 공유하고 함께 성장하세요
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex justify-center space-x-4 mb-8">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              selectedCategory === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            전체
-          </button>
-          <button
-            onClick={() => setSelectedCategory('notice')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              selectedCategory === 'notice'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            공지사항
-          </button>
-          <button
-            onClick={() => setSelectedCategory('story')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              selectedCategory === 'story'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            스토리
-          </button>
+        {/* 카테고리 그리드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {categories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <Link
+                key={category.id}
+                to={category.link}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 group"
+              >
+                <div className={`${category.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {category.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  {category.description}
+                </p>
+                <div className="flex items-center text-blue-600 text-sm font-medium">
+                  <span>바로가기</span>
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Posts List */}
-        <div className="space-y-6">
-          {filteredPosts.map((post) => (
-            <Card key={post.id} hoverable>
-              <article>
-                <div className="flex items-center space-x-4 mb-3">
-                  <span className={`text-sm px-3 py-1 rounded-full ${getCategoryBadgeColor(post.category)}`}>
-                    {getCategoryText(post.category)}
-                  </span>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    {post.date}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <User className="w-4 h-4 mr-1" />
-                    {post.author}
-                  </div>
-                </div>
-
-                <h2 className="text-2xl font-semibold mb-3 hover:text-primary cursor-pointer">
-                  {post.title}
-                </h2>
-                
-                <p className="text-gray-600 mb-4">
-                  {post.excerpt}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Tag className="w-4 h-4 text-gray-400" />
-                    <div className="flex space-x-2">
-                      {post.tags.map((tag, index) => (
-                        <span key={index} className="text-sm text-gray-500">
-                          #{tag}
+        {/* 최근 게시물 */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">최근 게시물</h2>
+          <div className="divide-y divide-gray-200">
+            {recentInsights.map((insight) => {
+              const categoryInfo = getCategoryInfo(insight.category);
+              return (
+                <div key={insight.id} className="py-4 hover:bg-gray-50 -mx-6 px-6 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center mb-2">
+                        {insight.isPinned && (
+                          <span className="text-red-500 mr-2" title="고정됨">📌</span>
+                        )}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryBadge(insight.category)}`}>
+                          {categoryInfo?.title}
                         </span>
-                      ))}
+                        <span className="mx-2 text-gray-400">•</span>
+                        <time className="text-sm text-gray-500">
+                          {new Date(insight.date).toLocaleDateString('ko-KR')}
+                        </time>
+                        {insight.readTime && (
+                          <>
+                            <span className="mx-2 text-gray-400">•</span>
+                            <span className="text-sm text-gray-500">{insight.readTime}</span>
+                          </>
+                        )}
+                      </div>
+                      <Link 
+                        to={`${categoryInfo?.link}/${insight.id}`}
+                        className="group"
+                      >
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                          {insight.title}
+                        </h3>
+                        <p className="text-gray-600 line-clamp-2">
+                          {insight.excerpt}
+                        </p>
+                      </Link>
+                      {insight.author && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          작성자: {insight.author}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  
-                  <button className="text-primary hover:underline">
-                    자세히 읽기 →
-                  </button>
                 </div>
-              </article>
-            </Card>
-          ))}
+              );
+            })}
+          </div>
+          
+          <div className="mt-6 text-center">
+            <Link
+              to="/insights/all"
+              className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center"
+            >
+              전체 게시물 보기
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-12 space-x-2">
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            이전
-          </button>
-          <button className="px-4 py-2 bg-primary text-white rounded-lg">
-            1
-          </button>
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            2
-          </button>
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            3
-          </button>
-          <button className="px-4 py-2 border rounded-lg hover:bg-gray-50">
-            다음
-          </button>
+        {/* 인기 태그 */}
+        <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">인기 태그</h3>
+          <div className="flex flex-wrap gap-2">
+            {['자동화테스트', 'Selenium', 'API테스팅', '성능테스트', 'SDET', '애자일', 'CI/CD', 'Python', 'JavaScript', '모바일테스팅'].map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer transition-colors"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Insights;

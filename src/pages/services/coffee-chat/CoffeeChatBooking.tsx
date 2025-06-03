@@ -134,7 +134,7 @@ const CoffeeChatBooking: React.FC = () => {
     };
 
     try {
-      const response = await coffeeChatApi.createBooking(bookingData);
+      await coffeeChatApi.createBooking(bookingData);
       navigate('/services/coffee-chat/booking-success');
     } catch (error: any) {
       console.error('Booking failed:', error);
