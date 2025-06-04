@@ -77,8 +77,8 @@ export const useAuthStore = create<AuthState>()(
 
       signup: async (data: SignupData) => {
         try {
-          // 회원가입
-          const signupResponse = await api.post('/api/auth/signup', data);
+          // 회원가입 - register로 변경
+          const signupResponse = await api.post('/api/auth/register', data);
           console.log(signupResponse);
 
           // 회원가입 성공 후 자동 로그인
