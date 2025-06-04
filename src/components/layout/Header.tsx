@@ -1,4 +1,4 @@
-// src/components/layout/Header.tsx
+// src/components/layout/Header.tsx 
 
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
