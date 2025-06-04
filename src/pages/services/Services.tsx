@@ -1,8 +1,7 @@
 // src/services/Services.tsx 
 
 import { Link } from 'react-router-dom';
-// import { Coffee, FileText, Zap, GraduationCap, Bug } from 'lucide-react';
-import { Coffee, GraduationCap, Bug } from 'lucide-react';
+import { Coffee, FileText, Zap, GraduationCap, Bug } from 'lucide-react';
 
 const services = [
   {
@@ -14,24 +13,24 @@ const services = [
     color: 'bg-blue-500',
     isExternal: false
   },
-  // {
-  //   id: 'casemaker',
-  //   title: 'CaseMaker',
-  //   description: '테스트 케이스를 자동으로 생성하고 관리하는 스마트한 도구',
-  //   icon: FileText,
-  //   link: '/services/casemaker',
-  //   color: 'bg-green-500',
-  //   isExternal: true
-  // },
-  // {
-  //   id: 'qauto',
-  //   title: 'QAuto',
-  //   description: '테스트 자동화를 위한 강력하고 직관적인 솔루션',
-  //   icon: Zap,
-  //   link: '/services/qauto',
-  //   color: 'bg-purple-500',
-  //   isExternal: true
-  // },
+  {
+    id: 'casemaker',
+    title: 'CaseMaker',
+    description: '테스트 케이스를 자동으로 생성하고 관리하는 스마트한 도구',
+    icon: FileText,
+    link: '/services/casemaker',
+    color: 'bg-green-500',
+    isExternal: true
+  },
+  {
+    id: 'qauto',
+    title: 'QAuto',
+    description: '테스트 자동화를 위한 강력하고 직관적인 솔루션',
+    icon: Zap,
+    link: '/services/qauto',
+    color: 'bg-purple-500',
+    isExternal: true
+  },
   {
     id: 'education',
     title: '교육 서비스',
