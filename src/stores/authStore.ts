@@ -79,10 +79,18 @@ export const useAuthStore = create<AuthState>()(
         try {
           // 회원가입 - register로 변경
           const signupResponse = await api.post('/api/auth/register', data);
-          console.log(signupResponse);
+          console.log('Signup response:', signupResponse);
 
-          // 회원가입 성공 후 자동 로그인
-          await get().login(data.email, data.password)
+          // 회원가입 성공 - 자동 로그인은 일단 비활성화
+          // 백엔드 로그인 엔드포인트 수정 후 다시 활성화
+          
+          /* 자동 로그인 임시 비활성화
+          try {
+            await get().login(data.email, data.password)
+          } catch (loginError) {
+            console.error('Auto-login failed after signup:', loginError)
+          }
+          */
         } catch (error: any) {
           console.error('Signup error:', error)
           if (error.response?.data?.detail) {

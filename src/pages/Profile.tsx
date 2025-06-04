@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { api } from '../config/api';
+import api from '../services/api';
 import { Calendar, Coffee, CreditCard, User } from 'lucide-react';
 
 interface UserProfile {
   id: string;
   email: string;
   name: string;
-  createdAt: string;
-  membership: 'Free' | 'Basic' | 'Pro';
+  created_at: string;
+  membership_tier: string;
+  is_admin: boolean;
+  is_active: boolean;
 }
 
 interface Booking {
@@ -23,7 +25,7 @@ interface Booking {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState('profile');
@@ -39,28 +41,16 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     try {
-      // 프로필 정보 가져오기
-      const profileResponse = await api.get('/api/auth/me');
-      setProfile(profileResponse.data);
-
-      // 예약 정보 가져오기
-      try {
-        const bookingsResponse = await api.get('/api/coffee-chat/bookings/me');
-        setBookings(bookingsResponse.data);
-      } catch (error) {
-        // 예약 정보가 없어도 에러 무시
-        console.log('No bookings found');
-      }
+      setLoading(true);
+      const response = await api.get('/api/users/me');
+      setProfile(response.data);
+      
+      // TODO: 예약 내역 API 구현 후 연동
+      // const bookingsResponse = await api.get('/api/bookings/my');
+      // setBookings(bookingsResponse.data);
+      
     } catch (error) {
       console.error('Failed to fetch user data:', error);
-      // 에러 시 임시 데이터
-      setProfile({
-        id: '1',
-        email: 'user@example.com',
-        name: '홍길동',
-        createdAt: new Date().toISOString(),
-        membership: 'Free'
-      });
     } finally {
       setLoading(false);
     }
@@ -152,18 +142,34 @@ const Profile = () => {
                   <div>
                     <dt className="text-sm font-medium text-gray-500">가입일</dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {new Date(profile.createdAt).toLocaleDateString('ko-KR')}
+                      {new Date(profile.created_at).toLocaleDateString('ko-KR')}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">멤버십</dt>
                     <dd className="mt-1">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        profile.membership === 'Pro' ? 'bg-purple-100 text-purple-800' :
-                        profile.membership === 'Basic' ? 'bg-blue-100 text-blue-800' :
+                        profile.membership_tier === 'Pro' ? 'bg-purple-100 text-purple-800' :
+                        profile.membership_tier === 'Basic' ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
-                        {profile.membership}
+                        {profile.membership_tier}
+                      </span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">계정 유형</dt>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {profile.is_admin ? '관리자' : '일반 사용자'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">계정 상태</dt>
+                    <dd className="mt-1">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {profile.is_active ? '활성' : '비활성'}
                       </span>
                     </dd>
                   </div>
@@ -223,7 +229,7 @@ const Profile = () => {
                   <div
                     key={tier}
                     className={`border rounded-lg p-6 ${
-                      profile.membership === tier ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                      profile.membership_tier === tier ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
                     }`}
                   >
                     <h4 className="text-lg font-semibold mb-2">{tier}</h4>
@@ -236,7 +242,7 @@ const Profile = () => {
                       {tier !== 'Free' && <li>✓ 우선 예약 권한</li>}
                       {tier === 'Pro' && <li>✓ 무제한 커피챗</li>}
                     </ul>
-                    {profile.membership === tier ? (
+                    {profile.membership_tier === tier ? (
                       <button disabled className="mt-4 w-full py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">
                         현재 플랜
                       </button>
