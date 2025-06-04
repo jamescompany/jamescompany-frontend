@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout'
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
 import Register from './pages/auth/Register';  // 경로 수정: ./components/auth → ./pages/auth
 import Profile from './pages/Profile';
 
@@ -46,6 +47,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
           
