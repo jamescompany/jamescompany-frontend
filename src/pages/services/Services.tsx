@@ -45,7 +45,7 @@ const services = [
     title: 'Bug Bounty Arena',
     description: '베타 테스터를 모집하고 품질 피드백을 받는 플랫폼',
     icon: Bug,
-    link: '/services/bug-bounty-arena',
+    link: '/services/bug-bounty',
     color: 'bg-red-500',
     isExternal: false
   }

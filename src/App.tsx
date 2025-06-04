@@ -1,9 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './components/layout/Layout'
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';  // 경로 수정: ./components/auth → ./pages/auth
 import Profile from './pages/Profile';
+
+// Dashboard
+import Dashboard from './pages/Dashboard';
+
+// About
+import About from './pages/About';
 
 // Services
 import Services from './pages/services/Services';
@@ -28,6 +34,9 @@ import Story from './pages/insights/Story';
 import StudyNote from './pages/insights/StudyNote';
 import Interview from './pages/insights/Interview';
 
+// Contact
+import Contact from './pages/Contact';
+
 function App() {
   return (
     <Router>
@@ -37,6 +46,12 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="profile" element={<Profile />} />
+          
+          {/* Dashboard */}
+          <Route path="dashboard" element={<Dashboard />} />
+          
+          {/* About */}
+          <Route path="about" element={<About />} />
           
           {/* Services */}
           <Route path="services" element={<Services />} />
@@ -49,7 +64,7 @@ function App() {
           <Route path="services/casemaker" element={<CaseMaker />} />
           <Route path="services/qauto" element={<QAuto />} />
           <Route path="services/education" element={<Education />} />
-          <Route path="services/bug-bounty-arena" element={<BugBountyArena />} />
+          <Route path="services/bug-bounty" element={<BugBountyArena />} />
           
           {/* Insights */}
           <Route path="insights" element={<Insights />} />
@@ -57,6 +72,10 @@ function App() {
           <Route path="insights/story" element={<Story />} />
           <Route path="insights/study-note" element={<StudyNote />} />
           <Route path="insights/interview" element={<Interview />} />
+
+          {/* Contact */}
+          <Route path="contact" element={<Contact />} />
+
         </Route>
       </Routes>
     </Router>

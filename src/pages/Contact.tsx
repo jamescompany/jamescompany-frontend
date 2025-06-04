@@ -93,6 +93,7 @@ const Contact: React.FC = () => {
                 value={form.name}
                 onChange={handleChange}
                 required
+                maxLength={10}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="이름을 입력하세요"
               />
@@ -110,9 +111,16 @@ const Contact: React.FC = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`w-full px-4 py-2 border ${
+                  form.email && !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.email) 
+                    ? 'border-red-500' 
+                    : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                 placeholder="이메일을 입력하세요"
               />
+              {!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(form.email) && form.email && (
+                <p className="text-red-500 text-sm mt-1">유효한 이메일 주소를 입력하세요.</p>
+              )}
             </div>
 
             {/* Subject Field */}
@@ -151,9 +159,11 @@ const Contact: React.FC = () => {
                 rows={6}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="문의 내용을 입력하세요"
+                minLength={5}
+                maxLength={500}
               />
               <p className="mt-1 text-sm text-gray-500">
-                {form.message.length}/5자
+                {form.message.length}/500자
               </p>
             </div>
 
@@ -179,22 +189,6 @@ const Contact: React.FC = () => {
               </button>
             </div>
           </form>
-        </div>
-
-        {/* Contact Info */}
-        <div className="mt-8 bg-white rounded-lg shadow-lg p-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">연락처 정보</h3>
-          <div className="space-y-3 text-gray-600">
-            <p>
-              <span className="font-medium">이메일:</span> contact@jamescompany.kr
-            </p>
-            <p>
-              <span className="font-medium">전화:</span> 02-1234-5678
-            </p>
-            <p>
-              <span className="font-medium">운영 시간:</span> 평일 09:00 - 18:00
-            </p>
-          </div>
         </div>
       </div>
     </div>
