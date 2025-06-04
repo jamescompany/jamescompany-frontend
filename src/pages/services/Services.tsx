@@ -1,7 +1,8 @@
 // src/services/Services.tsx 
 
 import { Link } from 'react-router-dom';
-import { Coffee, FileText, Zap, GraduationCap, Bug } from 'lucide-react';
+// import { Coffee, FileText, Zap, GraduationCap, Bug } from 'lucide-react';
+import { Coffee, GraduationCap, Bug } from 'lucide-react';
 
 const services = [
   {
