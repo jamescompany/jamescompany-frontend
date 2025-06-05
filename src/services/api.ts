@@ -1,17 +1,19 @@
 // src/services/api.ts
 
 import axios from 'axios';
+import { useAuthStore } from '../stores/authStore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL}/api/v1`,  // /api/v1 추가
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
-// Request interceptor - 토큰 자동 추가
+// 요청 인터셉터
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -25,19 +27,37 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - 401 에러 처리
+// 응답 인터셉터
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
-    if (error.response?.status === 401) {
-      // 토큰이 만료되었거나 유효하지 않은 경우
-      localStorage.removeItem('access_token');
-      
-      // 로그인 페이지로 리다이렉트 (현재 경로가 로그인 페이지가 아닌 경우)
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, {
+            refresh_token: refreshToken
+          });
+
+          const { access_token } = response.data;
+          localStorage.setItem('access_token', access_token);
+          
+          originalRequest.headers.Authorization = `Bearer ${access_token}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        useAuthStore.getState().logout();
+        window.location.href = '/auth/login';  // router.push 대신 window.location.href 사용
+        return Promise.reject(refreshError);
       }
     }
+
     return Promise.reject(error);
   }
 );
