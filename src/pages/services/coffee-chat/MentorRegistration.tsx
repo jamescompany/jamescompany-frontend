@@ -67,24 +67,8 @@ const MentorRegistration: React.FC = () => {
 
   const handleGoogleCalendarConnect = async () => {
     try {
-      // Frontend URL 설정 (환경에 따라 다르게)
-      const frontendUrl = window.location.origin;
-      const redirectUri = `${frontendUrl}/auth/google-calendar/callback`;
-
-      // Google OAuth URL 직접 구성
-      const authUrl =
-        `https://accounts.google.com/o/oauth2/v2/auth?` +
-        `client_id=${
-          import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"
-        }` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&response_type=code` +
-        `&scope=openid%20email%20profile%20https://www.googleapis.com/auth/calendar.events%20https://www.googleapis.com/auth/calendar.readonly` +
-        `&access_type=offline` +
-        `&prompt=consent` +
-        `&state=mentor-registration`;
-
-      window.location.href = authUrl;
+      // 백엔드 OAuth 엔드포인트로 리다이렉트
+      window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/google/login`;
     } catch (error) {
       console.error("Failed to initiate Google Calendar auth:", error);
       alert("Google Calendar 연동을 시작할 수 없습니다.");

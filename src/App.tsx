@@ -25,8 +25,8 @@ import BookingSuccess from "./pages/services/coffee-chat/BookingSuccess";
 import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
 import MyBookings from "./pages/mypage/MyBookings";
 
-// Auth
-import GoogleCalendarCallback from "./pages/auth/GoogleCalendarCallback";
+// Auth - 이 줄 제거
+// import GoogleCalendarCallback from "./pages/auth/GoogleCalendarCallback";
 
 // Other Services
 import CaseMaker from "./pages/services/CaseMaker";
@@ -60,39 +60,22 @@ function App() {
           {/* About */}
           <Route path="about" element={<About />} />
 
-          {/* Auth - Google Calendar Callback */}
-          <Route path="auth/google-calendar/callback" element={<GoogleCalendarCallback />} />
+          {/* Auth - 이 라우트 제거 */}
+          {/* <Route path="/auth/google-calendar-callback" element={<GoogleCalendarCallback />} /> */}
 
           {/* Services */}
           <Route path="services" element={<Services />} />
           <Route path="services/coffee-chat" element={<CoffeeChat />} />
-          <Route path="/services/coffee-chat/mentor-registration" element={<MentorRegistration />} />
-          <Route
-            path="services/coffee-chat/booking/:mentorId"
-            element={<CoffeeChatBooking />}
-          />
-          <Route path="/services/coffee-chat" element={<CoffeeChat />} />
-          <Route
-            path="/services/coffee-chat/calendar-callback"
-            element={<CalendarCallback />}
-          />
-          <Route
-            path="/services/coffee-chat/mentor-registra tion"
-            element={<MentorRegistration />}
-          />
-          <Route
-            path="/services/coffee-chat/booking/:mentorId"
-            element={<CoffeeChatBooking />}
-          />
-          <Route
-            path="/services/coffee-chat/booking-success"
-            element={<BookingSuccess />}
-          />
-          <Route
-            path="/services/coffee-chat/booking-failed"
-            element={<BookingFailed />}
-          />
-          <Route path="/mypage/bookings" element={<MyBookings />} />
+          <Route path="services/coffee-chat/mentor-registration" element={<MentorRegistration />} />
+          <Route path="services/coffee-chat/booking/:mentorId" element={<CoffeeChatBooking />} />
+          <Route path="services/coffee-chat/calendar-callback" element={<CalendarCallback />} />
+          <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
+          <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
+          
+          {/* 중복된 라우트들 제거 */}
+
+          {/* MyPage */}  
+          <Route path="mypage/bookings" element={<MyBookings />} />
 
           <Route path="services/casemaker" element={<CaseMaker />} />
           <Route path="services/qauto" element={<QAuto />} />
