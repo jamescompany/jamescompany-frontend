@@ -75,7 +75,7 @@ export const coffeeChatApi = {
   // 멘토 관련
   getMentors: async (filters?: { expertise?: string; priceRange?: string }) => {
     try {
-      const response = await api.get('/api/coffee-chat/mentors', { params: filters });
+      const response = await api.get('/coffee-chat/mentors', { params: filters }); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to fetch mentors:', error);
@@ -85,7 +85,7 @@ export const coffeeChatApi = {
 
   getMentorById: async (mentorId: string): Promise<Mentor> => {
     try {
-      const response = await api.get(`/api/coffee-chat/mentors/${mentorId}`);
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}`); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to fetch mentor details:', error);
@@ -96,7 +96,7 @@ export const coffeeChatApi = {
   // 시간대 관련 - 오버로드 추가
   getMentorAvailableSlots: async (mentorId: string, startDate: string, endDate?: string): Promise<TimeSlot[]> => {
     try {
-      const response = await api.get(`/api/coffee-chat/mentors/${mentorId}/availability`, {
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}/availability`, { // /api 제거
         params: { 
           date: startDate,
           startDate,
@@ -113,7 +113,7 @@ export const coffeeChatApi = {
   // 구글 캘린더 연동
   initiateGoogleCalendarAuth: async (): Promise<{ authUrl: string }> => {
     try {
-      const response = await api.post('/api/coffee-chat/calendar/auth/init');
+      const response = await api.post('/coffee-chat/calendar/auth/init'); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to initiate Google Calendar auth:', error);
@@ -123,7 +123,7 @@ export const coffeeChatApi = {
 
   handleGoogleCalendarCallback: async (code: string): Promise<CalendarConnection> => {
     try {
-      const response = await api.post('/api/coffee-chat/calendar/auth/callback', { code });
+      const response = await api.post('/coffee-chat/calendar/auth/callback', { code }); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to handle Google Calendar callback:', error);
@@ -133,7 +133,7 @@ export const coffeeChatApi = {
 
   disconnectGoogleCalendar: async () => {
     try {
-      const response = await api.delete('/api/coffee-chat/calendar/disconnect');
+      const response = await api.delete('/coffee-chat/calendar/disconnect'); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to disconnect Google Calendar:', error);
@@ -143,7 +143,7 @@ export const coffeeChatApi = {
 
   syncGoogleCalendar: async () => {
     try {
-      const response = await api.post('/api/coffee-chat/calendar/sync');
+      const response = await api.post('/coffee-chat/calendar/sync'); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to sync Google Calendar:', error);
@@ -153,7 +153,7 @@ export const coffeeChatApi = {
 
   getCalendarStatus: async (): Promise<CalendarConnection> => {
     try {
-      const response = await api.get('/api/coffee-chat/calendar/status');
+      const response = await api.get('/coffee-chat/calendar/status'); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to get calendar status:', error);
@@ -164,7 +164,7 @@ export const coffeeChatApi = {
   // 예약 관련
   createBooking: async (bookingData: BookingRequest): Promise<Booking> => {
     try {
-      const response = await api.post('/api/coffee-chat/bookings', bookingData);
+      const response = await api.post('/coffee-chat/bookings', bookingData); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to create booking:', error);
@@ -174,7 +174,7 @@ export const coffeeChatApi = {
 
   getMyBookings: async (role: 'mentee' | 'mentor' = 'mentee', status?: string): Promise<Booking[]> => {
     try {
-      const response = await api.get('/api/coffee-chat/bookings', {
+      const response = await api.get('/coffee-chat/bookings', { // /api 제거
         params: { role, status }
       });
       return response.data;
@@ -186,7 +186,7 @@ export const coffeeChatApi = {
 
   getBookingById: async (bookingId: string): Promise<Booking> => {
     try {
-      const response = await api.get(`/api/coffee-chat/bookings/${bookingId}`);
+      const response = await api.get(`/coffee-chat/bookings/${bookingId}`); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to fetch booking details:', error);
@@ -196,7 +196,7 @@ export const coffeeChatApi = {
 
   cancelBooking: async (bookingId: string, reason?: string) => {
     try {
-      const response = await api.post(`/api/coffee-chat/bookings/${bookingId}/cancel`, { 
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/cancel`, {  // /api 제거
         reason 
       });
       return response.data;
@@ -216,7 +216,7 @@ export const coffeeChatApi = {
     availableHours: any;
   }) => {
     try {
-      const response = await api.post('/api/coffee-chat/mentors/register', mentorData);
+      const response = await api.post('/coffee-chat/mentors/register', mentorData); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to register as mentor:', error);
@@ -226,7 +226,7 @@ export const coffeeChatApi = {
 
   updateMentorProfile: async (mentorData: Partial<Mentor>) => {
     try {
-      const response = await api.put('/api/coffee-chat/mentors/profile', mentorData);
+      const response = await api.put('/coffee-chat/mentors/profile', mentorData); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to update mentor profile:', error);
@@ -236,7 +236,7 @@ export const coffeeChatApi = {
 
   getMentorDashboard: async () => {
     try {
-      const response = await api.get('/api/coffee-chat/mentors/dashboard');
+      const response = await api.get('/coffee-chat/mentors/dashboard'); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to fetch mentor dashboard:', error);
@@ -247,7 +247,7 @@ export const coffeeChatApi = {
   // 결제 관련
   createPaymentIntent: async (bookingId: string): Promise<{ clientSecret: string }> => {
     try {
-      const response = await api.post(`/api/coffee-chat/bookings/${bookingId}/payment`);
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/payment`); // /api 제거
       return response.data;
     } catch (error) {
       console.error('Failed to create payment intent:', error);
@@ -257,7 +257,7 @@ export const coffeeChatApi = {
 
   confirmPayment: async (bookingId: string, paymentIntentId: string) => {
     try {
-      const response = await api.post(`/api/coffee-chat/bookings/${bookingId}/confirm-payment`, {
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/confirm-payment`, { // /api 제거
         paymentIntentId
       });
       return response.data;
