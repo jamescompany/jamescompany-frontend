@@ -14,13 +14,23 @@ import {
   Shield,
   CheckCircle,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  Briefcase
 } from 'lucide-react';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const services = [
+    {
+      title: 'QA Career Hub',
+      description: '큐레이션된 QA 채용 공고와 커리어 인사이트를 제공합니다',
+      icon: Briefcase,
+      link: '/services/recruitment',
+      color: 'bg-gradient-to-r from-purple-500 to-blue-500',
+      features: ['엄선된 QA 포지션', '제임스의 한마디', 'QA 인증 기업'],
+      isNew: true
+    },
     {
       title: '커피챗',
       description: '구글 캘린더와 연동하여 멘토링 일정을 효율적으로 관리하세요',
@@ -167,6 +177,11 @@ const Home: React.FC = () => {
                 
                 <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
                   {service.title}
+                  {service.isNew && (
+                    <span className="ml-2 text-xs bg-red-500 text-white px-2 py-1 rounded-full animate-pulse">
+                      NEW
+                    </span>
+                  )}
                   {service.isExternal && (
                     <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                       외부 링크

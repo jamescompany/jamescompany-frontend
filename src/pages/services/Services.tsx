@@ -1,9 +1,19 @@
-// src/services/Services.tsx 
+// src/pages/services/Services.tsx
 
 import { Link } from 'react-router-dom';
-import { Coffee, FileText, Zap, GraduationCap, Bug } from 'lucide-react';
+import { Coffee, FileText, Zap, GraduationCap, Bug, Briefcase } from 'lucide-react';
 
 const services = [
+  {
+    id: 'recruitment',
+    title: 'QA Career Hub',
+    description: '큐레이션된 QA 채용 공고와 커리어 인사이트를 제공합니다',
+    icon: Briefcase,
+    link: '/services/recruitment',
+    color: 'bg-gradient-to-r from-purple-500 to-blue-500',
+    isExternal: false,
+    isNew: true
+  },
   {
     id: 'coffee-chat',
     title: '커피챗',
@@ -73,8 +83,13 @@ const Services = () => {
               <Link
                 key={service.id}
                 to={service.link}
-                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group"
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden group relative"
               >
+                {service.isNew && (
+                  <div className="absolute top-4 right-4 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                    NEW
+                  </div>
+                )}
                 <div className="p-6">
                   <div className={`${service.color} w-16 h-16 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <Icon className="w-8 h-8 text-white" />

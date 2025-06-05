@@ -1,9 +1,19 @@
+// src/pages/Services.tsx
+
 import { Link } from 'react-router-dom'
-import { Coffee, Code, GraduationCap, Bug } from 'lucide-react'
+import { Coffee, Code, GraduationCap, Bug, Briefcase } from 'lucide-react'
 import Card from '../components/ui/Card'
 
 export default function Services() {
   const services = [
+    {
+      icon: <Briefcase className="w-12 h-12 text-primary" />,
+      title: 'QA Career Hub',
+      description: '큐레이션된 QA 채용 공고와 커리어 인사이트를 제공합니다. 제임스컴퍼니가 엄선한 QA 포지션만을 소개합니다.',
+      features: ['엄선된 QA 포지션', '제임스의 한마디', 'QA 인증 기업', '합격 축하금 지원'],
+      link: '/services/recruitment',
+      isNew: true
+    },
     {
       icon: <Coffee className="w-12 h-12 text-primary" />,
       title: '커피챗',
@@ -46,7 +56,12 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {services.map((service, index) => (
-            <Card key={index} className="p-8">
+            <Card key={index} className="p-8 relative">
+              {service.isNew && (
+                <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                  NEW
+                </div>
+              )}
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">{service.icon}</div>
                 <div className="flex-1">

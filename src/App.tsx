@@ -30,6 +30,9 @@ import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
 import MyBookings from "./pages/mypage/MyBookings";
 import MentorDashboard from "./pages/mentor/MentorDashboard";
 
+// Recruitment
+import QARecruitment from "./pages/services/recruitment/QARecruitment";
+
 // Other Services
 import CaseMaker from "./pages/services/CaseMaker";
 import QAuto from "./pages/services/QAuto";
@@ -94,6 +97,9 @@ function App() {
           <Route path="services/coffee-chat/calendar-callback" element={<CalendarCallback />} />
           <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
           <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
+          
+          {/* Recruitment */}
+          <Route path="services/recruitment" element={<QARecruitment />} />
           
           {/* MyPage */}  
           <Route path="mypage/bookings" element={<MyBookings />} />

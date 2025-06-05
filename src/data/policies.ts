@@ -1,200 +1,39 @@
 // src/data/policies.ts
 
-export interface PolicyVersion {
-    version: string
-    date: string
-    changes: string[]
-    content: string
+import { currentTerms, termsVersions } from './policies/terms';
+import { currentPrivacy, privacyVersions } from './policies/privacy';
+import { currentMarketing, marketingVersions } from './policies/marketing';
+
+export const policies = {
+  terms: {
+    current: currentTerms,
+    versions: termsVersions,
+    title: '이용약관'
+  },
+  privacy: {
+    current: currentPrivacy,
+    versions: privacyVersions,
+    title: '개인정보처리방침'
+  },
+  marketing: {
+    current: currentMarketing,
+    versions: marketingVersions,
+    title: '마케팅 정보 수신 동의'
   }
-  
-  export interface Policy {
-    id: string
-    title: string
-    currentVersion: string
-    versions: PolicyVersion[]
+};
+
+export const getPolicyByTypeAndVersion = (type: keyof typeof policies, version: string) => {
+  const policy = policies[type];
+  if (!policy || !policy.versions[version as keyof typeof policy.versions]) {
+    return null;
   }
-  
-  export const policies: Record<string, Policy> = {
-    terms: {
-      id: 'terms',
-      title: '이용약관',
-      currentVersion: '1.0.0',
-      versions: [
-        {
-          version: '1.0.0',
-          date: '2024-01-01',
-          changes: ['최초 제정'],
-          content: `
-            <h3>제1조 (목적)</h3>
-            <p>이 약관은 제임스컴퍼니(이하 "회사")가 제공하는 모든 서비스의 이용조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.</p>
-            
-            <h3>제2조 (용어의 정의)</h3>
-            <p>1. "서비스"란 회사가 제공하는 커피챗, CaseMaker, 교육 서비스, Bug Bounty Arena 등 모든 서비스를 의미합니다.</p>
-            <p>2. "회원"이란 회사와 서비스 이용계약을 체결하고 회원 아이디를 부여받은 자를 의미합니다.</p>
-            <p>3. "이용자"란 회사의 서비스에 접속하여 이 약관에 따라 회사가 제공하는 서비스를 받는 회원 및 비회원을 말합니다.</p>
-            
-            <h3>제3조 (약관의 효력 및 변경)</h3>
-            <p>1. 이 약관은 서비스 화면에 게시하거나 기타의 방법으로 회원에게 공지함으로써 효력을 발생합니다.</p>
-            <p>2. 회사는 필요한 경우 이 약관을 변경할 수 있으며, 변경된 약관은 적용일자 및 변경사유를 명시하여 현행약관과 함께 서비스 화면에 공지합니다.</p>
-            <p>3. 변경된 약관은 공지한 시점부터 그 효력이 발생하며, 이용자가 약관의 변경사항에 동의하지 않을 경우 서비스 이용을 중단하고 회원등록을 해지할 수 있습니다.</p>
-            
-            <h3>제4조 (서비스의 제공 및 변경)</h3>
-            <p>회사는 다음과 같은 서비스를 제공합니다:</p>
-            <ul>
-              <li>커피챗: 전문가와의 1:1 상담 서비스</li>
-              <li>CaseMaker: 테스트 케이스 생성 도구</li>
-              <li>교육 서비스: IT 관련 교육 프로그램</li>
-              <li>Bug Bounty Arena: 버그 바운티 플랫폼</li>
-            </ul>
-            
-            <h3>제5조 (서비스의 중단)</h3>
-            <p>1. 회사는 컴퓨터 등 정보통신설비의 보수점검, 교체 및 고장, 통신두절 또는 운영상 상당한 이유가 있는 경우 서비스의 제공을 일시적으로 중단할 수 있습니다.</p>
-            <p>2. 회사는 서비스의 제공에 필요한 경우 정기점검을 실시할 수 있으며, 정기점검시간은 서비스 제공화면에 공지한 바에 따릅니다.</p>
-            
-            <h3>제6조 (회원가입)</h3>
-            <p>1. 이용자는 회사가 정한 가입 양식에 따라 회원정보를 기입한 후 이 약관에 동의한다는 의사표시를 함으로써 회원가입을 신청합니다.</p>
-            <p>2. 회사는 제1항과 같이 회원으로 가입할 것을 신청한 이용자 중 다음 각 호에 해당하지 않는 한 회원으로 등록합니다:</p>
-            <ul>
-              <li>등록 내용에 허위, 기재누락, 오기가 있는 경우</li>
-              <li>기타 회원으로 등록하는 것이 회사의 서비스 운영에 현저히 지장이 있다고 판단되는 경우</li>
-            </ul>
-            
-            <h3>제7조 (개인정보의 보호)</h3>
-            <p>회사는 회원의 개인정보를 보호하기 위해 노력합니다. 개인정보의 보호 및 이용에 대해서는 별도의 개인정보처리방침이 적용됩니다.</p>
-            
-            <h3>제8조 (회원의 의무)</h3>
-            <p>회원은 다음 행위를 하여서는 안 됩니다:</p>
-            <ul>
-              <li>타인의 정보 도용</li>
-              <li>회사가 게시한 정보의 변경</li>
-              <li>회사가 정한 정보 이외의 정보(컴퓨터 프로그램 등) 등의 송신 또는 게시</li>
-              <li>회사와 기타 제3자의 저작권 등 지적재산권에 대한 침해</li>
-              <li>회사 및 기타 제3자의 명예를 손상시키거나 업무를 방해하는 행위</li>
-            </ul>
-            
-            <h3>제9조 (저작권의 귀속)</h3>
-            <p>1. 회사가 작성한 저작물에 대한 저작권 기타 지적재산권은 회사에 귀속합니다.</p>
-            <p>2. 이용자는 회사가 제공하는 서비스를 이용함으로써 얻은 정보 중 회사에게 지적재산권이 귀속된 정보를 회사의 사전 승낙 없이 복제, 송신, 출판, 배포, 방송 기타 방법에 의하여 영리목적으로 이용하거나 제3자에게 이용하게 하여서는 안됩니다.</p>
-            
-            <h3>제10조 (분쟁의 해결)</h3>
-            <p>본 약관은 대한민국 법령에 의하여 규정되고 이행되며, 서비스 이용과 관련하여 회사와 이용자 간에 발생한 분쟁에 대해서는 민사소송법상의 관할법원에 소를 제기합니다.</p>
-            
-            <p><strong>부칙</strong></p>
-            <p>이 약관은 2024년 1월 1일부터 시행됩니다.</p>
-          `
-        }
-      ]
-    },
-    privacy: {
-      id: 'privacy',
-      title: '개인정보처리방침',
-      currentVersion: '1.0.0',
-      versions: [
-        {
-          version: '1.0.0',
-          date: '2024-01-01',
-          changes: ['최초 제정'],
-          content: `
-            <p>제임스컴퍼니(이하 "회사")는 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다.</p>
-            
-            <h3>1. 개인정보의 처리 목적</h3>
-            <p>회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
-            <ul>
-              <li>회원 가입 및 관리</li>
-              <li>서비스 제공에 관한 계약 이행 및 서비스 제공에 따른 요금정산</li>
-              <li>고충처리</li>
-              <li>마케팅 및 광고에의 활용</li>
-            </ul>
-            
-            <h3>2. 처리하는 개인정보 항목</h3>
-            <p>회사는 다음의 개인정보 항목을 처리하고 있습니다:</p>
-            <ul>
-              <li>필수항목: 성명, 이메일 주소, 비밀번호, 휴대전화번호</li>
-              <li>선택항목: 프로필 사진, 직업, 관심분야</li>
-              <li>자동수집항목: IP주소, 쿠키, 접속일시, 서비스 이용기록</li>
-            </ul>
-            
-            <h3>3. 개인정보의 처리 및 보유기간</h3>
-            <p>회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.</p>
-            <ul>
-              <li>회원정보: 회원 탈퇴시까지</li>
-              <li>서비스 이용기록: 3년</li>
-              <li>전자상거래 관련 기록: 5년</li>
-            </ul>
-            
-            <h3>4. 개인정보의 제3자 제공</h3>
-            <p>회사는 정보주체의 개인정보를 개인정보의 처리 목적에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보보호법 제17조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.</p>
-            
-            <h3>5. 개인정보처리의 위탁</h3>
-            <p>회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다:</p>
-            <ul>
-              <li>위탁받는 자: (주)결제대행사</li>
-              <li>위탁하는 업무의 내용: 결제처리</li>
-            </ul>
-            
-            <h3>6. 정보주체의 권리·의무 및 행사방법</h3>
-            <p>정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다:</p>
-            <ul>
-              <li>개인정보 열람요구</li>
-              <li>오류 등이 있을 경우 정정 요구</li>
-              <li>삭제요구</li>
-              <li>처리정지 요구</li>
-            </ul>
-            
-            <h3>7. 개인정보의 파기</h3>
-            <p>회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.</p>
-            
-            <h3>8. 개인정보의 안전성 확보조치</h3>
-            <p>회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:</p>
-            <ul>
-              <li>개인정보 취급 직원의 최소화 및 교육</li>
-              <li>내부관리계획의 수립 및 시행</li>
-              <li>개인정보의 암호화</li>
-              <li>해킹 등에 대비한 기술적 대책</li>
-              <li>개인정보에 대한 접근 제한</li>
-              <li>문서보안을 위한 잠금장치 사용</li>
-            </ul>
-            
-            <h3>9. 개인정보 자동 수집 장치의 설치·운영 및 거부에 관한 사항</h3>
-            <p>회사는 이용자에게 개별적인 맞춤서비스를 제공하기 위해 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다.</p>
-            
-            <h3>10. 개인정보보호책임자</h3>
-            <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
-            <ul>
-              <li>성명: 강홍재</li>
-              <li>직책: 대표</li>
-              <li>연락처: 010-8327-6861</li>
-              <li>이메일: contact@jamescompany.kr</li>
-            </ul>
-            
-            <h3>11. 개인정보 처리방침의 변경</h3>
-            <p>이 개인정보처리방침은 시행일로부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.</p>
-            
-            <p><strong>부칙</strong></p>
-            <p>이 개인정보처리방침은 2024년 1월 1일부터 시행됩니다.</p>
-          `
-        }
-      ]
-    }
+  return policy.versions[version as keyof typeof policy.versions];
+};
+
+export const getCurrentPolicyByType = (type: keyof typeof policies) => {
+  const policy = policies[type];
+  if (!policy) {
+    return null;
   }
-  
-  // 현재 버전의 정책 가져오기
-  export function getCurrentPolicy(policyId: 'terms' | 'privacy') {
-    const policy = policies[policyId]
-    const currentVersion = policy.versions.find(v => v.version === policy.currentVersion)
-    return {
-      title: policy.title,
-      content: currentVersion?.content || '',
-      version: policy.currentVersion,
-      lastUpdated: currentVersion?.date || ''
-    }
-  }
-  
-  // 버전 히스토리 가져오기
-  export function getPolicyHistory(policyId: 'terms' | 'privacy') {
-    return policies[policyId].versions.map(v => ({
-      version: v.version,
-      date: v.date,
-      changes: v.changes
-    }))
-  }
+  return policy.current;
+};

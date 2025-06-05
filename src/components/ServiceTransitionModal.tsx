@@ -1,6 +1,6 @@
 // src/components/ServiceTransitionModal.tsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, AlertCircle, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,11 +70,12 @@ const ServiceTransitionModal: React.FC<ServiceTransitionModalProps> = ({ isOpen,
               
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
                 <p className="font-medium text-blue-900">
-                  📌 imweb 서비스 종료 안내
+                  📌 imweb 서비스 계약 종료 예정 안내
                 </p>
                 <p className="text-sm text-blue-800">
-                  기존 imweb을 통한 로그인 서비스가 종료되었으며, 
-                  모든 imweb 계정 정보는 안전하게 폐기되었습니다.
+                  imweb과의 서비스 계약 종료를 앞두고, 안정적인 서비스 전환을 위해 
+                  사전에 모든 imweb 계정 정보를 안전하게 삭제하고 
+                  JamesCompany 자체 계정 시스템으로 전환하게 되었습니다.
                 </p>
               </div>
 
@@ -90,6 +91,10 @@ const ServiceTransitionModal: React.FC<ServiceTransitionModalProps> = ({ isOpen,
           <div className="bg-gray-50 rounded-lg p-4 space-y-2">
             <p className="font-medium text-gray-900">✨ 새로운 계정으로 이용 가능한 서비스</p>
             <ul className="space-y-1 text-sm text-gray-700">
+              <li className="flex items-center space-x-2">
+                <span className="text-green-500">✓</span>
+                <span>QA Career Hub - 큐레이션된 채용 정보</span>
+              </li>
               <li className="flex items-center space-x-2">
                 <span className="text-green-500">✓</span>
                 <span>커피챗 - 구글 캘린더 연동 멘토링</span>
