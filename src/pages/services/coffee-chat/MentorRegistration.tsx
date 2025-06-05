@@ -1,350 +1,373 @@
 // src/pages/services/coffee-chat/MentorRegistration.tsx
 
-import React, { useState } from 'react';
-import { Upload, LinkedinIcon, CreditCard, Info } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { api } from '../../../config/api';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../../../stores/authStore';
+import { Calendar, Clock, DollarSign, Plus, Trash2, CheckCircle } from 'lucide-react';
+import { coffeeChatApi } from './api';
 
-interface MentorRegistrationData {
-  name: string;
-  email: string;
-  phone: string;
-  qaExperience: string;
-  expertise: string[];
-  sessionPrice: number;
-  bio: string;
-  verificationMethod: 'businessCard' | 'linkedin';
-  linkedinUrl?: string;
-  businessCardFile?: File;
+interface AvailableHours {
+  [key: string]: Array<{ start: string; end: string }>;
 }
 
 const MentorRegistration: React.FC = () => {
   const navigate = useNavigate();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<Partial<Record<keyof MentorRegistrationData, string>>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
   
-  // Form state
-  const [formData, setFormData] = useState<MentorRegistrationData>({
-    name: '',
-    email: '',
-    phone: '',
-    qaExperience: '',
-    expertise: [],
-    sessionPrice: 30000,
+  const [formData, setFormData] = useState({
+    title: '',
+    company: '',
     bio: '',
-    verificationMethod: 'businessCard',
-    linkedinUrl: ''
+    expertise: [''],
+    hourlyRate: 50000,
+    availableHours: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: []
+    } as AvailableHours
   });
 
-  const qaExpertiseOptions = [
-    '웹 테스팅',
-    '모바일 테스팅',
-    '자동화 테스팅',
-    'API 테스팅',
-    '성능 테스팅',
-    '보안 테스팅',
-    'SDET',
-    'QA 리더십',
-    '테스트 전략',
-    'CI/CD'
-  ];
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
-    if (errors[name as keyof MentorRegistrationData]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    // location state에서 캘린더 연동 상태 확인
+    if (location.state?.calendarConnected) {
+      setCalendarConnected(true);
+    } else {
+      checkCalendarStatus();
+    }
+  }, [isAuthenticated, location]);
+
+  const checkCalendarStatus = async () => {
+    try {
+      const status = await coffeeChatApi.getCalendarStatus();
+      setCalendarConnected(status.isConnected);
+    } catch (error) {
+      console.error('Failed to check calendar status:', error);
     }
   };
 
-  const handleExpertiseChange = (expertise: string) => {
-    setFormData(prev => ({
-      ...prev,
-      expertise: prev.expertise.includes(expertise)
-        ? prev.expertise.filter(e => e !== expertise)
-        : [...prev.expertise, expertise]
-    }));
-    if (errors.expertise) {
-      setErrors(prev => ({ ...prev, expertise: '' }));
+  const handleGoogleCalendarConnect = async () => {
+    try {
+      const { authUrl } = await coffeeChatApi.initiateGoogleCalendarAuth();
+      // state 파라미터를 추가하여 콜백 후 돌아올 위치 지정
+      window.location.href = `${authUrl}&state=mentor-registration`;
+    } catch (error) {
+      console.error('Failed to initiate Google Calendar auth:', error);
+      alert('Google Calendar 연동을 시작할 수 없습니다.');
     }
   };
 
-  const handleVerificationMethodChange = (method: 'businessCard' | 'linkedin') => {
-    setFormData(prev => ({ ...prev, verificationMethod: method }));
+  const handleExpertiseChange = (index: number, value: string) => {
+    const newExpertise = [...formData.expertise];
+    newExpertise[index] = value;
+    setFormData({ ...formData, expertise: newExpertise });
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof MentorRegistrationData, string>> = {};
-    
-    if (!formData.name.trim()) newErrors.name = '이름을 입력해주세요';
-    if (!formData.email.trim()) newErrors.email = '이메일을 입력해주세요';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = '올바른 이메일 형식이 아닙니다';
-    if (!formData.phone.trim()) newErrors.phone = '연락처를 입력해주세요';
-    if (!formData.qaExperience.trim()) newErrors.qaExperience = 'QA 경력을 입력해주세요';
-    if (formData.expertise.length === 0) newErrors.expertise = '최소 하나 이상 선택해주세요';
-    if (formData.sessionPrice < 10000) newErrors.sessionPrice = '최소 10,000원 이상으로 설정해주세요';
-    
-    if (formData.verificationMethod === 'linkedin' && !formData.linkedinUrl?.trim()) {
-      newErrors.linkedinUrl = 'LinkedIn URL을 입력해주세요';
-    }
-    
-    if (formData.verificationMethod === 'businessCard' && !uploadedFile) {
-      newErrors.businessCardFile = '명함 이미지를 업로드해주세요';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const addExpertise = () => {
+    setFormData({ ...formData, expertise: [...formData.expertise, ''] });
+  };
+
+  const removeExpertise = (index: number) => {
+    const newExpertise = formData.expertise.filter((_, i) => i !== index);
+    setFormData({ ...formData, expertise: newExpertise });
+  };
+
+  const addTimeSlot = (day: string) => {
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: [...formData.availableHours[day], { start: '09:00', end: '10:00' }]
+      }
+    });
+  };
+
+  const updateTimeSlot = (day: string, index: number, field: 'start' | 'end', value: string) => {
+    const newSlots = [...formData.availableHours[day]];
+    newSlots[index] = { ...newSlots[index], [field]: value };
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: newSlots
+      }
+    });
+  };
+
+  const removeTimeSlot = (day: string, index: number) => {
+    const newSlots = formData.availableHours[day].filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: newSlots
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    
-    const submitData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'expertise') {
-        submitData.append(key, JSON.stringify(value));
-      } else if (key !== 'businessCardFile' && value) {
-        submitData.append(key, value.toString());
-      }
-    });
-    
-    if (uploadedFile) {
-      submitData.append('businessCardFile', uploadedFile);
+    if (!calendarConnected) {
+      alert('멘토 등록을 위해서는 Google Calendar 연동이 필요합니다.');
+      return;
     }
 
+    setLoading(true);
+    
     try {
-      const response = await api.post('/api/coffee-chat/mentor/register', submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
+      const filteredExpertise = formData.expertise.filter(e => e.trim() !== '');
+      
+      await coffeeChatApi.registerAsMentor({
+        ...formData,
+        expertise: filteredExpertise
       });
       
-      if (response.status === 200) {
-        alert('멘토 등록 신청이 완료되었습니다. 승인 결과는 이메일로 안내드립니다.');
-        navigate('/services/coffee-chat');
-      }
+      alert('멘토 등록이 완료되었습니다!');
+      navigate('/mentor/dashboard');
     } catch (error) {
-      console.error('Registration failed:', error);
-      alert('등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('Failed to register as mentor:', error);
+      alert('멘토 등록에 실패했습니다. 다시 시도해주세요.');
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
+  };
+
+  const dayNames = {
+    monday: '월요일',
+    tuesday: '화요일',
+    wednesday: '수요일',
+    thursday: '목요일',
+    friday: '금요일',
+    saturday: '토요일',
+    sunday: '일요일'
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6">QA 멘토 등록 신청</h2>
-        
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg flex items-start">
-          <Info className="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-800">
-            <p className="font-semibold mb-1">등록 조건</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>QA/테스팅 분야 실무 경력 2년 이상</li>
-              <li>명함 또는 LinkedIn 프로필을 통한 신원 확인 필수</li>
-              <li>제출된 정보는 승인 목적으로만 사용되며 외부에 공개되지 않습니다</li>
-            </ul>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 기본 정보 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">기본 정보</h3>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">이름 *</label>
-              <input
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">이메일 *</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">연락처 *</label>
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="010-0000-0000"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-            </div>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+            <h1 className="text-3xl font-bold">멘토 등록</h1>
+            <p className="mt-2 text-blue-100">당신의 경험과 지식을 공유해주세요</p>
           </div>
 
-          {/* 전문 분야 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">전문 분야</h3>
-            
-            <div>
-              <label className="block text-sm font-medium mb-1">QA 경력 *</label>
-              <textarea
-                name="qaExperience"
-                value={formData.qaExperience}
-                onChange={handleInputChange}
-                rows={3}
-                placeholder="주요 경력사항과 프로젝트 경험을 간단히 작성해주세요"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.qaExperience && <p className="text-red-500 text-sm mt-1">{errors.qaExperience}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">전문 분야 선택 * (복수 선택 가능)</label>
-              <div className="grid grid-cols-2 gap-3">
-                {qaExpertiseOptions.map((option) => (
-                  <label key={option} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.expertise.includes(option)}
-                      onChange={() => handleExpertiseChange(option)}
-                      className="rounded text-blue-600"
-                    />
-                    <span className="text-sm">{option}</span>
-                  </label>
-                ))}
-              </div>
-              {errors.expertise && <p className="text-red-500 text-sm mt-1">{errors.expertise}</p>}
-            </div>
-          </div>
-
-          {/* 신원 확인 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">신원 확인</h3>
-            
-            <div>
-              <label className="block text-sm font-medium mb-2">확인 방법 선택 *</label>
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    checked={formData.verificationMethod === 'businessCard'}
-                    onChange={() => handleVerificationMethodChange('businessCard')}
-                  />
-                  <CreditCard className="w-4 h-4" />
-                  <span>명함 업로드</span>
-                </label>
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    checked={formData.verificationMethod === 'linkedin'}
-                    onChange={() => handleVerificationMethodChange('linkedin')}
-                  />
-                  <LinkedinIcon className="w-4 h-4" />
-                  <span>LinkedIn 프로필</span>
-                </label>
-              </div>
-            </div>
-
-            {formData.verificationMethod === 'businessCard' && (
-              <div>
-                <label className="block text-sm font-medium mb-1">명함 이미지 업로드 *</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      setUploadedFile(e.target.files?.[0] || null);
-                      if (errors.businessCardFile) {
-                        setErrors(prev => ({ ...prev, businessCardFile: '' }));
-                      }
-                    }}
-                    className="hidden"
-                    id="businessCard"
-                  />
-                  <label htmlFor="businessCard" className="cursor-pointer text-blue-600 hover:text-blue-800">
-                    클릭하여 명함 이미지 선택
-                  </label>
-                  {uploadedFile && <p className="mt-2 text-sm text-gray-600">{uploadedFile.name}</p>}
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Google Calendar 연동 섹션 */}
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2" />
+                Google Calendar 연동
+              </h3>
+              
+              {calendarConnected ? (
+                <div className="flex items-center text-green-600">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <span>Google Calendar가 연동되었습니다</span>
                 </div>
-                {errors.businessCardFile && <p className="text-red-500 text-sm mt-1">{errors.businessCardFile}</p>}
-              </div>
-            )}
+              ) : (
+                <div>
+                  <p className="text-gray-600 mb-4">
+                    멘토 활동을 위해서는 Google Calendar 연동이 필요합니다.
+                    연동하면 예약된 시간이 자동으로 캘린더에 추가됩니다.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleGoogleCalendarConnect}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Google Calendar 연동하기
+                  </button>
+                </div>
+              )}
+            </div>
 
-            {formData.verificationMethod === 'linkedin' && (
-              <div>
-                <label className="block text-sm font-medium mb-1">LinkedIn 프로필 URL *</label>
-                <input
-                  name="linkedinUrl"
-                  value={formData.linkedinUrl}
-                  onChange={handleInputChange}
-                  placeholder="https://www.linkedin.com/in/your-profile"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {errors.linkedinUrl && <p className="text-red-500 text-sm mt-1">{errors.linkedinUrl}</p>}
-              </div>
-            )}
-          </div>
-
-          {/* 커피챗 정보 */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">커피챗 정보</h3>
-            
+            {/* 기본 정보 */}
             <div>
-              <label className="block text-sm font-medium mb-1">세션당 가격 (원) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                직함/포지션 *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="예: 시니어 QA 엔지니어"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                회사 *
+              </label>
+              <input
+                type="text"
+                value={formData.company}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                placeholder="예: JamesCompany"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                자기소개 *
+              </label>
+              <textarea
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                rows={4}
+                placeholder="멘티들에게 자신을 소개해주세요. 경력, 전문 분야, 도움을 줄 수 있는 내용 등을 작성해주세요."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            {/* 전문 분야 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                전문 분야 *
+              </label>
+              {formData.expertise.map((skill, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    value={skill}
+                    onChange={(e) => handleExpertiseChange(index, e.target.value)}
+                    placeholder="예: 테스트 자동화"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {formData.expertise.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeExpertise(index)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addExpertise}
+                className="mt-2 flex items-center text-blue-600 hover:text-blue-700"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                전문 분야 추가
+              </button>
+            </div>
+
+            {/* 시간당 요금 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <DollarSign className="inline w-4 h-4" />
+                세션 요금 (60분 기준) *
+              </label>
               <input
                 type="number"
-                name="sessionPrice"
-                value={formData.sessionPrice}
-                onChange={(e) => {
-                  const value = parseInt(e.target.value) || 0;
-                  setFormData(prev => ({ ...prev, sessionPrice: value }));
-                  if (errors.sessionPrice && value >= 10000) {
-                    setErrors(prev => ({ ...prev, sessionPrice: '' }));
-                  }
-                }}
-                placeholder="30000"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.hourlyRate}
+                onChange={(e) => setFormData({ ...formData, hourlyRate: parseInt(e.target.value) })}
+                step={10000}
+                min={30000}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
-              {errors.sessionPrice && <p className="text-red-500 text-sm mt-1">{errors.sessionPrice}</p>}
-              <p className="text-sm text-gray-600 mt-1">* 플랫폼 수수료 20%가 차감됩니다</p>
+              <p className="mt-1 text-sm text-gray-500">
+                추천 가격: ₩50,000 ~ ₩100,000
+              </p>
             </div>
 
+            {/* 가능한 시간대 */}
             <div>
-              <label className="block text-sm font-medium mb-1">자기소개</label>
-              <textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                rows={4}
-                placeholder="멘티들에게 보여질 자기소개를 작성해주세요"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                <Clock className="inline w-4 h-4 mr-1" />
+                멘토링 가능 시간
+              </label>
+              
+              <div className="space-y-4">
+                {Object.entries(dayNames).map(([day, dayName]) => (
+                  <div key={day} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">{dayName}</h4>
+                      <button
+                        type="button"
+                        onClick={() => addTimeSlot(day)}
+                        className="text-sm text-blue-600 hover:text-blue-700 flex items-center"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        시간 추가
+                      </button>
+                    </div>
+                    
+                    {formData.availableHours[day].length === 0 ? (
+                      <p className="text-sm text-gray-500">가능한 시간이 없습니다</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {formData.availableHours[day].map((slot, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <input
+                              type="time"
+                              value={slot.start}
+                              onChange={(e) => updateTimeSlot(day, index, 'start', e.target.value)}
+                              className="px-3 py-1 border border-gray-300 rounded"
+                            />
+                            <span>~</span>
+                            <input
+                              type="time"
+                              value={slot.end}
+                              onChange={(e) => updateTimeSlot(day, index, 'end', e.target.value)}
+                              className="px-3 py-1 border border-gray-300 rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeTimeSlot(day, index)}
+                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? '처리 중...' : '멘토 등록 신청하기'}
-          </button>
-        </form>
+            {/* 제출 버튼 */}
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => navigate('/services/coffee-chat')}
+                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !calendarConnected}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? '등록 중...' : '멘토 등록하기'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
