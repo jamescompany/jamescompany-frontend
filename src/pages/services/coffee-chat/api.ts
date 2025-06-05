@@ -11,18 +11,24 @@ export interface Mentor {
   bio: string;
   profileImage?: string;
   hourlyRate?: number;
+  session_price?: number; // 추가
   availableHours?: string;
   calendarConnected?: boolean;
   rating?: number;
   totalSessions?: number;
+  qa_experience?: string; // 추가
 }
 
 export interface TimeSlot {
   id: string;
   mentorId: string;
-  startTime: string;
-  endTime: string;
-  isAvailable: boolean;
+  start: string; // 변경
+  end: string; // 변경
+  available: boolean; // 변경
+  reason?: string; // 추가
+  startTime?: string;
+  endTime?: string;
+  isAvailable?: boolean;
   isBooked?: boolean;
   bookedBy?: string;
   blockedReason?: string;
@@ -31,9 +37,9 @@ export interface TimeSlot {
 export interface BookingRequest {
   mentorId: string;
   slotId: string;
-  date: string;
-  startTime: string;
-  endTime: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
   topic: string;
   message?: string;
   duration?: number;
@@ -87,11 +93,15 @@ export const coffeeChatApi = {
     }
   },
 
-  // 시간대 관련
-  getMentorAvailableSlots: async (mentorId: string, date: string): Promise<TimeSlot[]> => {
+  // 시간대 관련 - 오버로드 추가
+  getMentorAvailableSlots: async (mentorId: string, startDate: string, endDate?: string): Promise<TimeSlot[]> => {
     try {
       const response = await api.get(`/api/coffee-chat/mentors/${mentorId}/availability`, {
-        params: { date }
+        params: { 
+          date: startDate,
+          startDate,
+          endDate: endDate || startDate
+        }
       });
       return response.data;
     } catch (error) {

@@ -1,7 +1,7 @@
 // src/pages/auth/Signup.tsx
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -35,7 +35,6 @@ export default function Signup() {
   const [isMarketingOpen, setIsMarketingOpen] = useState(false);
 
   const signup = useAuthStore((state) => state.signup);
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

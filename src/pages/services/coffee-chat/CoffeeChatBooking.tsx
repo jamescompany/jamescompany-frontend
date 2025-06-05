@@ -5,24 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, AlertCircle, Check } from 'lucide-react';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { coffeeChatApi } from './api';
-
-interface Mentor {
-  id: string;
-  name: string;
-  title: string;
-  expertise: string[];
-  session_price: number;
-  bio: string;
-  qa_experience?: string;
-}
-
-interface TimeSlot {
-  start: string;
-  end: string;
-  available: boolean;
-  reason?: string;
-}
+import { coffeeChatApi, type TimeSlot, type Mentor } from './api';
 
 const CoffeeChatBooking: React.FC = () => {
   const { mentorId } = useParams<{ mentorId: string }>();
@@ -59,6 +42,7 @@ const CoffeeChatBooking: React.FC = () => {
         id: mentorId || '1',
         name: mentorId === '1' ? '홍지현' : mentorId === '2' ? '이영희' : '박민수',
         title: mentorId === '1' ? 'QA 자동화 전문가' : mentorId === '2' ? '시니어 QA 엔지니어' : '테스트 아키텍트',
+        company: '테크컴퍼니',
         expertise: mentorId === '1' ? ['웹 테스팅', '자동화 테스팅', 'CI/CD'] : 
                    mentorId === '2' ? ['모바일 테스팅', 'API 테스팅', '성능 테스팅'] :
                    ['테스트 전략', 'QA 리더십', 'SDET'],
@@ -91,6 +75,8 @@ const CoffeeChatBooking: React.FC = () => {
     hours.forEach(hour => {
       const isAvailable = Math.random() > 0.3;
       slots.push({
+        id: `slot-${hour}`,
+        mentorId: mentorId || '1',
         start: `${hour}:00`,
         end: `${hour + 1}:00`,
         available: isAvailable,
@@ -128,6 +114,9 @@ const CoffeeChatBooking: React.FC = () => {
     const bookingData = {
       mentorId: mentor.id,
       slotId: `${format(selectedDate, 'yyyy-MM-dd')}-${selectedSlot.start}`,
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      startTime: selectedSlot.start,
+      endTime: selectedSlot.end,
       topic: '커피챗 세션',
       message: message,
       duration: 60
@@ -221,7 +210,7 @@ const CoffeeChatBooking: React.FC = () => {
                 <p className="text-blue-100">{mentor.title}</p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold">₩{mentor.session_price.toLocaleString()}</p>
+                <p className="text-2xl font-bold">₩{(mentor.session_price || 50000).toLocaleString()}</p>
                 <p className="text-sm text-blue-100">60분 세션</p>
               </div>
             </div>
@@ -367,7 +356,7 @@ const CoffeeChatBooking: React.FC = () => {
                       </div>
                       <div className="flex justify-between pt-2 border-t">
                         <span className="text-gray-900 font-medium">결제 금액</span>
-                        <span className="font-bold text-lg">₩{mentor.session_price.toLocaleString()}</span>
+                        <span className="font-bold text-lg">₩{(mentor.session_price || 50000).toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
