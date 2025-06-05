@@ -1,7 +1,7 @@
 // src/pages/auth/Signup.tsx
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -12,6 +12,7 @@ import MarketingModal from "../../components/PolicyModal";
 import { getLatestTerms } from "../../data/policies/terms";
 import { getLatestPrivacy } from "../../data/policies/privacy";
 import { getLatestMarketing } from "../../data/policies/marketing";
+import { Eye, EyeOff } from 'lucide-react';
 
 const latestTerms = getLatestTerms();
 const latestPrivacy = getLatestPrivacy();
@@ -33,14 +34,57 @@ export default function Signup() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [isMarketingOpen, setIsMarketingOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const signup = useAuthStore((state) => state.signup);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const navigate = useNavigate();
+
+  // 로그인된 상태에서 접근시 리다이렉트
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // 이메일 유효성 검사 함수
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // 폼 유효성 검사
+  useEffect(() => {
+    const isValid = 
+      formData.name.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      validateEmail(formData.email) &&
+      formData.password.length >= 8 &&
+      formData.password === formData.confirmPassword &&
+      agreements.terms &&
+      agreements.privacy;
+    
+    setIsFormValid(isValid);
+  }, [formData, agreements]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // 이메일 유효성 실시간 검사
+    if (name === "email") {
+      if (value && !validateEmail(value)) {
+        setEmailError("올바른 이메일 형식이 아닙니다.");
+      } else {
+        setEmailError("");
+      }
+    }
   };
 
   const handleAgreementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +99,16 @@ export default function Signup() {
 
     if (formData.password !== formData.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      alert("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      alert("올바른 이메일 형식이 아닙니다.");
       return;
     }
 
@@ -119,40 +173,67 @@ export default function Signup() {
                 placeholder="이름을 입력하세요"
               />
 
-              <Input
-                label="이메일"
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-                placeholder="이메일을 입력하세요"
-              />
+              <div>
+                <Input
+                  label="이메일"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                  placeholder="이메일을 입력하세요"
+                />
+                {emailError && (
+                  <p className="mt-1 text-sm text-red-600">{emailError}</p>
+                )}
+              </div>
 
-              <Input
-                label="비밀번호"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="비밀번호를 입력하세요"
-                required
-                autoComplete="new-password" // 추가
-                className="..."
-              />
+              <div className="relative">
+                <Input
+                  label="비밀번호"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="비밀번호를 입력하세요 (8자 이상)"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+                {formData.password && formData.password.length < 8 && (
+                  <p className="mt-1 text-sm text-red-600">비밀번호는 8자 이상이어야 합니다.</p>
+                )}
+              </div>
 
-              <Input
-                label="비밀번호 확인"
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="비밀번호를 다시 입력하세요"
-                required
-                autoComplete="new-password" // 추가
-                className="..."
-              />
+              <div className="relative">
+                <Input
+                  label="비밀번호 확인"
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="비밀번호를 다시 입력하세요"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="mt-1 text-sm text-red-600">비밀번호가 일치하지 않습니다.</p>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <div className="flex items-center">
@@ -166,6 +247,7 @@ export default function Signup() {
                     required
                   />
                   <label htmlFor="terms" className="text-sm text-gray-600">
+                    <span className="text-red-500">*</span>{" "}
                     <button
                       type="button"
                       onClick={() => setIsTermsOpen(true)}
@@ -173,7 +255,7 @@ export default function Signup() {
                     >
                       이용약관
                     </button>
-                    에 동의합니다.
+                    에 동의합니다. <span className="text-gray-500">(필수)</span>
                   </label>
                 </div>
 
@@ -188,6 +270,7 @@ export default function Signup() {
                     required
                   />
                   <label htmlFor="privacy" className="text-sm text-gray-600">
+                    <span className="text-red-500">*</span>{" "}
                     <button
                       type="button"
                       onClick={() => setIsPrivacyOpen(true)}
@@ -195,7 +278,7 @@ export default function Signup() {
                     >
                       개인정보처리방침
                     </button>
-                    에 동의합니다.
+                    에 동의합니다. <span className="text-gray-500">(필수)</span>
                   </label>
                 </div>
 
@@ -216,7 +299,7 @@ export default function Signup() {
                     >
                       마케팅 수신
                     </button>
-                    에 동의합니다.
+                    에 동의합니다. <span className="text-gray-500">(선택)</span>
                   </label>
                 </div>
               </div>
@@ -225,7 +308,7 @@ export default function Signup() {
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={loading}
+                disabled={loading || !isFormValid}
               >
                 {loading ? "가입 중..." : "회원가입"}
               </Button>

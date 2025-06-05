@@ -11,7 +11,7 @@ const api = axios.create({
   },
 });
 
-// 요청 인터셉터 - 토큰 추가
+// Request interceptor - 토큰 자동 추가
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -25,14 +25,18 @@ api.interceptors.request.use(
   }
 );
 
-// 응답 인터셉터 - 401 처리
+// Response interceptor - 401 에러 처리
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      // 토큰 만료 시 로그인 페이지로
+      // 토큰이 만료되었거나 유효하지 않은 경우
       localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      
+      // 로그인 페이지로 리다이렉트 (현재 경로가 로그인 페이지가 아닌 경우)
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

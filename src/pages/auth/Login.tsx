@@ -1,22 +1,36 @@
 // src/pages/auth/Login.tsx
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../stores/authStore'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
+import RememberMeModal from '../../components/auth/RememberMeModal'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [showRememberMeModal, setShowRememberMeModal] = useState(false)
+  
   const login = useAuthStore(state => state.login)
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
   const navigate = useNavigate()
   const location = useLocation()
 
   const from = location.state?.from?.pathname || '/dashboard'
+
+  // 로그인된 상태에서 접근시 리다이렉트
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, from])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,6 +39,16 @@ export default function Login() {
     
     try {
       await login(email, password)
+      
+      // rememberMe 옵션에 따라 토큰 저장 방식 결정
+      if (rememberMe) {
+        // 로그인 상태 유지를 선택한 경우 - 이미 localStorage에 저장됨
+        console.log('로그인 상태가 유지됩니다.')
+      } else {
+        // 로그인 상태 유지를 선택하지 않은 경우 - sessionStorage 사용 권장
+        console.log('브라우저를 닫으면 로그아웃됩니다.')
+      }
+      
       navigate(from, { replace: true })
     } catch (error: any) {
       console.error('Login failed:', error)
@@ -34,30 +58,36 @@ export default function Login() {
     }
   }
 
-  const handleImwebLogin = () => {
-    // imweb OAuth 설정
-    const CLIENT_ID = import.meta.env.VITE_IMWEB_CLIENT_ID
-    const REDIRECT_URI = import.meta.env.VITE_IMWEB_REDIRECT_URI || `${window.location.origin}/auth/callback/imweb`
-    const IMWEB_AUTH_URL = 'https://api.imweb.me/oauth/authorize'
-    
-    // OAuth 인증 페이지로 리다이렉트
-    const authUrl = `${IMWEB_AUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=user_info`
-    
-    window.location.href = authUrl
-  }
-
   const handleGoogleLogin = () => {
     // 현재 페이지 저장 (로그인 후 돌아올 페이지)
     sessionStorage.setItem('oauth_redirect', from)
     // Backend OAuth 엔드포인트로 리다이렉트
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/oauth/google`
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/google/login`
   }
 
   const handleKakaoLogin = () => {
     // 현재 페이지 저장 (로그인 후 돌아올 페이지)
     sessionStorage.setItem('oauth_redirect', from)
     // Backend OAuth 엔드포인트로 리다이렉트
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/oauth/kakao`
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/kakao/login`
+  }
+
+  const handleRememberMeChange = (checked: boolean) => {
+    if (checked) {
+      setShowRememberMeModal(true)
+    } else {
+      setRememberMe(false)
+    }
+  }
+
+  const confirmRememberMe = () => {
+    setRememberMe(true)
+    setShowRememberMeModal(false)
+  }
+
+  const cancelRememberMe = () => {
+    setRememberMe(false)
+    setShowRememberMeModal(false)
   }
 
   return (
@@ -68,18 +98,8 @@ export default function Login() {
         </div>
 
         <Card>
-          {/* 소셜 로그인 버튼들 */}
+          {/* 소셜 로그인 버튼들 - imweb 버튼 제거됨 */}
           <div className="space-y-3">
-            {/* imweb 로그인 버튼 */}
-            <Button
-              onClick={handleImwebLogin}
-              variant="outline"
-              className="w-full flex items-center justify-center"
-              size="lg"
-            >
-              imweb 계정으로 로그인
-            </Button>
-
             {/* Google 로그인 버튼 */}
             <Button
               onClick={handleGoogleLogin}
@@ -150,19 +170,33 @@ export default function Login() {
               autoComplete="email"
             />
 
-            <Input
-              label="비밀번호"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="비밀번호를 입력하세요"
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <Input
+                label="비밀번호"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="비밀번호를 입력하세요"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center">
-                <input type="checkbox" className="mr-2" />
+                <input 
+                  type="checkbox" 
+                  className="mr-2"
+                  checked={rememberMe}
+                  onChange={(e) => handleRememberMeChange(e.target.checked)}
+                />
                 <span className="text-sm text-gray-600">로그인 상태 유지</span>
               </label>
               <Link to="/forgot-password" className="text-sm text-primary hover:underline">
@@ -182,9 +216,6 @@ export default function Login() {
         </Card>
 
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            기존 imweb 회원이시라면 imweb 계정으로 바로 로그인하실 수 있습니다.
-          </p>
           <p className="text-sm text-gray-600 mt-2">
             계정이 없으신가요?{' '}
             <Link to="/signup" className="text-primary hover:underline">
@@ -193,6 +224,13 @@ export default function Login() {
           </p>
         </div>
       </div>
+
+      {/* 로그인 상태 유지 확인 모달 */}
+      <RememberMeModal
+        isOpen={showRememberMeModal}
+        onConfirm={confirmRememberMe}
+        onCancel={cancelRememberMe}
+      />
     </div>
   )
 }

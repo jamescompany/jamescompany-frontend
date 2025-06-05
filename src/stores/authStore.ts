@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (email: string, password: string) => {
         try {
-          const response = await api.post('/api/auth/login', { 
+          const response = await api.post('/api/v1/auth/login', { 
             email, 
             password 
           });
@@ -77,20 +77,16 @@ export const useAuthStore = create<AuthState>()(
 
       signup: async (data: SignupData) => {
         try {
-          // 회원가입 - register로 변경
-          const signupResponse = await api.post('/api/auth/register', data);
+          // 회원가입 - /api/v1 경로 추가
+          const signupResponse = await api.post('/api/v1/auth/register', data);
           console.log('Signup response:', signupResponse);
 
-          // 회원가입 성공 - 자동 로그인은 일단 비활성화
-          // 백엔드 로그인 엔드포인트 수정 후 다시 활성화
-          
-          /* 자동 로그인 임시 비활성화
+          // 회원가입 성공 후 자동 로그인
           try {
             await get().login(data.email, data.password)
           } catch (loginError) {
             console.error('Auto-login failed after signup:', loginError)
           }
-          */
         } catch (error: any) {
           console.error('Signup error:', error)
           if (error.response?.data?.detail) {
@@ -102,7 +98,7 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithImweb: async (code: string) => {
         try {
-          const response = await api.post<LoginResponse>('/api/auth/imweb/callback', {
+          const response = await api.post<LoginResponse>('/api/v1/auth/imweb/callback', {
             code,
           })
 
@@ -135,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
         })
 
         // 로그아웃 API 호출 (선택사항)
-        api.post('/api/auth/logout').catch(console.error)
+        api.post('/api/v1/auth/logout').catch(console.error)
       },
 
       checkAuth: async () => {
@@ -153,11 +149,11 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await api.get<User>('/api/users/me')
+          const response = await api.get<User>('/api/v1/users/me')
           
           // 멘토 상태 확인 (선택사항)
           try {
-            const mentorResponse = await api.get('/api/mentors/my-status')
+            const mentorResponse = await api.get('/api/v1/mentors/my-status')
             if (mentorResponse.data) {
               response.data.mentorId = mentorResponse.data.mentorId
               response.data.mentorStatus = mentorResponse.data.status
