@@ -1,10 +1,17 @@
 // src/pages/services/coffee-chat/MentorRegistration.tsx
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthStore } from '../../../stores/authStore';
-import { Calendar, Clock, DollarSign, Plus, Trash2, CheckCircle } from 'lucide-react';
-import { coffeeChatApi } from './api';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "../../../stores/authStore";
+import {
+  Calendar,
+  Clock,
+  DollarSign,
+  Plus,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
+import { coffeeChatApi } from "./api";
 
 interface AvailableHours {
   [key: string]: Array<{ start: string; end: string }>;
@@ -14,12 +21,12 @@ const MentorRegistration: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuthStore();
-  
+
   const [formData, setFormData] = useState({
-    title: '',
-    company: '',
-    bio: '',
-    expertise: [''],
+    title: "",
+    company: "",
+    bio: "",
+    expertise: [""],
     hourlyRate: 50000,
     availableHours: {
       monday: [],
@@ -28,8 +35,8 @@ const MentorRegistration: React.FC = () => {
       thursday: [],
       friday: [],
       saturday: [],
-      sunday: []
-    } as AvailableHours
+      sunday: [],
+    } as AvailableHours,
   });
 
   const [calendarConnected, setCalendarConnected] = useState(false);
@@ -37,7 +44,7 @@ const MentorRegistration: React.FC = () => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -54,18 +61,33 @@ const MentorRegistration: React.FC = () => {
       const status = await coffeeChatApi.getCalendarStatus();
       setCalendarConnected(status.isConnected);
     } catch (error) {
-      console.error('Failed to check calendar status:', error);
+      console.error("Failed to check calendar status:", error);
     }
   };
 
   const handleGoogleCalendarConnect = async () => {
     try {
-      const { authUrl } = await coffeeChatApi.initiateGoogleCalendarAuth();
-      // state 파라미터를 추가하여 콜백 후 돌아올 위치 지정
-      window.location.href = `${authUrl}&state=mentor-registration`;
+      // Frontend URL 설정 (환경에 따라 다르게)
+      const frontendUrl = window.location.origin;
+      const redirectUri = `${frontendUrl}/auth/google-calendar/callback`;
+
+      // Google OAuth URL 직접 구성
+      const authUrl =
+        `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${
+          import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"
+        }` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_type=code` +
+        `&scope=openid%20email%20profile%20https://www.googleapis.com/auth/calendar.events%20https://www.googleapis.com/auth/calendar.readonly` +
+        `&access_type=offline` +
+        `&prompt=consent` +
+        `&state=mentor-registration`;
+
+      window.location.href = authUrl;
     } catch (error) {
-      console.error('Failed to initiate Google Calendar auth:', error);
-      alert('Google Calendar 연동을 시작할 수 없습니다.');
+      console.error("Failed to initiate Google Calendar auth:", error);
+      alert("Google Calendar 연동을 시작할 수 없습니다.");
     }
   };
 
@@ -76,7 +98,7 @@ const MentorRegistration: React.FC = () => {
   };
 
   const addExpertise = () => {
-    setFormData({ ...formData, expertise: [...formData.expertise, ''] });
+    setFormData({ ...formData, expertise: [...formData.expertise, ""] });
   };
 
   const removeExpertise = (index: number) => {
@@ -89,20 +111,28 @@ const MentorRegistration: React.FC = () => {
       ...formData,
       availableHours: {
         ...formData.availableHours,
-        [day]: [...formData.availableHours[day], { start: '09:00', end: '10:00' }]
-      }
+        [day]: [
+          ...formData.availableHours[day],
+          { start: "09:00", end: "10:00" },
+        ],
+      },
     });
   };
 
-  const updateTimeSlot = (day: string, index: number, field: 'start' | 'end', value: string) => {
+  const updateTimeSlot = (
+    day: string,
+    index: number,
+    field: "start" | "end",
+    value: string
+  ) => {
     const newSlots = [...formData.availableHours[day]];
     newSlots[index] = { ...newSlots[index], [field]: value };
     setFormData({
       ...formData,
       availableHours: {
         ...formData.availableHours,
-        [day]: newSlots
-      }
+        [day]: newSlots,
+      },
     });
   };
 
@@ -112,47 +142,56 @@ const MentorRegistration: React.FC = () => {
       ...formData,
       availableHours: {
         ...formData.availableHours,
-        [day]: newSlots
-      }
+        [day]: newSlots,
+      },
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!calendarConnected) {
-      alert('멘토 등록을 위해서는 Google Calendar 연동이 필요합니다.');
+
+    // 개발 환경에서는 캘린더 연동 체크 스킵
+    const isDevelopment =
+      import.meta.env.DEV || window.location.hostname === "localhost";
+
+    if (!calendarConnected && !isDevelopment) {
+      alert("멘토 등록을 위해서는 Google Calendar 연동이 필요합니다.");
       return;
     }
 
     setLoading(true);
-    
+
     try {
-      const filteredExpertise = formData.expertise.filter(e => e.trim() !== '');
-      
+      const filteredExpertise = formData.expertise.filter(
+        (e) => e.trim() !== ""
+      );
+
       await coffeeChatApi.registerAsMentor({
         ...formData,
-        expertise: filteredExpertise
+        expertise: filteredExpertise,
       });
-      
-      alert('멘토 등록이 완료되었습니다!');
-      navigate('/mentor/dashboard');
-    } catch (error) {
-      console.error('Failed to register as mentor:', error);
-      alert('멘토 등록에 실패했습니다. 다시 시도해주세요.');
+
+      alert("멘토 등록이 완료되었습니다!");
+      navigate("/mentor/dashboard");
+    } catch (error: any) {
+      console.error("Registration failed:", error);
+      const errorMessage =
+        error.response?.data?.detail ||
+        "멘토 등록에 실패했습니다. 다시 시도해주세요.";
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const dayNames = {
-    monday: '월요일',
-    tuesday: '화요일',
-    wednesday: '수요일',
-    thursday: '목요일',
-    friday: '금요일',
-    saturday: '토요일',
-    sunday: '일요일'
+    monday: "월요일",
+    tuesday: "화요일",
+    wednesday: "수요일",
+    thursday: "목요일",
+    friday: "금요일",
+    saturday: "토요일",
+    sunday: "일요일",
   };
 
   return (
@@ -161,7 +200,9 @@ const MentorRegistration: React.FC = () => {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
             <h1 className="text-3xl font-bold">멘토 등록</h1>
-            <p className="mt-2 text-blue-100">당신의 경험과 지식을 공유해주세요</p>
+            <p className="mt-2 text-blue-100">
+              당신의 경험과 지식을 공유해주세요
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -171,7 +212,7 @@ const MentorRegistration: React.FC = () => {
                 <Calendar className="w-5 h-5 mr-2" />
                 Google Calendar 연동
               </h3>
-              
+
               {calendarConnected ? (
                 <div className="flex items-center text-green-600">
                   <CheckCircle className="w-5 h-5 mr-2" />
@@ -202,7 +243,9 @@ const MentorRegistration: React.FC = () => {
               <input
                 type="text"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="예: 시니어 QA 엔지니어"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -216,7 +259,9 @@ const MentorRegistration: React.FC = () => {
               <input
                 type="text"
                 value={formData.company}
-                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, company: e.target.value })
+                }
                 placeholder="예: JamesCompany"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -229,7 +274,9 @@ const MentorRegistration: React.FC = () => {
               </label>
               <textarea
                 value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, bio: e.target.value })
+                }
                 rows={4}
                 placeholder="멘티들에게 자신을 소개해주세요. 경력, 전문 분야, 도움을 줄 수 있는 내용 등을 작성해주세요."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -247,7 +294,9 @@ const MentorRegistration: React.FC = () => {
                   <input
                     type="text"
                     value={skill}
-                    onChange={(e) => handleExpertiseChange(index, e.target.value)}
+                    onChange={(e) =>
+                      handleExpertiseChange(index, e.target.value)
+                    }
                     placeholder="예: 테스트 자동화"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -281,7 +330,12 @@ const MentorRegistration: React.FC = () => {
               <input
                 type="number"
                 value={formData.hourlyRate}
-                onChange={(e) => setFormData({ ...formData, hourlyRate: parseInt(e.target.value) })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    hourlyRate: parseInt(e.target.value),
+                  })
+                }
                 step={10000}
                 min={30000}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -298,7 +352,7 @@ const MentorRegistration: React.FC = () => {
                 <Clock className="inline w-4 h-4 mr-1" />
                 멘토링 가능 시간
               </label>
-              
+
               <div className="space-y-4">
                 {Object.entries(dayNames).map(([day, dayName]) => (
                   <div key={day} className="border rounded-lg p-4">
@@ -313,9 +367,11 @@ const MentorRegistration: React.FC = () => {
                         시간 추가
                       </button>
                     </div>
-                    
+
                     {formData.availableHours[day].length === 0 ? (
-                      <p className="text-sm text-gray-500">가능한 시간이 없습니다</p>
+                      <p className="text-sm text-gray-500">
+                        가능한 시간이 없습니다
+                      </p>
                     ) : (
                       <div className="space-y-2">
                         {formData.availableHours[day].map((slot, index) => (
@@ -323,14 +379,28 @@ const MentorRegistration: React.FC = () => {
                             <input
                               type="time"
                               value={slot.start}
-                              onChange={(e) => updateTimeSlot(day, index, 'start', e.target.value)}
+                              onChange={(e) =>
+                                updateTimeSlot(
+                                  day,
+                                  index,
+                                  "start",
+                                  e.target.value
+                                )
+                              }
                               className="px-3 py-1 border border-gray-300 rounded"
                             />
                             <span>~</span>
                             <input
                               type="time"
                               value={slot.end}
-                              onChange={(e) => updateTimeSlot(day, index, 'end', e.target.value)}
+                              onChange={(e) =>
+                                updateTimeSlot(
+                                  day,
+                                  index,
+                                  "end",
+                                  e.target.value
+                                )
+                              }
                               className="px-3 py-1 border border-gray-300 rounded"
                             />
                             <button
@@ -353,17 +423,19 @@ const MentorRegistration: React.FC = () => {
             <div className="flex justify-end space-x-4">
               <button
                 type="button"
-                onClick={() => navigate('/services/coffee-chat')}
+                onClick={() => navigate("/services/coffee-chat")}
                 className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 취소
               </button>
               <button
                 type="submit"
-                disabled={loading || !calendarConnected}
+                disabled={
+                  loading || (!calendarConnected && !import.meta.env.DEV)
+                }
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? '등록 중...' : '멘토 등록하기'}
+                {loading ? "등록 중..." : "멘토 등록하기"}
               </button>
             </div>
           </form>

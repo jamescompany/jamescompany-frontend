@@ -25,6 +25,9 @@ import BookingSuccess from "./pages/services/coffee-chat/BookingSuccess";
 import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
 import MyBookings from "./pages/mypage/MyBookings";
 
+// Auth
+import GoogleCalendarCallback from "./pages/auth/GoogleCalendarCallback";
+
 // Other Services
 import CaseMaker from "./pages/services/CaseMaker";
 import QAuto from "./pages/services/QAuto";
@@ -56,6 +59,9 @@ function App() {
 
           {/* About */}
           <Route path="about" element={<About />} />
+
+          {/* Auth - Google Calendar Callback */}
+          <Route path="auth/google-calendar/callback" element={<GoogleCalendarCallback />} />
 
           {/* Services */}
           <Route path="services" element={<Services />} />
