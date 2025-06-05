@@ -1,6 +1,7 @@
 // src/components/recruitment/JobDetailModal.tsx
 
 import { X, Building, MapPin, Calendar, DollarSign, Users, Wrench, Award, ExternalLink, Mail, Clock } from 'lucide-react';
+import LocationMap from './LocationMap';
 import type { JobPosting } from '../../types/recruitment';
 
 interface JobDetailModalProps {
@@ -91,6 +92,21 @@ const JobDetailModal = ({ job, isOpen, onClose }: JobDetailModalProps) => {
                   💡 제임스의 한마디
                 </h4>
                 <p className="text-blue-800">{job.jamesNote}</p>
+              </div>
+            )}
+
+            {/* Location Map */}
+            {job.coordinates && job.workType !== 'remote' && (
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  근무 위치
+                </h3>
+                <LocationMap 
+                  location={job.location}
+                  coordinates={job.coordinates}
+                  companyName={job.companyName}
+                />
               </div>
             )}
 

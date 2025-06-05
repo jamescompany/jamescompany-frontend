@@ -16,6 +16,10 @@ export interface JobPosting {
   };
   benefits: string[];
   location: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
   workType: 'onsite' | 'remote' | 'hybrid';
   applicationMethod: {
     type: 'url' | 'email';

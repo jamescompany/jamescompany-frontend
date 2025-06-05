@@ -29,7 +29,11 @@ const sampleJobs: JobPosting[] = [
     ],
     salaryRange: { min: 4800, max: 6000 },
     benefits: ['리모트 근무', '커리어 성장 지원비', '스톡옵션', '유연근무제'],
-    location: '서울 강남구',
+    location: '서울 강남구 테헤란로 142',
+    coordinates: {
+      lat: 37.5012767,
+      lng: 127.0396002
+    },
     workType: 'hybrid',
     applicationMethod: { type: 'url', value: 'https://example.com/apply' },
     jamesNote: '성장 중인 스타트업에서 QA 프로세스를 처음부터 구축할 수 있는 좋은 기회입니다. DevOps 문화가 잘 정착되어 있어 자동화 엔지니어에게 이상적인 환경입니다.',
@@ -55,7 +59,11 @@ const sampleJobs: JobPosting[] = [
     teamStructure: 'QA 팀 5인 / 개발팀 15인 / 보안팀 3인과 협업',
     salaryRange: { min: 6000, max: 8000 },
     benefits: ['성과급', '건강검진', '자기개발비', '재택근무'],
-    location: '서울 여의도',
+    location: '서울 영등포구 국제금융로 10',
+    coordinates: {
+      lat: 37.5259671,
+      lng: 126.9263991
+    },
     workType: 'onsite',
     applicationMethod: { type: 'email', value: 'recruit@fintech.com' },
     jamesNote: '금융 도메인에서 안정적인 커리어를 쌓을 수 있는 기회입니다. 체계적인 QA 프로세스와 전문가 팀이 구성되어 있습니다.',
@@ -64,6 +72,96 @@ const sampleJobs: JobPosting[] = [
     expiryDate: '2025-02-05',
     packageType: 'standard',
     viewCount: 256,
+    isPinned: false
+  },
+  {
+    id: '3',
+    companyName: 'e커머스 플랫폼 C',
+    position: 'QA Lead Engineer',
+    summary: '대규모 이커머스 플랫폼의 품질을 책임질 QA 리드를 찾습니다',
+    mainTasks: [
+      'QA 팀 리딩 및 멘토링',
+      '테스트 전략 및 로드맵 수립',
+      '성능 테스트 및 모니터링 체계 구축',
+      '자동화 프레임워크 설계 및 개선'
+    ],
+    tools: ['Cypress', 'K6', 'Datadog', 'GitLab CI', 'JavaScript'],
+    teamStructure: 'QA 팀 8인 / 개발팀 20인 / DevOps 팀 4인과 협업',
+    salaryRange: { min: 7000, max: 9000 },
+    benefits: ['스톡옵션', '유연근무제', '교육비 지원', '안식휴가'],
+    location: '서울 서초구 강남대로 373',
+    coordinates: {
+      lat: 37.4954501,
+      lng: 127.0283985
+    },
+    workType: 'hybrid',
+    applicationMethod: { type: 'url', value: 'https://careers.ecommerce.com' },
+    jamesNote: '국내 최대 규모 이커머스 플랫폼에서 QA 리더십을 발휘할 수 있는 포지션입니다. 대규모 트래픽 환경에서의 품질 관리 경험을 쌓을 수 있습니다.',
+    isCertified: true,
+    postingDate: '2025-01-10',
+    expiryDate: '2025-02-10',
+    packageType: 'premium',
+    viewCount: 489,
+    isPinned: true
+  },
+  {
+    id: '4',
+    companyName: '게임 스튜디오 D',
+    position: 'Game QA Engineer',
+    summary: '모바일 게임의 품질을 담당할 QA 엔지니어를 모집합니다',
+    mainTasks: [
+      '게임 기능 및 밸런스 테스트',
+      '버그 리포팅 및 이슈 트래킹',
+      '테스트 자동화 스크립트 개발',
+      '유저 피드백 분석 및 품질 개선'
+    ],
+    tools: ['Unity Test Framework', 'Charles Proxy', 'JIRA', 'Appium', 'Python'],
+    teamStructure: 'QA 팀 3인 / 게임 개발팀 12인 / 기획팀 5인과 협업',
+    salaryRange: { min: 4000, max: 5500 },
+    benefits: ['게임 출시 보너스', '리모트 근무', '최신 기기 지원', '게임 포인트'],
+    location: '경기도 성남시 분당구 판교역로 235',
+    coordinates: {
+      lat: 37.4019528,
+      lng: 127.1082172
+    },
+    workType: 'hybrid',
+    applicationMethod: { type: 'email', value: 'hr@gamestudio.com' },
+    jamesNote: '게임 산업에서 QA 커리어를 시작하기 좋은 기회입니다. 다양한 장르의 게임 프로젝트에 참여할 수 있습니다.',
+    isCertified: false,
+    postingDate: '2025-01-08',
+    expiryDate: '2025-02-08',
+    packageType: 'basic',
+    viewCount: 178,
+    isPinned: false
+  },
+  {
+    id: '5',
+    companyName: '헬스케어 스타트업 E',
+    position: 'Healthcare QA Specialist',
+    summary: '디지털 헬스케어 서비스의 품질과 규제 준수를 담당할 QA 전문가',
+    mainTasks: [
+      '의료기기 소프트웨어 검증 및 밸리데이션',
+      'ISO 13485, IEC 62304 규제 준수 테스트',
+      '위험 분석 및 추적성 매트릭스 관리',
+      '임상 시험 데이터 검증'
+    ],
+    tools: ['TestComplete', 'Ranorex', 'Confluence', 'Azure DevOps', 'Python'],
+    teamStructure: 'QA/RA 팀 4인 / 개발팀 8인 / 임상팀 3인과 협업',
+    salaryRange: { min: 5500, max: 7000 },
+    benefits: ['건강검진 프리미엄', '자기개발비', '재택근무', '학회 참석 지원'],
+    location: '서울 강남구 봉은사로 524',
+    coordinates: {
+      lat: 37.5172363,
+      lng: 127.0473248
+    },
+    workType: 'remote',
+    applicationMethod: { type: 'url', value: 'https://healthcare-startup.com/careers' },
+    jamesNote: '헬스케어 도메인의 전문성을 기를 수 있는 포지션입니다. 규제 산업에서의 QA 경험은 커리어에 큰 자산이 될 것입니다.',
+    isCertified: true,
+    postingDate: '2025-01-12',
+    expiryDate: '2025-02-12',
+    packageType: 'standard',
+    viewCount: 234,
     isPinned: false
   }
 ];
@@ -157,7 +255,7 @@ const QARecruitment = () => {
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
                 <span className="font-semibold">QA 인증 기업</span>
-                <span className="block text-2xl font-bold">100%</span>
+                <span className="block text-2xl font-bold">80%</span>
               </div>
             </div>
           </div>
@@ -208,6 +306,16 @@ const QARecruitment = () => {
                 }`}
               >
                 하이브리드
+              </button>
+              <button
+                onClick={() => setFilterType('onsite')}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                  filterType === 'onsite' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                사무실
               </button>
             </div>
           </div>
