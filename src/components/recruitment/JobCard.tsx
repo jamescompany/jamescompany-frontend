@@ -1,7 +1,9 @@
 // src/components/recruitment/JobCard.tsx
 
-import { MapPin, Building, DollarSign, Calendar, Eye, Award, Pin } from 'lucide-react';
+import { MapPin, Building, DollarSign, Calendar, Eye, Award, Pin, Navigation } from 'lucide-react';
 import type { JobPosting } from '../../types/recruitment';
+import { useLocationStore } from '../../stores/locationStore';
+import { calculateDistance, formatDistance, getDistanceColor, getDistanceBgColor } from '../../utils/distanceCalculator';
 
 interface JobCardProps {
   job: JobPosting;
@@ -9,6 +11,8 @@ interface JobCardProps {
 }
 
 const JobCard = ({ job, onClick }: JobCardProps) => {
+  const { userLocation } = useLocationStore();
+  
   const formatSalary = (min: number, max: number) => {
     return `${(min / 10000).toFixed(0)}억 ${(min % 10000).toFixed(0).padStart(4, '0')}만원 ~ ${(max / 10000).toFixed(0)}억 ${(max % 10000).toFixed(0).padStart(4, '0')}만원`;
   };
@@ -32,6 +36,17 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
   };
 
   const daysRemaining = Math.ceil((new Date(job.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+  // 거리 계산
+  let distance: number | null = null;
+  if (userLocation?.coordinates && job.coordinates) {
+    distance = calculateDistance(
+      userLocation.coordinates.lat,
+      userLocation.coordinates.lng,
+      job.coordinates.lat,
+      job.coordinates.lng
+    );
+  }
 
   return (
     <div 
@@ -70,6 +85,12 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
                 <MapPin className="w-4 h-4" />
                 <span className="text-sm">{job.location}</span>
               </div>
+              {distance !== null && (
+                <div className={`flex items-center gap-1 ${getDistanceColor(distance)}`}>
+                  <Navigation className="w-4 h-4" />
+                  <span className="text-sm font-medium">{formatDistance(distance)}</span>
+                </div>
+              )}
             </div>
             <p className="text-gray-700 mb-4 line-clamp-2">{job.summary}</p>
           </div>
@@ -79,6 +100,11 @@ const JobCard = ({ job, onClick }: JobCardProps) => {
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getWorkTypeBadgeColor(job.workType)}`}>
             {getWorkTypeLabel(job.workType)}
           </span>
+          {distance !== null && (
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getDistanceBgColor(distance)} ${getDistanceColor(distance)}`}>
+              내 위치에서 {formatDistance(distance)}
+            </span>
+          )}
           {job.tools.slice(0, 3).map((tool, index) => (
             <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
               {tool}

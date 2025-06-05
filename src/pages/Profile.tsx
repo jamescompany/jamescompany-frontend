@@ -4,7 +4,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import api from '../services/api';
-import { Calendar, Coffee, CreditCard, User } from 'lucide-react';
+import { Calendar, Coffee, CreditCard, User, MapPin } from 'lucide-react';
+
+// 컴포넌트 import
+import ProfileInfo from '../components/profile/ProfileInfo';
+import LocationSettings from '../components/profile/LocationSettings';
+import BookingHistory from '../components/profile/BookingHistory';
+import MembershipInfo from '../components/profile/MembershipInfo';
 
 interface UserProfile {
   id: string;
@@ -25,7 +31,7 @@ interface Booking {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [bookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState('profile');
@@ -36,21 +42,45 @@ const Profile = () => {
       navigate('/login');
       return;
     }
-    fetchUserData();
-  }, [isAuthenticated, navigate]);
+    
+    // authStore의 user 정보 사용
+    if (user) {
+      setProfile({
+        id: user.id || '1',
+        email: user.email,
+        name: user.name || user.email.split('@')[0], // 이름이 없으면 이메일의 @ 앞부분 사용
+        created_at: new Date().toISOString(),
+        membership_tier: 'Free',
+        is_admin: false,
+        is_active: true
+      });
+      setLoading(false);
+    } else {
+      fetchUserData();
+    }
+  }, [isAuthenticated, navigate, user]);
 
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/users/me');
+      // API 경로 수정 - baseURL 확인 필요
+      const response = await api.get('/users/me');
       setProfile(response.data);
-      
-      // TODO: 예약 내역 API 구현 후 연동
-      // const bookingsResponse = await api.get('/api/bookings/my');
-      // setBookings(bookingsResponse.data);
-      
     } catch (error) {
       console.error('Failed to fetch user data:', error);
+      
+      // API 실패 시 authStore의 user 정보 사용
+      if (user) {
+        setProfile({
+          id: user.id || '1',
+          email: user.email,
+          name: user.name || user.email.split('@')[0],
+          created_at: new Date().toISOString(),
+          membership_tier: 'Free',
+          is_admin: false,
+          is_active: true
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +130,17 @@ const Profile = () => {
               프로필 정보
             </button>
             <button
+              onClick={() => setActiveTab('location')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'location'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <MapPin className="w-4 h-4 inline mr-2" />
+              위치 설정
+            </button>
+            <button
               onClick={() => setActiveTab('bookings')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'bookings'
@@ -126,136 +167,10 @@ const Profile = () => {
 
         {/* 탭 내용 */}
         <div className="p-6">
-          {activeTab === 'profile' && profile && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">기본 정보</h3>
-                <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">이름</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{profile.name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">이메일</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{profile.email}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">가입일</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {new Date(profile.created_at).toLocaleDateString('ko-KR')}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">멤버십</dt>
-                    <dd className="mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        profile.membership_tier === 'Pro' ? 'bg-purple-100 text-purple-800' :
-                        profile.membership_tier === 'Basic' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {profile.membership_tier}
-                      </span>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">계정 유형</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {profile.is_admin ? '관리자' : '일반 사용자'}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">계정 상태</dt>
-                    <dd className="mt-1">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        profile.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {profile.is_active ? '활성' : '비활성'}
-                      </span>
-                    </dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'bookings' && (
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">예약 내역</h3>
-              {bookings.length > 0 ? (
-                <div className="space-y-4">
-                  {bookings.map((booking) => (
-                    <div key={booking.id} className="border rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{booking.mentorName}</h4>
-                          <p className="text-sm text-gray-500">
-                            {new Date(booking.scheduledDate).toLocaleString('ko-KR')}
-                          </p>
-                        </div>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                          booking.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                          booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {booking.status === 'confirmed' ? '확정' :
-                           booking.status === 'completed' ? '완료' :
-                           booking.status === 'cancelled' ? '취소' : '대기'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Coffee className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">아직 예약 내역이 없습니다</p>
-                  <button
-                    onClick={() => navigate('/services/coffee-chat')}
-                    className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
-                  >
-                    커피챗 예약하기
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'membership' && profile && (
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">멤버십 정보</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {['Free', 'Basic', 'Pro'].map((tier) => (
-                  <div
-                    key={tier}
-                    className={`border rounded-lg p-6 ${
-                      profile.membership_tier === tier ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                    }`}
-                  >
-                    <h4 className="text-lg font-semibold mb-2">{tier}</h4>
-                    <p className="text-3xl font-bold mb-4">
-                      {tier === 'Free' ? '₩0' : tier === 'Basic' ? '₩9,900' : '₩29,900'}
-                      <span className="text-sm font-normal text-gray-500">/월</span>
-                    </p>
-                    <ul className="space-y-2 text-sm">
-                      <li>✓ 기본 서비스 이용</li>
-                      {tier !== 'Free' && <li>✓ 우선 예약 권한</li>}
-                      {tier === 'Pro' && <li>✓ 무제한 커피챗</li>}
-                    </ul>
-                    {profile.membership_tier === tier ? (
-                      <button disabled className="mt-4 w-full py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">
-                        현재 플랜
-                      </button>
-                    ) : (
-                      <button className="mt-4 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        업그레이드
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {activeTab === 'profile' && <ProfileInfo profile={profile} />}
+          {activeTab === 'location' && <LocationSettings />}
+          {activeTab === 'bookings' && <BookingHistory profile={profile} />}
+          {activeTab === 'membership' && <MembershipInfo profile={profile} />}
         </div>
       </div>
     </div>

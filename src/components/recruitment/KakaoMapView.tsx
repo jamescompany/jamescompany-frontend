@@ -1,9 +1,11 @@
 // src/components/recruitment/KakaoMapView.tsx
 
 import { useEffect, useRef, useState } from 'react';
-import { MapPin, Briefcase, Users, TrendingUp, X, AlertCircle } from 'lucide-react';
+import { MapPin, Briefcase, Users, TrendingUp, X, AlertCircle, Home } from 'lucide-react';
 import type { JobPosting } from '../../types/recruitment';
 import { loadKakaoMapScript } from '../../utils/kakaoMapLoader';
+import { useLocationStore } from '../../stores/locationStore';
+import { calculateDistance, formatDistance } from '../../utils/distanceCalculator';
 
 declare global {
   interface Window {
@@ -18,6 +20,7 @@ interface KakaoMapViewProps {
 
 const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const { userLocation } = useLocationStore();
   const [selectedJobs, setSelectedJobs] = useState<JobPosting[]>([]);
   const [showJobList, setShowJobList] = useState(false);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -64,13 +67,68 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
     try {
       const kakao = window.kakao;
       
+      // 지도 중심 설정 (사용자 위치가 있으면 그곳을, 없으면 한국 중심)
+      const centerLat = userLocation?.coordinates?.lat || 36.5;
+      const centerLng = userLocation?.coordinates?.lng || 127.5;
+      
       // 지도 생성
       const options = {
-        center: new kakao.maps.LatLng(36.5, 127.5), // 한국 중심
-        level: 13 // 전국이 보이는 레벨
+        center: new kakao.maps.LatLng(centerLat, centerLng),
+        level: userLocation ? 10 : 13 // 사용자 위치가 있으면 더 확대
       };
       
       const newMap = new kakao.maps.Map(mapContainer.current, options);
+
+      // 사용자 위치 마커 추가
+      if (userLocation?.coordinates) {
+        const userMarkerImage = new kakao.maps.MarkerImage(
+          'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+          new kakao.maps.Size(24, 35)
+        );
+
+        const userMarker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(userLocation.coordinates.lat, userLocation.coordinates.lng),
+          map: newMap,
+          image: userMarkerImage,
+          title: '내 위치'
+        });
+
+        // 사용자 위치 오버레이
+        const userContent = document.createElement('div');
+        userContent.innerHTML = `
+          <div style="
+            background: #4f46e5;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 10px;
+          ">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              내 위치
+            </div>
+            <div style="font-size: 12px; font-weight: normal; margin-top: 4px;">
+              ${userLocation.city} ${userLocation.district} ${userLocation.neighborhood}
+            </div>
+          </div>
+        `;
+
+        const userOverlay = new kakao.maps.CustomOverlay({
+          content: userContent,
+          position: userMarker.getPosition(),
+          xAnchor: 0.5,
+          yAnchor: 1.5,
+          zIndex: 10
+        });
+
+        userOverlay.setMap(newMap);
+      }
 
       // 마커 클러스터러 생성
       const clusterer = new kakao.maps.MarkerClusterer({
@@ -87,7 +145,7 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
         }]
       });
 
-      // 마커 생성
+      // 채용공고 마커 생성
       const markers = jobs.map((job) => {
         if (!job.coordinates) return null;
 
@@ -95,6 +153,17 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
           position: new kakao.maps.LatLng(job.coordinates.lat, job.coordinates.lng),
           title: job.companyName
         });
+
+        // 거리 계산
+        let distance = null;
+        if (userLocation?.coordinates) {
+          distance = calculateDistance(
+            userLocation.coordinates.lat,
+            userLocation.coordinates.lng,
+            job.coordinates.lat,
+            job.coordinates.lng
+          );
+        }
 
         // 커스텀 오버레이 생성
         const content = document.createElement('div');
@@ -111,6 +180,11 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
             <div style="font-weight: bold; margin-bottom: 4px;">${job.companyName}</div>
             <div style="font-size: 14px; color: #666; margin-bottom: 8px;">${job.position}</div>
             <div style="font-size: 12px; color: #999;">${job.location}</div>
+            ${distance !== null ? `
+              <div style="font-size: 12px; color: #10b981; margin-top: 4px;">
+                내 위치에서 ${formatDistance(distance)}
+              </div>
+            ` : ''}
             <div style="font-size: 13px; color: #3b82f6; font-weight: 600; margin-top: 8px;">
               ${job.salaryRange.min / 10000}-${job.salaryRange.max / 10000}만원
             </div>
@@ -170,7 +244,7 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
       console.error('Error initializing Kakao Map:', error);
       setLoadError('지도 초기화 중 오류가 발생했습니다.');
     }
-  }, [isMapLoaded, jobs, onJobSelect]);
+  }, [isMapLoaded, jobs, onJobSelect, userLocation]);
 
   // 로딩 중
   if (!isMapLoaded && !loadError) {
@@ -232,7 +306,10 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
           <MapPin className="w-7 h-7" />
           전국 QA 채용 지도
         </h3>
-        <p className="text-blue-100">마커를 클릭하여 채용공고를 확인하세요</p>
+        <p className="text-blue-100">
+          마커를 클릭하여 채용공고를 확인하세요
+          {userLocation && ` • 내 위치: ${userLocation.city} ${userLocation.district} ${userLocation.neighborhood}`}
+        </p>
         
         {/* 통계 */}
         <div className="grid grid-cols-3 gap-4 mt-4">
@@ -268,6 +345,12 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
         <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-4">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">채용 현황</h4>
           <div className="space-y-2 text-xs">
+            {userLocation && (
+              <div className="flex items-center gap-2">
+                <Home className="w-5 h-5 text-indigo-600" />
+                <span>내 위치</span>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
               <span>개별 채용공고</span>
@@ -299,32 +382,51 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
             </div>
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               <div className="grid gap-4">
-                {selectedJobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition-all duration-300"
-                    onClick={() => {
-                      onJobSelect(job);
-                      setShowJobList(false);
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h5 className="font-semibold text-gray-900">{job.position}</h5>
-                        <p className="text-sm text-gray-600">{job.companyName}</p>
+                {selectedJobs.map((job) => {
+                  let distance = null;
+                  if (userLocation?.coordinates && job.coordinates) {
+                    distance = calculateDistance(
+                      userLocation.coordinates.lat,
+                      userLocation.coordinates.lng,
+                      job.coordinates.lat,
+                      job.coordinates.lng
+                    );
+                  }
+                  
+                  return (
+                    <div
+                      key={job.id}
+                      className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition-all duration-300"
+                      onClick={() => {
+                        onJobSelect(job);
+                        setShowJobList(false);
+                      }}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h5 className="font-semibold text-gray-900">{job.position}</h5>
+                          <p className="text-sm text-gray-600">{job.companyName}</p>
+                        </div>
+                        {job.isCertified && (
+                          <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">인증</span>
+                        )}
                       </div>
-                      {job.isCertified && (
-                        <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">인증</span>
-                      )}
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-3">
+                          <span className="text-gray-600">{job.workType}</span>
+                          {distance !== null && (
+                            <span className="text-green-600 font-medium">
+                              {formatDistance(distance)}
+                            </span>
+                          )}
+                        </div>
+                        <span className="font-medium text-blue-600">
+                          {job.salaryRange.min / 10000}-{job.salaryRange.max / 10000}만원
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{job.workType}</span>
-                      <span className="font-medium text-blue-600">
-                        {job.salaryRange.min / 10000}-{job.salaryRange.max / 10000}만원
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

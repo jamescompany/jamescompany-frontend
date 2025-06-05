@@ -1,14 +1,17 @@
 // src/pages/services/recruitment/QARecruitment.tsx
 
-import { useState } from 'react';
-import { Search, TrendingUp, Award, Briefcase, Star, Map, List } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, TrendingUp, Award, Briefcase, Star, Map, List, MapPin, SlidersHorizontal } from 'lucide-react';
 import JobCard from '../../../components/recruitment/JobCard';
 import PricingCard from '../../../components/recruitment/PricingCard';
 import JobDetailModal from '../../../components/recruitment/JobDetailModal';
 import KakaoMapView from '../../../components/recruitment/KakaoMapView';
 import type { JobPosting, PricingPlan } from '../../../types/recruitment';
+import { useLocationStore } from '../../../stores/locationStore';
+import { calculateDistance } from '../../../utils/distanceCalculator';
+import { useNavigate } from 'react-router-dom';
 
-// 샘플 데이터
+// 샘플 데이터 (동일)
 const sampleJobs: JobPosting[] = [
   {
     id: '1',
@@ -301,17 +304,57 @@ const pricingPlans: PricingPlan[] = [
 ];
 
 const QARecruitment = () => {
+  const navigate = useNavigate();
+  const { userLocation, preferredDistance } = useLocationStore();
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'remote' | 'onsite' | 'hybrid'>('all');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [distanceFilter, setDistanceFilter] = useState<'all' | 'near'>('all');
 
-  const filteredJobs = sampleJobs.filter(job => {
-    const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterType === 'all' || job.workType === filterType;
-    return matchesSearch && matchesFilter;
-  });
+  // 거리 기반 필터링된 채용공고
+  const filteredJobs = useMemo(() => {
+    let jobs = sampleJobs.filter(job => {
+      const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter = filterType === 'all' || job.workType === filterType;
+      return matchesSearch && matchesFilter;
+    });
+
+    // 거리 필터 적용
+    if (distanceFilter === 'near' && userLocation?.coordinates) {
+      jobs = jobs.filter(job => {
+        if (!job.coordinates || !userLocation.coordinates) return false;
+        const distance = calculateDistance(
+          userLocation.coordinates.lat,
+          userLocation.coordinates.lng,
+          job.coordinates.lat,
+          job.coordinates.lng
+        );
+        return distance <= preferredDistance;
+      });
+
+      // 거리순 정렬
+      jobs.sort((a, b) => {
+        if (!a.coordinates || !b.coordinates || !userLocation.coordinates) return 0;
+        const distanceA = calculateDistance(
+          userLocation.coordinates.lat,
+          userLocation.coordinates.lng,
+          a.coordinates.lat,
+          a.coordinates.lng
+        );
+        const distanceB = calculateDistance(
+          userLocation.coordinates.lat,
+          userLocation.coordinates.lng,
+          b.coordinates.lat,
+          b.coordinates.lng
+        );
+        return distanceA - distanceB;
+      });
+    }
+
+    return jobs;
+  }, [searchTerm, filterType, distanceFilter, userLocation, preferredDistance]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -336,6 +379,20 @@ const QARecruitment = () => {
               <br />
               단순한 채용공고가 아닌, QA 전문가의 시선으로 분석한 인사이트를 제공합니다.
             </p>
+            
+            {userLocation && (
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 inline-flex items-center gap-2 mb-6">
+                <MapPin className="w-5 h-5" />
+                <span className="font-medium">내 위치: {userLocation.city} {userLocation.district} {userLocation.neighborhood}</span>
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="text-sm underline hover:no-underline"
+                >
+                  변경
+                </button>
+              </div>
+            )}
+            
             <div className="flex flex-wrap justify-center gap-4">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
                 <span className="font-semibold">현재 활성 공고</span>
@@ -393,6 +450,33 @@ const QARecruitment = () => {
                   지도
                 </button>
               </div>
+              
+              {userLocation && (
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setDistanceFilter('all')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
+                      distanceFilter === 'all' 
+                        ? 'bg-white text-blue-600 shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    전체
+                  </button>
+                  <button
+                    onClick={() => setDistanceFilter('near')}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
+                      distanceFilter === 'near' 
+                        ? 'bg-white text-blue-600 shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    <MapPin className="w-4 h-4" />
+                    {preferredDistance}km 이내
+                  </button>
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <button
                   onClick={() => setFilterType('all')}
@@ -437,6 +521,24 @@ const QARecruitment = () => {
               </div>
             </div>
           </div>
+          
+          {!userLocation && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-blue-600" />
+                <p className="text-sm text-blue-800">
+                  위치를 설정하면 거리 기반 필터링과 채용공고까지의 거리를 확인할 수 있습니다.
+                </p>
+              </div>
+              <button
+                onClick={() => navigate('/profile')}
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+              >
+                위치 설정하기
+                <SlidersHorizontal className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -448,7 +550,10 @@ const QARecruitment = () => {
             {viewMode === 'list' ? (
               <>
                 <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-gray-900">채용 공고</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    채용 공고
+                    {distanceFilter === 'near' && ` (${preferredDistance}km 이내)`}
+                  </h2>
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <TrendingUp className="w-4 h-4" />
                     <span>실시간 업데이트</span>
@@ -468,7 +573,11 @@ const QARecruitment = () => {
                 ) : (
                   <div className="bg-white rounded-lg shadow p-12 text-center">
                     <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">검색 결과가 없습니다.</p>
+                    <p className="text-gray-500">
+                      {distanceFilter === 'near' 
+                        ? `${preferredDistance}km 이내에 채용공고가 없습니다.`
+                        : '검색 결과가 없습니다.'}
+                    </p>
                   </div>
                 )}
               </>
