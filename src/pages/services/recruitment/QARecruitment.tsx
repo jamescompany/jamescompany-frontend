@@ -1,10 +1,11 @@
 // src/pages/services/recruitment/QARecruitment.tsx
 
 import { useState } from 'react';
-import { Search, TrendingUp, Award, Briefcase, Star } from 'lucide-react';
+import { Search, TrendingUp, Award, Briefcase, Star, Map, List } from 'lucide-react';
 import JobCard from '../../../components/recruitment/JobCard';
 import PricingCard from '../../../components/recruitment/PricingCard';
 import JobDetailModal from '../../../components/recruitment/JobDetailModal';
+import KakaoMapView from '../../../components/recruitment/KakaoMapView';
 import type { JobPosting, PricingPlan } from '../../../types/recruitment';
 
 // 샘플 데이터
@@ -163,6 +164,96 @@ const sampleJobs: JobPosting[] = [
     packageType: 'standard',
     viewCount: 234,
     isPinned: false
+  },
+  {
+    id: '6',
+    companyName: '해양 IT 기업 F',
+    position: 'QA Engineer',
+    summary: '해양 관련 소프트웨어의 품질 관리를 담당할 QA 엔지니어',
+    mainTasks: [
+      '해양 데이터 처리 시스템 테스트',
+      '실시간 모니터링 시스템 검증',
+      'API 통합 테스트',
+      '성능 및 안정성 테스트'
+    ],
+    tools: ['Postman', 'JMeter', 'Docker', 'PostgreSQL', 'Python'],
+    teamStructure: 'QA 팀 3인 / 개발팀 10인 / 데이터팀 4인과 협업',
+    salaryRange: { min: 4500, max: 6000 },
+    benefits: ['해양 관련 교육 지원', '유연근무제', '건강검진', '리프레시 휴가'],
+    location: '부산 해운대구 센텀중앙로 97',
+    coordinates: {
+      lat: 35.1689766,
+      lng: 129.1308636
+    },
+    workType: 'hybrid',
+    applicationMethod: { type: 'url', value: 'https://marine-it.com/careers' },
+    jamesNote: '부산의 대표적인 해양 IT 기업으로, 특화된 도메인 경험을 쌓을 수 있습니다.',
+    isCertified: true,
+    postingDate: '2025-01-15',
+    expiryDate: '2025-02-15',
+    packageType: 'standard',
+    viewCount: 189,
+    isPinned: false
+  },
+  {
+    id: '7',
+    companyName: '대구 AI 스타트업 G',
+    position: 'AI/ML QA Specialist',
+    summary: 'AI 모델 품질 검증 및 테스트 자동화 전문가',
+    mainTasks: [
+      'AI 모델 성능 검증 및 테스트',
+      'ML 파이프라인 품질 관리',
+      '데이터 품질 검증 프로세스 구축',
+      'A/B 테스트 설계 및 분석'
+    ],
+    tools: ['Python', 'TensorFlow', 'MLflow', 'Pytest', 'Airflow'],
+    teamStructure: 'QA 팀 2인 / ML 엔지니어 6인 / 데이터 사이언티스트 4인과 협업',
+    salaryRange: { min: 5000, max: 6500 },
+    benefits: ['AI 컨퍼런스 참가 지원', '논문 작성 지원', '재택근무', '스톡옵션'],
+    location: '대구 동구 동대구로 461',
+    coordinates: {
+      lat: 35.8714354,
+      lng: 128.6014447
+    },
+    workType: 'hybrid',
+    applicationMethod: { type: 'email', value: 'recruit@daegu-ai.com' },
+    jamesNote: 'AI/ML 분야의 QA는 희소성이 있는 포지션으로, 전문성을 기를 수 있는 좋은 기회입니다.',
+    isCertified: true,
+    postingDate: '2025-01-18',
+    expiryDate: '2025-02-18',
+    packageType: 'premium',
+    viewCount: 267,
+    isPinned: true
+  },
+  {
+    id: '8',
+    companyName: '제주 관광 플랫폼 H',
+    position: 'Mobile QA Engineer',
+    summary: '관광 모바일 앱의 품질을 책임질 QA 엔지니어',
+    mainTasks: [
+      '모바일 앱 (iOS/Android) 테스트',
+      '다국어 지원 테스트',
+      '위치 기반 서비스 테스트',
+      '사용성 테스트 및 개선안 제시'
+    ],
+    tools: ['Appium', 'XCTest', 'Espresso', 'Firebase', 'BrowserStack'],
+    teamStructure: 'QA 팀 2인 / 모바일 개발팀 5인 / UX팀 2인과 협업',
+    salaryRange: { min: 4000, max: 5500 },
+    benefits: ['제주 정착 지원금', '주거 지원', '항공료 지원', '워케이션'],
+    location: '제주 제주시 첨단로 242',
+    coordinates: {
+      lat: 33.4890113,
+      lng: 126.4983023
+    },
+    workType: 'onsite',
+    applicationMethod: { type: 'url', value: 'https://jeju-travel.com/careers' },
+    jamesNote: '제주도에서 워라밸을 즐기며 일할 수 있는 포지션입니다. 관광 도메인 특화 경험도 쌓을 수 있습니다.',
+    isCertified: false,
+    postingDate: '2025-01-20',
+    expiryDate: '2025-02-20',
+    packageType: 'basic',
+    viewCount: 145,
+    isPinned: false
   }
 ];
 
@@ -213,6 +304,7 @@ const QARecruitment = () => {
   const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'remote' | 'onsite' | 'hybrid'>('all');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   const filteredJobs = sampleJobs.filter(job => {
     const matchesSearch = job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -251,11 +343,11 @@ const QARecruitment = () => {
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
                 <span className="font-semibold">평균 연봉</span>
-                <span className="block text-2xl font-bold">5,800만원</span>
+                <span className="block text-2xl font-bold">5,600만원</span>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3">
-                <span className="font-semibold">QA 인증 기업</span>
-                <span className="block text-2xl font-bold">80%</span>
+                <span className="font-semibold">전국 채용</span>
+                <span className="block text-2xl font-bold">6개 지역</span>
               </div>
             </div>
           </div>
@@ -265,7 +357,7 @@ const QARecruitment = () => {
       {/* Search and Filter */}
       <div className="max-w-7xl mx-auto px-4 -mt-8 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -277,46 +369,72 @@ const QARecruitment = () => {
               />
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => setFilterType('all')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  filterType === 'all' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                전체
-              </button>
-              <button
-                onClick={() => setFilterType('remote')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  filterType === 'remote' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                재택근무
-              </button>
-              <button
-                onClick={() => setFilterType('hybrid')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  filterType === 'hybrid' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                하이브리드
-              </button>
-              <button
-                onClick={() => setFilterType('onsite')}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  filterType === 'onsite' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                사무실
-              </button>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'list' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                  목록
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2 ${
+                    viewMode === 'map' 
+                      ? 'bg-white text-blue-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <Map className="w-4 h-4" />
+                  지도
+                </button>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setFilterType('all')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    filterType === 'all' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  전체
+                </button>
+                <button
+                  onClick={() => setFilterType('remote')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    filterType === 'remote' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  재택근무
+                </button>
+                <button
+                  onClick={() => setFilterType('hybrid')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    filterType === 'hybrid' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  하이브리드
+                </button>
+                <button
+                  onClick={() => setFilterType('onsite')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    filterType === 'onsite' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  사무실
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -325,31 +443,40 @@ const QARecruitment = () => {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Job Listings */}
+          {/* Job Listings or Map View */}
           <div className="lg:col-span-2">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">채용 공고</h2>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <TrendingUp className="w-4 h-4" />
-                <span>실시간 업데이트</span>
-              </div>
-            </div>
-            
-            {filteredJobs.length > 0 ? (
-              <div className="space-y-4">
-                {filteredJobs.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    onClick={() => setSelectedJob(job)}
-                  />
-                ))}
-              </div>
+            {viewMode === 'list' ? (
+              <>
+                <div className="mb-6 flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-gray-900">채용 공고</h2>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span>실시간 업데이트</span>
+                  </div>
+                </div>
+                
+                {filteredJobs.length > 0 ? (
+                  <div className="space-y-4">
+                    {filteredJobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onClick={() => setSelectedJob(job)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow p-12 text-center">
+                    <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500">검색 결과가 없습니다.</p>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="bg-white rounded-lg shadow p-12 text-center">
-                <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">검색 결과가 없습니다.</p>
-              </div>
+              <KakaoMapView 
+                jobs={filteredJobs} 
+                onJobSelect={setSelectedJob}
+              />
             )}
           </div>
 
