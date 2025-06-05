@@ -1,7 +1,11 @@
 // src/App.tsx
 
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
+import ServiceTransitionModal from "./components/ServiceTransitionModal";
+
+// Import pages
 import Home from "./pages/Home";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -24,9 +28,7 @@ import MentorRegistration from "./pages/services/coffee-chat/MentorRegistration"
 import BookingSuccess from "./pages/services/coffee-chat/BookingSuccess";
 import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
 import MyBookings from "./pages/mypage/MyBookings";
-
-// Auth - 이 줄 제거
-// import GoogleCalendarCallback from "./pages/auth/GoogleCalendarCallback";
+import MentorDashboard from "./pages/mentor/MentorDashboard";
 
 // Other Services
 import CaseMaker from "./pages/services/CaseMaker";
@@ -45,13 +47,37 @@ import Interview from "./pages/insights/Interview";
 import Contact from "./pages/Contact";
 
 function App() {
+  const [showTransitionModal, setShowTransitionModal] = useState(false);
+  const [hasSeenModal, setHasSeenModal] = useState(false);
+
+  useEffect(() => {
+    // 페이지 로드 시 모달을 보여줄지 결정
+    // Note: localStorage를 사용할 수 없으므로 세션 동안만 유지됨
+    if (!hasSeenModal) {
+      setShowTransitionModal(true);
+    }
+  }, [hasSeenModal]);
+
+  const handleCloseModal = () => {
+    setShowTransitionModal(false);
+    setHasSeenModal(true);
+  };
+
   return (
     <Router>
+      {/* Service Transition Modal */}
+      <ServiceTransitionModal 
+        isOpen={showTransitionModal} 
+        onClose={handleCloseModal} 
+      />
+      
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
+          <Route path="auth/login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
+          <Route path="auth/signup" element={<Signup />} />
           <Route path="profile" element={<Profile />} />
 
           {/* Dashboard */}
@@ -59,9 +85,6 @@ function App() {
 
           {/* About */}
           <Route path="about" element={<About />} />
-
-          {/* Auth - 이 라우트 제거 */}
-          {/* <Route path="/auth/google-calendar-callback" element={<GoogleCalendarCallback />} /> */}
 
           {/* Services */}
           <Route path="services" element={<Services />} />
@@ -72,10 +95,11 @@ function App() {
           <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
           <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
           
-          {/* 중복된 라우트들 제거 */}
-
           {/* MyPage */}  
           <Route path="mypage/bookings" element={<MyBookings />} />
+
+          {/* Mentor */}
+          <Route path="mentor/dashboard" element={<MentorDashboard />} />
 
           <Route path="services/casemaker" element={<CaseMaker />} />
           <Route path="services/qauto" element={<QAuto />} />
