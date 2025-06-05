@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (email: string, password: string) => {
         try {
-          const response = await api.post('/api/v1/auth/login', { 
+          const response = await api.post('/auth/login', { 
             email, 
             password 
           });
@@ -78,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
       signup: async (data: SignupData) => {
         try {
           // 회원가입 - /api/v1 경로 추가
-          const signupResponse = await api.post('/api/v1/auth/register', data);
+          const signupResponse = await api.post('/auth/register', data);
           console.log('Signup response:', signupResponse);
 
           // 회원가입 성공 후 자동 로그인
@@ -98,7 +98,7 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithImweb: async (code: string) => {
         try {
-          const response = await api.post<LoginResponse>('/api/v1/auth/imweb/callback', {
+          const response = await api.post<LoginResponse>('/auth/imweb/callback', {
             code,
           })
 
@@ -131,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
         })
 
         // 로그아웃 API 호출 (선택사항)
-        api.post('/api/v1/auth/logout').catch(console.error)
+        api.post('/auth/logout').catch(console.error)
       },
 
       checkAuth: async () => {
@@ -149,11 +149,11 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await api.get<User>('/api/v1/users/me')
+          const response = await api.get<User>('/users/me')
           
           // 멘토 상태 확인 (선택사항)
           try {
-            const mentorResponse = await api.get('/api/v1/mentors/my-status')
+            const mentorResponse = await api.get('/mentors/my-status')
             if (mentorResponse.data) {
               response.data.mentorId = mentorResponse.data.mentorId
               response.data.mentorStatus = mentorResponse.data.status
