@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import ServiceTransitionModal from "./components/ServiceTransitionModal";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Import pages
 import Home from "./pages/Home";
@@ -77,6 +78,9 @@ function App() {
 
   return (
     <Router>
+      {/* ScrollToTop 컴포넌트 추가 */}
+      <ScrollToTop />
+      
       {/* Service Transition Modal */}
       <ServiceTransitionModal 
         isOpen={showTransitionModal} 

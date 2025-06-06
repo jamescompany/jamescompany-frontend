@@ -152,36 +152,36 @@ const Home: React.FC = () => {
     <div className="snap-y snap-mandatory h-screen overflow-y-scroll">
       {/* Hero Section */}
       <section className="snap-start h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-6">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 text-center">
+          <div className="space-y-4">
             <div className="inline-flex items-center px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
               <Sparkles className="w-3.5 h-3.5 mr-1.5" />
               새롭게 시작하는 JamesCompany
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
               QA 엔지니어를 위한<br />
               <span className="text-blue-600">
                 올인원 플랫폼
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
               테스트 케이스 작성부터 자동화, 교육, 멘토링까지<br className="hidden sm:inline" />
               QA 업무의 모든 것을 한 곳에서 해결하세요
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-3">
               <Link
                 to="/auth/register"
-                className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                className="inline-flex items-center justify-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
               >
                 무료로 시작하기
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
               <Link
                 to="/services"
-                className="inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-colors duration-200"
+                className="inline-flex items-center justify-center px-5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-colors duration-200"
               >
                 서비스 둘러보기
               </Link>
@@ -189,11 +189,11 @@ const Home: React.FC = () => {
           </div>
           
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 max-w-3xl mx-auto">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
+                <div className="text-xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600 mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -202,9 +202,9 @@ const Home: React.FC = () => {
         {/* Scroll indicator */}
         <button 
           onClick={scrollToNext}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"
+          className="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce"
         >
-          <ChevronDown className="w-8 h-8 text-gray-400" />
+          <ChevronDown className="w-6 h-6 text-gray-400" />
         </button>
       </section>
 
@@ -214,32 +214,32 @@ const Home: React.FC = () => {
           key={index} 
           className={`snap-start h-screen flex items-center ${service.bgColor}`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 w-full">
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
               {/* 텍스트 콘텐츠 */}
-              <div className={`space-y-6 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
+              <div className={`space-y-4 ${index % 2 === 1 ? 'lg:order-2' : ''}`}>
                 {service.isNew && (
                   <span className="inline-flex items-center px-3 py-1 bg-red-500 text-white rounded-full text-sm font-bold">
                     NEW
                   </span>
                 )}
                 
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
                   {service.title}
                 </h2>
                 
-                <p className="text-xl text-gray-700 font-medium">
+                <p className="text-lg text-gray-700 font-medium">
                   {service.subtitle}
                 </p>
                 
-                <p className="text-lg text-gray-600">
+                <p className="text-base text-gray-600">
                   {service.description}
                 </p>
                 
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {service.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
-                      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
                         <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${
                           service.iconColor === 'text-purple-600' ? 'from-purple-500 to-blue-500' :
                           service.iconColor === 'text-amber-600' ? 'from-amber-500 to-orange-500' :
@@ -249,14 +249,14 @@ const Home: React.FC = () => {
                           'from-red-500 to-pink-500'
                         }`} />
                       </div>
-                      <span className="ml-3 text-gray-700">{feature}</span>
+                      <span className="ml-2.5 text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
                 <button
                   onClick={() => handleServiceClick(service)}
-                  className="inline-flex items-center px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 group"
+                  className="inline-flex items-center px-5 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 group"
                 >
                   {service.isExternal ? '서비스 바로가기' : '자세히 알아보기'}
                   {service.isExternal ? (
@@ -270,8 +270,8 @@ const Home: React.FC = () => {
               {/* 아이콘/비주얼 */}
               <div className={`flex items-center justify-center ${index % 2 === 1 ? 'lg:order-1' : ''}`}>
                 <div className="relative">
-                  <div className="w-64 h-64 md:w-80 md:h-80 bg-white rounded-3xl shadow-xl flex items-center justify-center">
-                    <service.icon className={`w-32 h-32 md:w-40 md:h-40 ${service.iconColor}`} />
+                  <div className="w-48 h-48 md:w-64 md:h-64 bg-white rounded-3xl shadow-xl flex items-center justify-center">
+                    <service.icon className={`w-24 h-24 md:w-32 md:h-32 ${service.iconColor}`} />
                   </div>
                 </div>
               </div>
@@ -282,23 +282,23 @@ const Home: React.FC = () => {
 
       {/* CTA Section */}
       <section className="snap-start h-screen flex items-center bg-gradient-to-br from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+        <div className="max-w-2xl mx-auto px-3 sm:px-4 lg:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             지금 바로 시작하세요
           </h2>
-          <p className="text-xl text-blue-100 mb-10">
+          <p className="text-lg text-blue-100 mb-8">
             회원가입 후 모든 서비스를 무료로 체험해보실 수 있습니다
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
               to="/auth/register"
-              className="inline-flex items-center justify-center px-8 py-4 bg-white hover:bg-gray-100 text-blue-600 font-bold rounded-lg transition-colors duration-200 text-lg"
+              className="inline-flex items-center justify-center px-6 py-3 bg-white hover:bg-gray-100 text-blue-600 font-bold rounded-lg transition-colors duration-200 text-base"
             >
               무료 회원가입
             </Link>
             <Link
               to="/about"
-              className="inline-flex items-center justify-center px-8 py-4 bg-transparent hover:bg-white/10 text-white font-medium rounded-lg border-2 border-white/30 transition-colors duration-200 text-lg"
+              className="inline-flex items-center justify-center px-6 py-3 bg-transparent hover:bg-white/10 text-white font-medium rounded-lg border-2 border-white/30 transition-colors duration-200 text-base"
             >
               더 알아보기
             </Link>
