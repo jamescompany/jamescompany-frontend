@@ -332,7 +332,7 @@ const KakaoMapView = ({ jobs, onJobSelect }: KakaoMapViewProps) => {
               <TrendingUp className="w-5 h-5" />
               <span className="text-sm">평균 연봉</span>
             </div>
-            <p className="text-2xl font-bold mt-1">5.6천만</p>
+            <p className="text-2xl font-bold mt-1">5600만원</p>
           </div>
         </div>
       </div>

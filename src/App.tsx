@@ -28,10 +28,19 @@ import MentorRegistration from "./pages/services/coffee-chat/MentorRegistration"
 import BookingSuccess from "./pages/services/coffee-chat/BookingSuccess";
 import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
 import MyBookings from "./pages/mypage/MyBookings";
+import MyApplications from "./pages/mypage/MyApplications";
 import MentorDashboard from "./pages/mentor/MentorDashboard";
 
 // Recruitment
-import QARecruitment from "./pages/services/recruitment/QARecruitment";
+import QARecruitment from './pages/services/recruitment/QARecruitment';
+import QARecruitmentWithMap from './pages/services/recruitment/QARecruitmentWithMap';
+import RecruitmentPost from './pages/services/recruitment/RecruitmentPost';
+
+// Company
+import CompanyRecruitmentDashboard from "./pages/company/CompanyRecruitmentDashboard";
+
+// Application
+
 
 // Other Services
 import CaseMaker from "./pages/services/CaseMaker";
@@ -100,9 +109,16 @@ function App() {
           
           {/* Recruitment */}
           <Route path="services/recruitment" element={<QARecruitment />} />
-          
+          <Route path="services/recruitment/with-map" element={<QARecruitmentWithMap />} />
+          <Route path="/services/recruitment/jobs" element={<QARecruitmentWithMap />} />
+          <Route path="/services/recruitment/post" element={<RecruitmentPost />} />
+
+          {/* Company */}
+          <Route path="/company/dashboard/:token" element={<CompanyRecruitmentDashboard />} />
+
           {/* MyPage */}  
           <Route path="mypage/bookings" element={<MyBookings />} />
+          <Route path="mypage/applications" element={<MyApplications />} />
 
           {/* Mentor */}
           <Route path="mentor/dashboard" element={<MentorDashboard />} />
