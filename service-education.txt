@@ -1,0 +1,316 @@
+Generated at: Fri Jun  6 14:33:56 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+--- src/pages/services/education/Education.tsx ---
+// src/pages/services/education/Education.tsx
+
+interface Course {
+  id: string;
+  title: string;
+  description: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  duration: string;
+  students: number;
+  price: number;
+  modules: number;
+  isLocked: boolean;
+}
+
+const courses: Course[] = [
+  {
+    id: '1',
+    title: 'QA 기초 과정',
+    description: '소프트웨어 테스팅의 기본 개념과 원칙을 배우는 입문 과정',
+    level: 'beginner',
+    duration: '4주',
+    students: 1234,
+    price: 0,
+    modules: 8,
+    isLocked: false
+  },
+  {
+    id: '2',
+    title: '웹 애플리케이션 테스팅',
+    description: '웹 애플리케이션 테스팅 전략과 실전 기법을 익히는 과정',
+    level: 'intermediate',
+    duration: '6주',
+    students: 856,
+    price: 99000,
+    modules: 12,
+    isLocked: false
+  },
+  {
+    id: '3',
+    title: '테스트 자동화 마스터',
+    description: 'Selenium, Cypress 등을 활용한 E2E 자동화 테스트 구축',
+    level: 'advanced',
+    duration: '8주',
+    students: 423,
+    price: 199000,
+    modules: 16,
+    isLocked: true
+  },
+  {
+    id: '4',
+    title: 'API 테스팅 완벽 가이드',
+    description: 'Postman, REST Assured를 활용한 API 테스팅 전문 과정',
+    level: 'intermediate',
+    duration: '5주',
+    students: 567,
+    price: 149000,
+    modules: 10,
+    isLocked: true
+  },
+  {
+    id: '5',
+    title: '성능 테스팅과 최적화',
+    description: 'JMeter, LoadRunner를 활용한 성능 테스팅 실무',
+    level: 'advanced',
+    duration: '6주',
+    students: 234,
+    price: 179000,
+    modules: 14,
+    isLocked: true
+  },
+  {
+    id: '6',
+    title: 'SDET 실무 과정',
+    description: '개발과 테스팅을 아우르는 SDET 역량 강화 프로그램',
+    level: 'advanced',
+    duration: '10주',
+    students: 189,
+    price: 299000,
+    modules: 20,
+    isLocked: true
+  }
+];
+
+const Education = () => {
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
+
+  const filteredCourses = selectedLevel === 'all' 
+    ? courses 
+    : courses.filter(course => course.level === selectedLevel);
+
+  const getLevelBadge = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-blue-100 text-blue-800';
+      case 'advanced':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return '초급';
+      case 'intermediate':
+        return '중급';
+      case 'advanced':
+        return '고급';
+      default:
+        return level;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            QA 교육 프로그램
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            체계적인 커리큘럼으로 QA 전문가로 성장하세요
+          </p>
+        </div>
+
+        {/* 필터 */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => setSelectedLevel('all')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              전체
+            </button>
+            <button
+              onClick={() => setSelectedLevel('beginner')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'beginner'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              초급
+            </button>
+            <button
+              onClick={() => setSelectedLevel('intermediate')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'intermediate'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              중급
+            </button>
+            <button
+              onClick={() => setSelectedLevel('advanced')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                selectedLevel === 'advanced'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              고급
+            </button>
+          </div>
+        </div>
+
+        {/* 코스 그리드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map((course) => (
+            <div
+              key={course.id}
+              className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow ${
+                course.isLocked ? 'opacity-75' : ''
+              }`}
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getLevelBadge(course.level)}`}>
+                    {getLevelText(course.level)}
+                  </span>
+                  {course.isLocked && (
+                    <Lock className="w-5 h-5 text-gray-400" />
+                  )}
+                </div>
+
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {course.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {course.description}
+                </p>
+
+===== RELATED TYPES =====
+
+===== API CALLS =====
+
+===== STATE MANAGEMENT =====
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Education
+src/stores/serviceStore.ts:  courses: Course[]
+src/stores/serviceStore.ts-  myCourses: Course[]
+src/stores/serviceStore.ts-  fetchCourses: () => Promise<void>
+src/stores/serviceStore.ts-  fetchMyCourses: () => Promise<void>
+src/stores/serviceStore.ts:  enrollCourse: (courseId: string) => Promise<void>
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Bug Bounty
+src/stores/serviceStore.ts-  betaTests: BetaTest[]
+src/stores/serviceStore.ts-  fetchBetaTests: () => Promise<void>
+src/stores/serviceStore.ts-  applyBetaTest: (testId: string) => Promise<void>
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Loading states
+src/stores/serviceStore.ts-  loading: boolean
+src/stores/serviceStore.ts-  error: string | null
+src/stores/serviceStore.ts-}
+--
+src/stores/serviceStore.ts-  // State
+src/stores/serviceStore.ts-  coffeeSlots: [],
+src/stores/serviceStore.ts:  courses: [],
+src/stores/serviceStore.ts-  myCourses: [],
+src/stores/serviceStore.ts-  betaTests: [],
+src/stores/serviceStore.ts-  loading: false,
+src/stores/serviceStore.ts-  error: null,
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Coffee Chat Methods
+src/stores/serviceStore.ts-  fetchCoffeeSlots: async () => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    // Mock 데이터 사용
+--
+src/stores/serviceStore.ts-      setTimeout(() => {
+src/stores/serviceStore.ts-        set({ 
+src/stores/serviceStore.ts:          courses: [], 
+src/stores/serviceStore.ts-          loading: false,
+src/stores/serviceStore.ts-          error: '새로운 교육 과정을 준비 중입니다. 곧 다양한 강의를 만나보실 수 있습니다.'
+src/stores/serviceStore.ts-        })
+src/stores/serviceStore.ts-      }, 300)
+src/stores/serviceStore.ts-      return
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    try {
+src/stores/serviceStore.ts:      const response = await api.get<Course[]>('/api/courses')
+src/stores/serviceStore.ts:      set({ courses: response.data, loading: false })
+src/stores/serviceStore.ts-    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch courses:', error)
+src/stores/serviceStore.ts-      set({ error: error.response?.data?.detail || '강좌 목록을 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-  },
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  fetchMyCourses: async () => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts-      setTimeout(() => {
+src/stores/serviceStore.ts-        set({ myCourses: [], loading: false })
+--
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    try {
+src/stores/serviceStore.ts:      const response = await api.get<Course[]>('/api/courses/my')
+src/stores/serviceStore.ts-      set({ myCourses: response.data, loading: false })
+src/stores/serviceStore.ts-    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch my courses:', error)
+src/stores/serviceStore.ts-      set({ error: error.response?.data?.detail || '수강 중인 강좌를 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-  },
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts:  enrollCourse: async (courseId: string) => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts-      setTimeout(() => {
+src/stores/serviceStore.ts-        set({ loading: false })
+src/stores/serviceStore.ts-        alert('서비스 준비 중입니다.')
+src/stores/serviceStore.ts-      }, 300)
+src/stores/serviceStore.ts-      return
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    try {
+src/stores/serviceStore.ts:      await api.post(`/api/courses/${courseId}/enroll`)
+src/stores/serviceStore.ts-      await Promise.all([
+src/stores/serviceStore.ts-        get().fetchCourses(),
+src/stores/serviceStore.ts-        get().fetchMyCourses()
+src/stores/serviceStore.ts-      ])
+src/stores/serviceStore.ts-    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to enroll course:', error)
+src/stores/serviceStore.ts-      const errorMessage = error.response?.data?.detail || '수강 신청에 실패했습니다.'
+src/stores/serviceStore.ts-      set({ error: errorMessage, loading: false })
+src/stores/serviceStore.ts-      throw new Error(errorMessage)
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-  },
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Bug Bounty Methods
+src/stores/serviceStore.ts-  fetchBetaTests: async () => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+
+===== CONFIGURATIONS =====
+
+===== SUMMARY =====
+Components found:
+       1
+
+API endpoints used:

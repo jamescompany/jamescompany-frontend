@@ -26,8 +26,10 @@ import CoffeeChat from "./pages/services/coffee-chat/CoffeeChat";
 import CoffeeChatBooking from "./pages/services/coffee-chat/CoffeeChatBooking";
 import CalendarCallback from "./pages/services/coffee-chat/CalendarCallback";
 import MentorRegistration from "./pages/services/coffee-chat/MentorRegistration";
-import BookingSuccess from "./pages/services/coffee-chat/BookingSuccess";
-import BookingFailed from "./pages/services/coffee-chat/BookingFailed";
+
+import BookingSuccess from './pages/services/coffee-chat/BookingSuccess';
+import BookingFailed from './pages/services/coffee-chat/BookingFailed';
+
 import MyBookings from "./pages/mypage/MyBookings";
 import MyApplications from "./pages/mypage/MyApplications";
 import MentorDashboard from "./pages/mentor/MentorDashboard";
@@ -108,6 +110,7 @@ function App() {
           <Route path="services/coffee-chat/mentor-registration" element={<MentorRegistration />} />
           <Route path="services/coffee-chat/booking/:mentorId" element={<CoffeeChatBooking />} />
           <Route path="services/coffee-chat/calendar-callback" element={<CalendarCallback />} />
+          
           <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
           <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
           

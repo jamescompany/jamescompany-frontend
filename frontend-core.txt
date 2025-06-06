@@ -1,0 +1,609 @@
+===== FRONTEND CORE FOR BACKEND DESIGN =====
+Generated at: Fri Jun  6 13:26:01 KST 2025
+============================================
+
+===== PROJECT STRUCTURE =====
+src
+├── admin
+│   └── JobApproval.tsx
+├── api
+│   └── recruitment.ts
+├── components
+│   ├── auth
+│   │   ├── OAuthCallback.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   ├── RememberMeModal.tsx
+│   │   └── SocialLoginButton.tsx
+│   ├── layout
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   ├── Layout.tsx
+│   │   └── ProfileMenu.tsx
+│   ├── profile
+│   │   ├── BookingHistory.tsx
+│   │   ├── LocationSettings.tsx
+│   │   ├── MembershipInfo.tsx
+│   │   └── ProfileInfo.tsx
+│   ├── recruitment
+│   │   ├── JobCard.tsx
+│   │   ├── KakaoMapView.tsx
+│   │   ├── LocationMap.tsx
+│   │   ├── MapJobCard.tsx
+│   │   ├── MapView.tsx
+│   │   └── PricingCard.tsx
+│   ├── service
+│   │   ├── qaMentorApi.ts
+│   │   └── worrySolverApi.ts
+│   ├── ui
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── Input.tsx
+│   │   └── Popover.tsx
+│   ├── Layout.tsx
+│   ├── MapComponent.tsx
+│   ├── PolicyModal.tsx
+│   ├── QAMentorChatbot.tsx
+│   ├── QAMentorEnhancements.tsx
+│   ├── QAMentorSection.tsx
+│   ├── ScrollToTop.tsx
+│   ├── ServiceTransitionModal.tsx
+│   ├── WorrySolver.tsx
+│   └── WorrySolverBanner.tsx
+├── config
+│   ├── advancedPrompts.ts
+│   ├── api.ts
+│   ├── companyThemes.ts
+│   ├── googleCalendar.ts
+│   ├── qaMentorPrompts.ts
+│   └── worryPrompts.ts
+├── data
+│   ├── policies
+│   │   ├── marketing
+│   │   ├── privacy
+│   │   └── terms
+│   ├── recriutment
+│   │   └── sampleJobs.ts
+│   ├── locationData.ts
+│   └── policies.ts
+├── hooks
+│   ├── useClickOutside.ts
+│   └── useKakaoMap.ts
+├── pages
+│   ├── admin
+│   │   └── MentorApprovalPage.tsx
+│   ├── auth
+│   │   ├── ImwebAdditionalInfo.tsx
+│   │   ├── ImwebCallback.tsx
+│   │   ├── Login.tsx
+│   │   ├── OAuthCallback.tsx
+│   │   └── Signup.tsx
+│   ├── company
+│   │   └── CompanyRecruitmentDashboard.tsx
+│   ├── insights
+│   │   ├── Insights.tsx
+│   │   ├── Interview.tsx
+│   │   ├── Notice.tsx
+│   │   ├── Story.tsx
+│   │   └── StudyNote.tsx
+│   ├── mentor
+│   │   ├── MentorDashboard.tsx
+│   │   └── RevenueDashboard.tsx
+│   ├── mypage
+│   │   ├── MyApplications.tsx
+│   │   ├── MyBookings.tsx
+│   │   └── MyPageLayout.tsx
+│   ├── services
+│   │   ├── bug-bounty
+│   │   ├── casemaker
+│   │   ├── coffee-chat
+│   │   ├── education
+│   │   ├── recruitment
+│   │   ├── CaseMaker.tsx
+│   │   ├── QAuto.tsx
+│   │   └── Services.tsx
+│   ├── About.tsx
+│   ├── Contact.tsx
+│   ├── Dashboard.tsx
+│   ├── Home.tsx
+│   ├── Profile.tsx
+│   └── Services.tsx
+├── services
+│   ├── api.ts
+│   ├── auth.service.ts
+│   └── companyEmailService.ts
+├── stores
+│   ├── authStore.ts
+│   ├── locationStore.ts
+│   └── serviceStore.ts
+├── styles
+├── types
+│   ├── index.ts
+│   ├── kakao.d.ts
+│   └── recruitment.ts
+├── utils
+│   ├── distanceCalculator.ts
+│   ├── kakaoMapLoader.ts
+│   ├── oauth.utils.ts
+│   └── recruitmentHelpers.ts
+├── App.tsx
+├── main.tsx
+└── vite-env.d.ts
+
+36 directories, 89 files
+
+===== TYPE DEFINITIONS =====
+--- src/types/kakao.d.ts ---
+declare global {
+    interface Window {
+      kakao: any;
+    }
+  }
+  
+  export {};
+--- src/types/index.ts ---
+// src/types/index.ts
+
+export interface UserLocation {
+  city: string;
+  district: string;
+  neighborhood: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'user' | 'admin';
+  location?: UserLocation;
+  preferredDistance?: number; // km 단위
+}
+
+export interface Post {
+  id: string;
+  title: string;
+  content: string;
+  category: 'notice' | 'story';
+  author: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CoffeeChatSlot {
+  id: string;
+  date: string;
+  time: string;
+  type: 'online' | 'offline';
+  available: boolean;
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  enrolled?: boolean;
+}
+
+export interface BetaTest {
+  id: string;
+  appName: string;
+  description: string;
+  deadline: string;
+  participants: number;
+  maxParticipants: number;
+}
+--- src/types/recruitment.ts ---
+// src/types/recruitment.ts
+
+export interface JobPosting {
+  id: string;
+  companyName: string;
+  companyLogo?: string;
+  position: string;
+  summary: string;
+  mainTasks: string[];
+  tools: string[];
+  teamStructure: string;
+  preferredQualifications?: string[];
+  salaryRange: {
+    min: number;
+    max: number;
+  };
+  benefits: string[];
+  location: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  workType: 'onsite' | 'remote' | 'hybrid';
+  applicationMethod: {
+    type: 'url' | 'email';
+    value: string;
+  };
+  jamesNote?: string; // 제임스의 한마디
+  isCertified: boolean; // QA 인증 뱃지
+  postingDate: string;
+  expiryDate: string;
+  packageType: 'basic' | 'standard' | 'premium';
+  viewCount: number;
+  isPinned: boolean; // 프리미엄 상단 고정
+}
+
+export interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  duration: string;
+  features: string[];
+  isPopular?: boolean;
+  bonusIncluded: boolean;
+}
+
+export interface JobRegistrationForm {
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  companyIntro: string;
+  position: string;
+  mainTasksSummary: string;
+  preferredQualifications?: string;
+  tools: string;
+  teamStructure: string;
+  salaryMin: number;
+  salaryMax: number;
+  benefits: string;
+  applicationUrl?: string;
+  applicationEmail?: string;
+  desiredStartDate: Date;
+  postingDuration: number;
+  includeCelebrationBonus: boolean;
+  uploadMethod: 'html' | 'word' | 'googledocs';
+  uploadContent?: string;
+  uploadUrl?: string;
+  memo?: string;
+}
+===== API SERVICES =====
+--- src/services/auth.service.ts ---
+// src/services/auth.service.ts
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+interface LoginResponse {
+  access_token: string;
+--
+    formData.append('password', password);
+
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/api/auth/login`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+--
+  // 회원가입
+  async signup(data: SignupData) {
+    const response = await axios.post(`${API_URL}/auth/signup`, data);
+    return response.data;
+  }
+
+  // 토큰 새로고침
+  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/auth/refresh`,
+      { refresh_token: refreshToken }
+    );
+    return response.data;
+  }
+--
+    }
+
+    const response = await axios.get(`${API_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+--
+  setupAxiosInterceptors() {
+    // 요청 인터셉터
+    axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+--
+
+    // 응답 인터셉터
+    axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+--
+              // 원래 요청 재시도
+              originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            // 리프레시 토큰도 만료된 경우
+            this.logout();
+            return Promise.reject(refreshError);
+
+--- src/services/companyEmailService.ts ---
+  
+  // 실제로는 백엔드 API 호출
+  const response = await fetch('/api/email/send', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+
+--- src/services/api.ts ---
+// src/services/api.ts
+
+import axios from 'axios';
+import { useAuthStore } from '../stores/authStore';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+--
+
+// Response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+
+===== STATE MANAGEMENT (Stores) =====
+--- src/stores/locationStore.ts ---
+interface Location {
+  city: string;
+  district: string;
+  neighborhood: string;
+  nearbyStation?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+interface LocationStore {
+  userLocation: Location | null;
+  preferredDistance: number;
+  setUserLocation: (location: Location) => void;
+  setPreferredDistance: (distance: number) => void;
+  clearLocation: () => void;
+}
+
+export const useLocationStore = create<LocationStore>()(
+  persist(
+    (set) => ({
+      userLocation: null,
+      preferredDistance: 20, // 기본값 20km
+
+      setUserLocation: (location) => set({ userLocation: location }),
+      
+      setPreferredDistance: (distance) => set({ preferredDistance: distance }),
+      
+      clearLocation: () => set({ userLocation: null, preferredDistance: 20 }),
+
+--- src/stores/serviceStore.ts ---
+interface CoffeeChatSlot {
+  id: string
+  date: string
+  time: string
+  type: 'online' | 'offline'
+  available: boolean
+}
+
+interface Course {
+  id: string
+  title: string
+  description: string
+  price: number
+  duration: string
+  enrolled?: boolean
+}
+
+interface BetaTest {
+  id: string
+  appName: string
+  description: string
+  deadline: string
+  participants: number
+  maxParticipants: number
+}
+
+interface ServiceState {
+  // Coffee Chat
+  coffeeSlots: CoffeeChatSlot[]
+  fetchCoffeeSlots: () => Promise<void>
+  bookCoffeeSlot: (slotId: string) => Promise<void>
+  
+  // Education
+  courses: Course[]
+  myCourses: Course[]
+  fetchCourses: () => Promise<void>
+  fetchMyCourses: () => Promise<void>
+--
+export const useServiceStore = create<ServiceState>((set, get) => ({
+  // State
+  coffeeSlots: [],
+  courses: [],
+  myCourses: [],
+  betaTests: [],
+  loading: false,
+  error: null,
+  
+  // Coffee Chat Methods
+  fetchCoffeeSlots: async () => {
+
+--- src/stores/authStore.ts ---
+interface User {
+  id: string
+  email: string
+  name: string
+  role: 'user' | 'admin'  // 기존 구조 유지
+  imwebId?: string
+  membership_tier?: string
+  // 멘토 관련 추가 필드
+  mentorId?: number  // 멘토로 등록된 경우 멘토 ID
+  mentorStatus?: 'pending' | 'approved' | 'rejected'  // 멘토 승인 상태
+}
+--
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+  token: string | null
+  login: (email: string, password: string) => Promise<void>
+  signup: (data: SignupData) => Promise<void>
+  loginWithImweb: (code: string) => Promise<void>
+  logout: () => void
+  checkAuth: () => Promise<void>
+  setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
+  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
+--
+interface SignupData {
+  email: string
+  password: string
+  name: string
+}
+
+interface LoginResponse {
+  access_token: string
+  refresh_token?: string
+  token_type: string
+  user: User
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      isAuthenticated: false,
+      token: null,
+
+      login: async (email: string, password: string) => {
+        try {
+          const response = await api.post('/auth/login', { 
+            email, 
+
+===== API CONFIGURATION =====
+--- src/config/api.ts ---
+// src/config/api.ts
+
+import axios from "axios";
+
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+===== SERVICE API CALLS SUMMARY =====
+Coffee Chat APIs:
+      const response = await api.delete('/coffee-chat/calendar/disconnect'); // /api 제거
+      const response = await api.get('/coffee-chat/bookings', { // /api 제거
+      const response = await api.get('/coffee-chat/calendar/status'); // /api 제거
+      const response = await api.get('/coffee-chat/mentors', { params: filters }); // /api 제거
+      const response = await api.get('/coffee-chat/mentors/dashboard'); // /api 제거
+      const response = await api.get(`/coffee-chat/bookings/${bookingId}`); // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}/availability`, { // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}`); // /api 제거
+      const response = await api.post('/coffee-chat/bookings', bookingData); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/callback', { code }); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/init'); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/sync'); // /api 제거
+      const response = await api.post('/coffee-chat/mentors/register', mentorData); // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/cancel`, {  // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/confirm-payment`, { // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/payment`); // /api 제거
+      const response = await api.put('/coffee-chat/mentors/profile', mentorData); // /api 제거
+      const response = await fetch(`/api/coffee-chat/sessions/${sessionId}`);
+// src/pages/services/coffee-chat/api.ts
+
+Recruitment APIs:
+
+===== ENVIRONMENT VARIABLES =====
+From ./.env.production:
+VITE_API_URL=***
+
+From ./.env.example:
+VITE_API_URL=***
+
+From ./.env.development.local:
+VITE_API_URL=***
+VITE_KAKAO_API_KEY=***
+
+From ./.env.development:
+VITE_API_URL=***
+
+===== ROUTE STRUCTURE =====
+Routes from App.tsx:
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="login" element={<Login />} />
+          <Route path="auth/login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+          <Route path="auth/signup" element={<Signup />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="about" element={<About />} />
+          <Route path="services" element={<Services />} />
+          <Route path="services/coffee-chat" element={<CoffeeChat />} />
+          <Route path="services/coffee-chat/mentor-registration" element={<MentorRegistration />} />
+          <Route path="services/coffee-chat/booking/:mentorId" element={<CoffeeChatBooking />} />
+          <Route path="services/coffee-chat/calendar-callback" element={<CalendarCallback />} />
+          <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
+          <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
+          <Route path="services/recruitment" element={<QARecruitment />} />
+          <Route path="services/recruitment/with-map" element={<QARecruitmentWithMap />} />
+          <Route path="/services/recruitment/jobs" element={<QARecruitmentWithMap />} />
+          <Route path="/services/recruitment/post" element={<RecruitmentPost />} />
+          <Route path="/company/dashboard/:token" element={<CompanyRecruitmentDashboard />} />
+          <Route path="mypage/bookings" element={<MyBookings />} />
+          <Route path="mypage/applications" element={<MyApplications />} />
+          <Route path="mentor/dashboard" element={<MentorDashboard />} />
+          <Route path="services/casemaker" element={<CaseMaker />} />
+          <Route path="services/qauto" element={<QAuto />} />
+          <Route path="services/education" element={<Education />} />
+          <Route path="services/bug-bounty" element={<BugBountyArena />} />
+          <Route path="insights" element={<Insights />} />
+          <Route path="insights/notice" element={<Notice />} />
+          <Route path="insights/story" element={<Story />} />
+          <Route path="insights/study-note" element={<StudyNote />} />
+          <Route path="insights/interview" element={<Interview />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+      </Routes>
+    </Router>
+

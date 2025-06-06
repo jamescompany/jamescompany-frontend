@@ -1,0 +1,1960 @@
+Generated at: Fri Jun  6 13:28:52 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+--- src/pages/services/coffee-chat/BookingSuccess.tsx ---
+// src/pages/services/BookingSuccess.tsx
+
+
+interface BookingDetails {
+  sessionId: string;
+  mentorName: string;
+  scheduledDate: string;
+  calendarEventId?: string;
+}
+
+const BookingSuccess: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+
+  useEffect(() => {
+    if (sessionId) {
+      fetchBookingDetails();
+    } else {
+      // 개발 환경용 임시 데이터
+      setBookingDetails({
+        sessionId: '12345',
+        mentorName: '홍지현',
+        scheduledDate: '2024-02-15T14:00:00',
+        calendarEventId: 'google-calendar-id'
+      });
+    }
+  }, [sessionId]);
+
+  const fetchBookingDetails = async () => {
+    try {
+      const response = await fetch(`/api/coffee-chat/sessions/${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBookingDetails(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch booking details:', error);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      weekday: 'long'
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+      <div className="max-w-2xl w-full mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* 성공 헤더 */}
+          <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-center">
+            <CheckCircle className="w-20 h-20 text-white mx-auto mb-4" />
+            <h1 className="text-3xl font-bold text-white mb-2">예약이 완료되었습니다!</h1>
+            <p className="text-green-100">커피챗 일정이 성공적으로 예약되었습니다</p>
+          </div>
+
+          <div className="p-8">
+            {bookingDetails && (
+              <>
+                {/* 예약 정보 */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold mb-4">예약 정보</h2>
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <div className="flex items-start">
+                      <Calendar className="w-5 h-5 text-gray-400 mr-3 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-600">일정</p>
+                        <p className="font-medium">{formatDate(bookingDetails.scheduledDate)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start">
+                      <MessageSquare className="w-5 h-5 text-gray-400 mr-3 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-600">멘토</p>
+                        <p className="font-medium">{bookingDetails.mentorName}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start">
+                      <Mail className="w-5 h-5 text-gray-400 mr-3 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-gray-600">예약 번호</p>
+                        <p className="font-medium">#{bookingDetails.sessionId}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 다음 단계 안내 */}
+                <div className="mb-8">
+                  <h2 className="text-xl font-semibold mb-4">다음 단계</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-start">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                        <span className="text-blue-600 font-semibold text-sm">1</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">이메일 확인</h3>
+                        <p className="text-sm text-gray-600">
+                          등록하신 이메일로 예약 확인 메일이 발송되었습니다. 
+                          Google Calendar 초대장도 함께 확인해주세요.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                        <span className="text-blue-600 font-semibold text-sm">2</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">사전 준비</h3>
+                        <p className="text-sm text-gray-600">
+                          커피챗 전에 질문하고 싶은 내용을 미리 정리해두시면 더욱 유익한 시간이 될 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                        <span className="text-blue-600 font-semibold text-sm">3</span>
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">당일 접속</h3>
+                        <p className="text-sm text-gray-600">
+                          예약 시간 5분 전에 Google Meet 링크로 접속해주세요. 
+                          마이크와 카메라가 정상 작동하는지 미리 확인해주세요.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 취소 정책 */}
+                <div className="bg-amber-50 rounded-lg p-4 mb-8">
+                  <h3 className="font-medium text-amber-900 mb-2">취소 정책 안내</h3>
+                  <ul className="text-sm text-amber-800 space-y-1">
+                    <li>• 예약 24시간 전까지 무료 취소가 가능합니다</li>
+                    <li>• 24시간 이내 취소 시 수수료가 발생할 수 있습니다</li>
+                    <li>• 취소는 마이페이지 &gt; 예약 내역에서 가능합니다</li>
+                  </ul>
+                </div>
+
+                {/* 액션 버튼 */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="flex-1 flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    내 예약 확인
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </button>
+                  
+                  <button
+                    onClick={() => navigate('/services/coffee-chat')}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    더 많은 멘토 보기
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 추가 도움말 */}
+        <div className="mt-8 text-center text-sm text-gray-600">
+          <p>문의사항이 있으신가요?</p>
+          <a href="mailto:support@jamescompany.kr" className="text-blue-600 hover:underline">
+            support@jamescompany.kr
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BookingSuccess;
+
+--- src/pages/services/coffee-chat/BookingFailed.tsx ---
+// src/pages/services/coffeechat/BookingFailed.tsx
+
+
+type FailureType = 'cancelled' | 'payment_failed' | 'error' | 'timeout';
+
+interface FailureInfo {
+  type: FailureType;
+  title: string;
+  message: string;
+  icon: React.ReactNode;
+  iconBgColor: string;
+}
+
+const BookingFailed: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [failureType, setFailureType] = useState<FailureType>('error');
+  
+  useEffect(() => {
+    // URL 파라미터에서 실패 유형 확인
+    const type = searchParams.get('type') as FailureType;
+    if (type) {
+      setFailureType(type);
+    }
+  }, [searchParams]);
+
+  const failureInfo: Record<FailureType, FailureInfo> = {
+    cancelled: {
+      type: 'cancelled',
+      title: '예약이 취소되었습니다',
+      message: '결제를 취소하셨습니다. 언제든지 다시 예약하실 수 있습니다.',
+      icon: <XCircle className="w-20 h-20 text-gray-600" />,
+      iconBgColor: 'bg-gray-100'
+    },
+    payment_failed: {
+      type: 'payment_failed',
+      title: '결제에 실패했습니다',
+      message: '결제 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      icon: <AlertTriangle className="w-20 h-20 text-red-600" />,
+      iconBgColor: 'bg-red-100'
+    },
+    error: {
+      type: 'error',
+      title: '예약 중 오류가 발생했습니다',
+      message: '예약 처리 중 문제가 발생했습니다. 계속 문제가 발생하면 고객센터로 문의해주세요.',
+      icon: <AlertTriangle className="w-20 h-20 text-orange-600" />,
+      iconBgColor: 'bg-orange-100'
+    },
+    timeout: {
+      type: 'timeout',
+      title: '예약 시간이 초과되었습니다',
+      message: '예약 가능 시간이 지났습니다. 다른 시간대를 선택해주세요.',
+      icon: <AlertTriangle className="w-20 h-20 text-yellow-600" />,
+      iconBgColor: 'bg-yellow-100'
+    }
+  };
+
+  const currentFailure = failureInfo[failureType];
+
+  const handleRetry = () => {
+    // 이전 페이지로 돌아가거나 커피챗 메인으로 이동
+    navigate('/services/coffee-chat');
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+      <div className="max-w-2xl w-full mx-auto px-4">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* 실패 헤더 */}
+          <div className={`${currentFailure.iconBgColor} p-8 text-center`}>
+            <div className="inline-block">
+              {currentFailure.icon}
+            </div>
+          </div>
+
+          <div className="p-8">
+            <h1 className="text-2xl font-bold text-center mb-4">
+              {currentFailure.title}
+            </h1>
+            
+            <p className="text-gray-600 text-center mb-8">
+              {currentFailure.message}
+            </p>
+
+            {/* 추가 정보 */}
+            {failureType === 'payment_failed' && (
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-medium mb-2 flex items-center">
+                  <HelpCircle className="w-5 h-5 mr-2 text-gray-600" />
+                  결제 실패 가능한 원인
+                </h3>
+                <ul className="text-sm text-gray-600 space-y-1 ml-7">
+                  <li>• 카드 잔액 부족</li>
+                  <li>• 카드 유효기간 만료</li>
+                  <li>• 일시적인 네트워크 오류</li>
+                  <li>• 카드사 승인 거절</li>
+                </ul>
+              </div>
+            )}
+
+            {/* 액션 버튼 */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleRetry}
+                className="flex-1 flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                다시 시도
+              </button>
+              
+              <button
+                onClick={() => navigate('/')}
+                className="flex-1 flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                홈으로 돌아가기
+              </button>
+            </div>
+
+            {/* 도움말 */}
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-600 mb-2">
+                계속해서 문제가 발생하나요?
+              </p>
+              <div className="flex justify-center gap-4">
+                <a 
+                  href="mailto:support@jamescompany.kr" 
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  support@jamescompany.kr
+                </a>
+                <span className="text-gray-400">|</span>
+                <a 
+                  href="/faq" 
+                  className="text-blue-600 hover:underline text-sm"
+                >
+                  자주 묻는 질문
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 주의사항 */}
+        {failureType === 'cancelled' && (
+          <div className="mt-8 bg-blue-50 rounded-lg p-6">
+            <h3 className="font-semibold mb-2 text-blue-900">알려드립니다</h3>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• 선택하신 시간대는 아직 예약 가능합니다</li>
+              <li>• 결제 정보는 안전하게 처리되며 저장되지 않습니다</li>
+              <li>• 언제든지 다시 예약하실 수 있습니다</li>
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default BookingFailed;
+
+--- src/pages/services/coffee-chat/CalendarCallback.tsx ---
+// src/pages/services/coffee-chat/CalendarCallback.tsx
+
+
+const CalendarCallback: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    handleCallback();
+  }, []);
+
+  const handleCallback = async () => {
+    const code = searchParams.get('code');
+    const error = searchParams.get('error');
+    const state = searchParams.get('state');
+
+    if (error) {
+      setStatus('error');
+      setMessage('Google Calendar 연동이 취소되었습니다.');
+      return;
+    }
+
+    if (!code) {
+      setStatus('error');
+      setMessage('인증 코드를 받지 못했습니다.');
+      return;
+    }
+
+    try {
+      const result = await coffeeChatApi.handleGoogleCalendarCallback(code);
+      
+      if (result.isConnected) {
+        setStatus('success');
+        setMessage('Google Calendar가 성공적으로 연동되었습니다!');
+        
+        // state에 리다이렉트 정보가 있으면 해당 페이지로, 없으면 멘토 등록 페이지로
+        setTimeout(() => {
+          if (state === 'mentor-registration') {
+            navigate('/services/coffee-chat/mentor-registration', { 
+              state: { calendarConnected: true } 
+            });
+          } else {
+            navigate('/services/coffee-chat');
+          }
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Calendar connection failed:', error);
+      setStatus('error');
+      setMessage('Google Calendar 연동 중 오류가 발생했습니다.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="max-w-md w-full mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          {status === 'loading' && (
+            <>
+              <Loader className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Google Calendar 연동 중...</h2>
+              <p className="text-gray-600">잠시만 기다려주세요.</p>
+            </>
+          )}
+
+          {status === 'success' && (
+            <>
+              <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">연동 완료!</h2>
+              <p className="text-gray-600">{message}</p>
+            </>
+          )}
+
+          {status === 'error' && (
+            <>
+              <XCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">연동 실패</h2>
+              <p className="text-gray-600 mb-4">{message}</p>
+              <button
+                onClick={() => navigate(-1)}
+                className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              >
+                이전 페이지로 돌아가기
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CalendarCallback;
+
+--- src/pages/services/coffee-chat/api.ts ---
+// src/pages/services/coffee-chat/api.ts
+
+
+export interface Mentor {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  expertise: string[];
+  bio: string;
+  profileImage?: string;
+  hourlyRate?: number;
+  session_price?: number; // 추가
+  availableHours?: string;
+  calendarConnected?: boolean;
+  rating?: number;
+  totalSessions?: number;
+  qa_experience?: string; // 추가
+}
+
+export interface TimeSlot {
+  id: string;
+  mentorId: string;
+  start: string; // 변경
+  end: string; // 변경
+  available: boolean; // 변경
+  reason?: string; // 추가
+  startTime?: string;
+  endTime?: string;
+  isAvailable?: boolean;
+  isBooked?: boolean;
+  bookedBy?: string;
+  blockedReason?: string;
+}
+
+export interface BookingRequest {
+  mentorId: string;
+  slotId: string;
+  date?: string;
+  startTime?: string;
+  endTime?: string;
+  topic: string;
+  message?: string;
+  duration?: number;
+  paymentMethodId?: string;
+}
+
+export interface Booking {
+  id: string;
+  mentorId: string;
+  mentorName: string;
+  mentorEmail?: string;
+  userId: string;
+  userEmail?: string;
+  startTime: string;
+  endTime: string;
+  topic: string;
+  message?: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
+  meetingLink?: string;
+  calendarEventId?: string;
+  price: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CalendarConnection {
+  isConnected: boolean;
+  email?: string;
+  lastSynced?: string;
+}
+
+export const coffeeChatApi = {
+  // 멘토 관련
+  getMentors: async (filters?: { expertise?: string; priceRange?: string }) => {
+    try {
+      const response = await api.get('/coffee-chat/mentors', { params: filters }); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch mentors:', error);
+      throw error;
+    }
+  },
+
+  getMentorById: async (mentorId: string): Promise<Mentor> => {
+    try {
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}`); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch mentor details:', error);
+      throw error;
+    }
+  },
+
+  // 시간대 관련 - 오버로드 추가
+  getMentorAvailableSlots: async (mentorId: string, startDate: string, endDate?: string): Promise<TimeSlot[]> => {
+    try {
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}/availability`, { // /api 제거
+        params: { 
+          date: startDate,
+          startDate,
+          endDate: endDate || startDate
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch available slots:', error);
+      throw error;
+    }
+  },
+
+  // 구글 캘린더 연동
+  initiateGoogleCalendarAuth: async (): Promise<{ authUrl: string }> => {
+    try {
+      const response = await api.post('/coffee-chat/calendar/auth/init'); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to initiate Google Calendar auth:', error);
+      throw error;
+    }
+  },
+
+  handleGoogleCalendarCallback: async (code: string): Promise<CalendarConnection> => {
+    try {
+      const response = await api.post('/coffee-chat/calendar/auth/callback', { code }); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to handle Google Calendar callback:', error);
+      throw error;
+    }
+  },
+
+  disconnectGoogleCalendar: async () => {
+    try {
+      const response = await api.delete('/coffee-chat/calendar/disconnect'); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to disconnect Google Calendar:', error);
+      throw error;
+    }
+  },
+
+  syncGoogleCalendar: async () => {
+    try {
+      const response = await api.post('/coffee-chat/calendar/sync'); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to sync Google Calendar:', error);
+      throw error;
+    }
+  },
+
+  getCalendarStatus: async (): Promise<CalendarConnection> => {
+    try {
+      const response = await api.get('/coffee-chat/calendar/status'); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get calendar status:', error);
+      throw error;
+    }
+  },
+
+  // 예약 관련
+  createBooking: async (bookingData: BookingRequest): Promise<Booking> => {
+    try {
+      const response = await api.post('/coffee-chat/bookings', bookingData); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to create booking:', error);
+      throw error;
+    }
+  },
+
+  getMyBookings: async (role: 'mentee' | 'mentor' = 'mentee', status?: string): Promise<Booking[]> => {
+    try {
+      const response = await api.get('/coffee-chat/bookings', { // /api 제거
+        params: { role, status }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch bookings:', error);
+      throw error;
+    }
+  },
+
+  getBookingById: async (bookingId: string): Promise<Booking> => {
+    try {
+      const response = await api.get(`/coffee-chat/bookings/${bookingId}`); // /api 제거
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch booking details:', error);
+      throw error;
+    }
+  },
+
+  cancelBooking: async (bookingId: string, reason?: string) => {
+    try {
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/cancel`, {  // /api 제거
+        reason 
+      });
+
+--- src/pages/services/coffee-chat/CoffeeChat.tsx ---
+// src/pages/services/coffee-chat/CoffeeChat.tsx
+
+
+// 임시 멘토 데이터
+const mockMentors = [
+  {
+    id: '1',
+    name: '홍지현',
+    title: '미들레벨 QA 엔지니어',
+    company: 'JamesCompany',
+    expertise: ['웹 테스팅', '1인 QA'],
+    session_price: 50000,
+    bio: '6년차 QA 엔지니어로 1인 QA 팀 경험이 있습니다.',
+    rating: 5.0,
+    total_sessions: 999
+  },
+  {
+    id: '2',
+    name: '이영희',
+    title: '시니어 QA 엔지니어',
+    company: 'Tech Corp',
+    expertise: ['모바일 테스팅', 'API 테스팅', '성능 테스팅'],
+    session_price: 60000,
+    bio: '모바일 앱 테스팅 전문가로 대규모 서비스 QA 경험이 풍부합니다.',
+    rating: 4.9,
+    total_sessions: 32
+  },
+  {
+    id: '3',
+    name: '박민수',
+    title: '테스트 아키텍트',
+    company: 'QA Solutions',
+    expertise: ['테스트 전략', 'QA 리더십', 'SDET'],
+    session_price: 80000,
+    bio: '테스트 전략 수립과 QA 팀 빌딩 경험이 풍부한 리더입니다.',
+    rating: 4.7,
+    total_sessions: 28
+  }
+];
+
+const CoffeeChat: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuthStore();
+  const [showError, setShowError] = useState(false);
+  const [mentors, setMentors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMentors();
+  }, []);
+
+  const fetchMentors = async () => {
+    try {
+      const data = await coffeeChatApi.getMentors();
+      setMentors(data);
+      setShowError(false);
+    } catch (error) {
+      console.error('Failed to fetch mentors:', error);
+      // 에러 발생 시 mock 데이터 사용
+      setMentors(mockMentors);
+      setShowError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayMentors = mentors.length > 0 ? mentors : [];
+
+  const handleMentorRegistration = () => {
+    if (!isAuthenticated) {
+      alert('멘토 등록을 위해 먼저 로그인해주세요.');
+      navigate('/login');
+      return;
+    }
+    navigate('/services/coffee-chat/mentor-registration');
+  };
+
+  const handleBooking = (mentorId: string) => {
+    if (!isAuthenticated) {
+      alert('예약을 위해 먼저 로그인해주세요.');
+      navigate('/login');
+      return;
+    }
+    navigate(`/services/coffee-chat/booking/${mentorId}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* 히어로 섹션 */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center">
+              <Coffee className="w-10 h-10 mr-3 text-blue-600" />
+              커피챗
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">QA 전문가와 1:1 대화를 나눠보세요</p>
+            
+            {/* 멘토 등록 CTA */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 max-w-2xl mx-auto">
+              <h3 className="text-lg font-semibold mb-2">QA 전문가이신가요?</h3>
+              <p className="text-gray-600 mb-4">
+                당신의 경험과 지식을 공유하고 수익을 창출하세요
+              </p>
+              <button
+                onClick={handleMentorRegistration}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                멘토로 등록하기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 멘토 목록 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {showError && (
+          <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800">
+              서비스가 준비 중입니다. 곧 실제 멘토 정보를 확인하실 수 있습니다.
+            </p>
+          </div>
+        )}
+
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">멘토 찾기</h2>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="mt-2 text-gray-600">로딩 중...</p>
+          </div>
+        ) : displayMentors.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayMentors.map((mentor) => (
+              <div key={mentor.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col h-full">
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {mentor.name}
+                      </h3>
+                      <p className="text-gray-600">{mentor.title}</p>
+                    </div>
+                    {mentor.rating && (
+                      <div className="text-right">
+                        <div className="flex items-center text-yellow-500">
+                          <span className="text-sm font-medium mr-1">{mentor.rating}</span>
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                        </div>
+                        {mentor.total_sessions && (
+                          <p className="text-xs text-gray-500">{mentor.total_sessions}회 진행</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {mentor.bio && (
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
+                      {mentor.bio}
+                    </p>
+                  )}
+
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {mentor.expertise.slice(0, 3).map((skill: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {mentor.expertise.length > 3 && (
+                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                          +{mentor.expertise.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4 mt-auto">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-2xl font-bold text-gray-900">
+                        ₩{mentor.session_price?.toLocaleString() || '50,000'}
+                      </span>
+                      <span className="text-sm text-gray-500">/세션</span>
+                    </div>
+                    
+                    <button
+                      onClick={() => handleBooking(mentor.id)}
+                      className="w-full flex items-center justify-center py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      예약하기
+                      <ChevronRight className="w-4 h-4 ml-1" />
+                    </button>
+
+--- src/pages/services/coffee-chat/MentorRegistration.tsx ---
+// src/pages/services/coffee-chat/MentorRegistration.tsx
+
+  Calendar,
+  Clock,
+  DollarSign,
+  Plus,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
+
+interface AvailableHours {
+  [key: string]: Array<{ start: string; end: string }>;
+}
+
+const MentorRegistration: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuthStore();
+
+  const [formData, setFormData] = useState({
+    title: "",
+    company: "",
+    bio: "",
+    expertise: [""],
+    hourlyRate: 50000,
+    availableHours: {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    } as AvailableHours,
+  });
+
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+
+    // location state에서 캘린더 연동 상태 확인
+    if (location.state?.calendarConnected) {
+      setCalendarConnected(true);
+    } else {
+      checkCalendarStatus();
+    }
+  }, [isAuthenticated, location]);
+
+  const checkCalendarStatus = async () => {
+    try {
+      const status = await coffeeChatApi.getCalendarStatus();
+      setCalendarConnected(status.isConnected);
+    } catch (error) {
+      console.error("Failed to check calendar status:", error);
+    }
+  };
+
+  const handleGoogleCalendarConnect = async () => {
+    try {
+      // 백엔드 OAuth 엔드포인트로 리다이렉트
+      window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/google/login`;
+    } catch (error) {
+      console.error("Failed to initiate Google Calendar auth:", error);
+      alert("Google Calendar 연동을 시작할 수 없습니다.");
+    }
+  };
+
+  const handleExpertiseChange = (index: number, value: string) => {
+    const newExpertise = [...formData.expertise];
+    newExpertise[index] = value;
+    setFormData({ ...formData, expertise: newExpertise });
+  };
+
+  const addExpertise = () => {
+    setFormData({ ...formData, expertise: [...formData.expertise, ""] });
+  };
+
+  const removeExpertise = (index: number) => {
+    const newExpertise = formData.expertise.filter((_, i) => i !== index);
+    setFormData({ ...formData, expertise: newExpertise });
+  };
+
+  const addTimeSlot = (day: string) => {
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: [
+          ...formData.availableHours[day],
+          { start: "09:00", end: "10:00" },
+        ],
+      },
+    });
+  };
+
+  const updateTimeSlot = (
+    day: string,
+    index: number,
+    field: "start" | "end",
+    value: string
+  ) => {
+    const newSlots = [...formData.availableHours[day]];
+    newSlots[index] = { ...newSlots[index], [field]: value };
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: newSlots,
+      },
+    });
+  };
+
+  const removeTimeSlot = (day: string, index: number) => {
+    const newSlots = formData.availableHours[day].filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      availableHours: {
+        ...formData.availableHours,
+        [day]: newSlots,
+      },
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 개발 환경에서는 캘린더 연동 체크 스킵
+    const isDevelopment =
+      import.meta.env.DEV || window.location.hostname === "localhost";
+
+    if (!calendarConnected && !isDevelopment) {
+      alert("멘토 등록을 위해서는 Google Calendar 연동이 필요합니다.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const filteredExpertise = formData.expertise.filter(
+        (e) => e.trim() !== ""
+      );
+
+      await coffeeChatApi.registerAsMentor({
+        ...formData,
+        expertise: filteredExpertise,
+      });
+
+      alert("멘토 등록이 완료되었습니다!");
+      navigate("/mentor/dashboard");
+    } catch (error: any) {
+      console.error("Registration failed:", error);
+      const errorMessage =
+        error.response?.data?.detail ||
+        "멘토 등록에 실패했습니다. 다시 시도해주세요.";
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dayNames = {
+    monday: "월요일",
+    tuesday: "화요일",
+    wednesday: "수요일",
+    thursday: "목요일",
+    friday: "금요일",
+    saturday: "토요일",
+    sunday: "일요일",
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+            <h1 className="text-3xl font-bold">멘토 등록</h1>
+            <p className="mt-2 text-blue-100">
+              당신의 경험과 지식을 공유해주세요
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Google Calendar 연동 섹션 */}
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center">
+                <Calendar className="w-5 h-5 mr-2" />
+                Google Calendar 연동
+              </h3>
+
+              {calendarConnected ? (
+                <div className="flex items-center text-green-600">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <span>Google Calendar가 연동되었습니다</span>
+                </div>
+              ) : (
+
+--- src/pages/services/coffee-chat/CoffeeChatBooking.tsx ---
+// src/pages/services/coffee-chat/CoffeeChatBooking.tsx
+
+
+const CoffeeChatBooking: React.FC = () => {
+  const { mentorId } = useParams<{ mentorId: string }>();
+  const navigate = useNavigate();
+  
+  const [mentor, setMentor] = useState<Mentor | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1); // 1: 날짜/시간 선택, 2: 정보 입력, 3: 결제
+
+  useEffect(() => {
+    if (mentorId) {
+      fetchMentorDetails();
+    }
+  }, [mentorId]);
+
+  useEffect(() => {
+    if (mentor && selectedDate) {
+      fetchAvailableSlots();
+    }
+  }, [selectedDate, mentor]);
+
+  const fetchMentorDetails = async () => {
+    try {
+      const data = await coffeeChatApi.getMentorById(mentorId!);
+      setMentor(data);
+    } catch (error) {
+      console.error('Failed to fetch mentor details:', error);
+      // 에러 발생 시 임시 데이터
+      setMentor({
+        id: mentorId || '1',
+        name: mentorId === '1' ? '홍지현' : mentorId === '2' ? '이영희' : '박민수',
+        title: mentorId === '1' ? 'QA 자동화 전문가' : mentorId === '2' ? '시니어 QA 엔지니어' : '테스트 아키텍트',
+        company: '테크컴퍼니',
+        expertise: mentorId === '1' ? ['웹 테스팅', '자동화 테스팅', 'CI/CD'] : 
+                   mentorId === '2' ? ['모바일 테스팅', 'API 테스팅', '성능 테스팅'] :
+                   ['테스트 전략', 'QA 리더십', 'SDET'],
+        session_price: mentorId === '1' ? 50000 : mentorId === '2' ? 60000 : 80000,
+        bio: mentorId === '1' ? '10년차 QA 엔지니어로 다양한 자동화 프레임워크 경험이 있습니다.' :
+             mentorId === '2' ? '모바일 앱 테스팅 전문가로 대규모 서비스 QA 경험이 풍부합니다.' :
+             '테스트 전략 수립과 QA 팀 빌딩 경험이 풍부한 리더입니다.',
+        qa_experience: '삼성전자, 네이버, 카카오에서 QA 엔지니어로 근무했습니다.'
+      });
+    }
+  };
+
+  const fetchAvailableSlots = async () => {
+    const startDate = format(selectedDate, 'yyyy-MM-dd');
+    const endDate = format(selectedDate, 'yyyy-MM-dd');
+    
+    try {
+      const data = await coffeeChatApi.getMentorAvailableSlots(mentorId!, startDate, endDate);
+      setAvailableSlots(data);
+    } catch (error) {
+      console.error('Failed to fetch available slots:', error);
+      generateMockSlots();
+    }
+  };
+
+  const generateMockSlots = () => {
+    const slots: TimeSlot[] = [];
+    const hours = [9, 10, 11, 14, 15, 16, 17];
+    
+    hours.forEach(hour => {
+      const isAvailable = Math.random() > 0.3;
+      slots.push({
+        id: `slot-${hour}`,
+        mentorId: mentorId || '1',
+        start: `${hour}:00`,
+        end: `${hour + 1}:00`,
+        available: isAvailable,
+        reason: !isAvailable ? '이미 예약된 시간입니다' : undefined
+      });
+    });
+    
+    setAvailableSlots(slots);
+  };
+
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+    setSelectedSlot(null);
+  };
+
+  const handleSlotSelect = (slot: TimeSlot) => {
+    if (slot.available) {
+      setSelectedSlot(slot);
+    }
+  };
+
+  const handleNextStep = () => {
+    if (step === 1 && selectedSlot) {
+      setStep(2);
+    } else if (step === 2) {
+      setStep(3);
+    }
+  };
+
+  const handleBooking = async () => {
+    if (!selectedSlot || !mentor) return;
+
+    setLoading(true);
+    
+    const bookingData = {
+      mentorId: mentor.id,
+      slotId: `${format(selectedDate, 'yyyy-MM-dd')}-${selectedSlot.start}`,
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      startTime: selectedSlot.start,
+      endTime: selectedSlot.end,
+      topic: '커피챗 세션',
+      message: message,
+      duration: 60
+    };
+
+    try {
+      await coffeeChatApi.createBooking(bookingData);
+      navigate('/services/coffee-chat/booking-success');
+    } catch (error: any) {
+      console.error('Booking failed:', error);
+      
+      // 에러 유형에 따라 다른 실패 페이지로 이동
+      if (error.response?.status === 402) {
+        navigate('/services/coffee-chat/booking-failed?type=payment_failed');
+      } else if (error.response?.status === 408) {
+        navigate('/services/coffee-chat/booking-failed?type=timeout');
+      } else {
+        navigate('/services/coffee-chat/booking-failed?type=error');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 달력 날짜 생성
+  const generateCalendarDates = () => {
+    const dates = [];
+    const today = new Date();
+    const start = startOfWeek(today, { weekStartsOn: 0 });
+    
+    for (let i = 0; i < 28; i++) {
+      dates.push(addDays(start, i));
+    }
+    
+    return dates;
+  };
+
+  if (!mentor) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 진행 상태 표시 */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center">
+            <div className={`flex items-center ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+              }`}>
+                {step > 1 ? <Check className="w-5 h-5" /> : '1'}
+              </div>
+              <span className="ml-2 font-medium">일정 선택</span>
+            </div>
+            
+            <div className={`mx-8 w-24 h-0.5 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+            
+            <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+              }`}>
+                {step > 2 ? <Check className="w-5 h-5" /> : '2'}
+              </div>
+              <span className="ml-2 font-medium">정보 입력</span>
+            </div>
+            
+            <div className={`mx-8 w-24 h-0.5 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-200'}`} />
+            
+            <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'
+              }`}>
+                3
+              </div>
+              <span className="ml-2 font-medium">결제</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* 멘토 정보 헤더 */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+
+--- src/components/QAMentorChatbot.tsx ---
+// src/components/QAMentorChatbot.tsx
+
+
+interface Message {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  timestamp: Date
+}
+
+interface Category {
+  id: string
+  label: string
+  description: string
+  icon: string
+}
+
+const categories: Category[] = [
+  {
+    id: 'test-strategy',
+    label: '테스트 전략 상담',
+    description: '효과적인 테스트 전략 수립과 계획',
+    icon: '🎯'
+  },
+  {
+    id: 'automation',
+    label: '자동화 테스트 상담',
+    description: '자동화 도구 선택과 구현 방법',
+    icon: '🤖'
+  },
+  {
+    id: 'collaboration',
+    label: '협업 및 커뮤니케이션 상담',
+    description: '개발팀과의 효과적인 협업 방법',
+    icon: '🤝'
+  },
+  {
+    id: 'career',
+    label: 'QA 커리어 및 이직 상담',
+    description: '경력 개발과 이직 준비',
+    icon: '🚀'
+  },
+  {
+    id: 'tools',
+    label: '테스트 도구 및 환경 설정 상담',
+    description: '도구 선택과 환경 구축',
+    icon: '🛠️'
+  },
+  {
+    id: 'metrics',
+    label: 'QA 지표 및 리포트 작성 상담',
+    description: '효과적인 지표 관리와 보고서 작성',
+    icon: '📊'
+  },
+  {
+    id: 'bug-management',
+    label: '버그 관리 및 이슈 추적 상담',
+    description: '체계적인 버그 관리 프로세스',
+    icon: '🐛'
+  },
+  {
+    id: 'test-case',
+    label: '테스트 케이스 작성 및 리뷰 상담',
+    description: '효과적인 테스트 케이스 설계',
+    icon: '📝'
+  },
+  {
+    id: 'beginner',
+    label: '신입/초보 QA 입문 상담',
+    description: 'QA 기초와 성장 방향',
+    icon: '🌱'
+  },
+  {
+    id: 'other',
+    label: '기타 (직접 작성)',
+    description: '위 카테고리에 없는 고민',
+    icon: '💬'
+  }
+]
+
+export default function QAMentorChatbot() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [customQuestion, setCustomQuestion] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // 자동 스크롤
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  // 초기 인사말
+  useEffect(() => {
+    if (isOpen && messages.length === 0) {
+      const welcomeMessage: Message = {
+        role: 'assistant',
+        content: `안녕하세요! 👋 저는 시니어 QA 엔지니어 제이입니다.
+
+요즘 트렌드와 현업 경험을 바탕으로 여러분의 QA 고민을 함께 해결해드리고 싶어요.
+
+어떤 주제로 대화를 나누고 싶으신가요? 아래 카테고리를 선택해주세요.`,
+        timestamp: new Date()
+      }
+      setMessages([welcomeMessage])
+    }
+  }, [isOpen])
+
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId)
+    
+    const category = categories.find(c => c.id === categoryId)
+    if (!category) return
+
+    if (categoryId === 'other') {
+      // 기타 선택 시 입력 필드 표시
+      return
+    }
+
+    // 카테고리 선택 메시지
+    const userMessage: Message = {
+      role: 'user',
+      content: `${category.icon} ${category.label}에 대해 상담받고 싶습니다.`,
+      timestamp: new Date()
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    
+    // AI 응답 시뮬레이션
+    simulateResponse(categoryId)
+  }
+
+  const handleCustomSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!customQuestion.trim()) return
+
+    const userMessage: Message = {
+      role: 'user',
+      content: customQuestion,
+      timestamp: new Date()
+    }
+    
+    setMessages(prev => [...prev, userMessage])
+    setCustomQuestion('')
+    
+    // AI 응답 시뮬레이션
+    simulateResponse('custom', customQuestion)
+  }
+
+  const simulateResponse = async (type: string, customText?: string) => {
+    setIsTyping(true)
+    
+    try {
+      // API 호출
+      const { response } = await getChatResponse(
+        type === 'custom' ? 'other' : type,
+        customText || '',
+        messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))
+      )
+
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: response,
+        timestamp: new Date()
+      }
+      
+      setMessages(prev => {
+        const newMessages = [...prev, assistantMessage]
+        // 대화 내역 저장
+        saveChatHistory(newMessages.map(m => ({ 
+          role: m.role as 'user' | 'assistant', 
+          content: m.content 
+        })))
+        return newMessages
+      })
+    } catch (error) {
+      console.error('Error getting response:', error)
+      
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: '죄송해요, 잠시 연결에 문제가 있는 것 같네요. 다시 시도해주세요! 😅',
+        timestamp: new Date()
+      }
+      
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
+      setSelectedCategory(null)
+    }
+  }
+
+  return (
+    <>
+      {/* 플로팅 버튼 */}
+      {!isOpen && (
+
+--- src/components/QAMentorEnhancements.tsx ---
+// src/components/QAMentorEnhancements.tsx
+
+
+// 빠른 응답 버튼 컴포넌트
+export function QuickResponses({ 
+  onSelect 
+}: { 
+  onSelect: (response: string) => void 
+}) {
+  const quickResponses = [
+    "더 자세히 설명해주세요",
+    "예시를 들어주실 수 있나요?",
+    "다른 방법도 있을까요?",
+    "감사합니다! 도움이 되었어요",
+  ]
+
+  return (
+    <div className="flex flex-wrap gap-2 p-2 border-t">
+      {quickResponses.map((response, idx) => (
+        <button
+          key={idx}
+          onClick={() => onSelect(response)}
+          className="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+        >
+          {response}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// 타이핑 인디케이터 컴포넌트
+export function TypingIndicator({ name = "시니어 QA 멘토" }) {
+  return (
+    <div className="flex items-center gap-2 text-sm text-gray-500 px-3">
+      <div className="flex space-x-1">
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+      </div>
+      <span>{name}가 답변을 작성 중입니다...</span>
+    </div>
+  )
+}
+
+// 대화 평가 컴포넌트
+export function ChatRating({ 
+  onRate 
+}: { 
+  onRate: (rating: number) => void 
+}) {
+  const [rated, setRated] = useState(false)
+  const [rating, setRating] = useState(0)
+
+  const handleRate = (value: number) => {
+    setRating(value)
+    setRated(true)
+    onRate(value)
+  }
+
+  if (rated) {
+    return (
+      <div className="text-center p-3 bg-green-50 rounded-lg">
+        <p className="text-sm text-green-700">
+          피드백 감사합니다! {rating >= 4 ? '😊' : '📝'}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-3 bg-gray-50 rounded-lg">
+      <p className="text-sm text-gray-600 mb-2">이 답변이 도움이 되었나요?</p>
+      <div className="flex justify-center gap-2">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => handleRate(star)}
+            className="text-2xl hover:scale-110 transition-transform"
+          >
+            {star <= rating ? '⭐' : '☆'}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// 인기 질문 표시 컴포넌트
+export function PopularQuestions({ 
+  onSelect 
+}: { 
+  onSelect: (category: string, question: string) => void 
+}) {
+  const popularQuestions = [
+    {
+      category: 'automation',
+      question: 'Cypress vs Playwright, 어떤 걸 선택해야 할까요?',
+      icon: '🤖'
+    },
+    {
+      category: 'career',
+      question: '5년차 QA 엔지니어의 연봉 수준이 궁금해요',
+      icon: '💰'
+    },
+    {
+      category: 'test-strategy',
+      question: '스타트업에서 QA 프로세스를 처음 구축하려면?',
+      icon: '🚀'
+    }
+  ]
+
+  return (
+    <div className="p-4 bg-purple-50 rounded-lg">
+      <h4 className="text-sm font-semibold text-purple-800 mb-3">
+        🔥 이번 주 인기 질문
+      </h4>
+      <div className="space-y-2">
+        {popularQuestions.map((q, idx) => (
+          <button
+            key={idx}
+            onClick={() => onSelect(q.category, q.question)}
+            className="w-full text-left p-2 bg-white rounded-lg hover:shadow-sm transition-shadow"
+          >
+            <div className="flex items-start gap-2">
+              <span className="text-lg">{q.icon}</span>
+              <p className="text-sm text-gray-700">{q.question}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// 세션 통계 컴포넌트
+export function SessionStats({ 
+  messageCount,
+  startTime 
+}: { 
+  messageCount: number
+  startTime: Date 
+}) {
+  const duration = Math.floor((Date.now() - startTime.getTime()) / 1000 / 60)
+  
+  return (
+    <div className="flex justify-between text-xs text-gray-500 px-4 py-2 bg-gray-50">
+      <span>대화 {messageCount}개</span>
+      <span>{duration}분 경과</span>
+    </div>
+  )
+}
+
+// 커피챗 CTA 배너
+export function CoffeeChatBanner() {
+  return (
+    <div className="m-4 p-4 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
+      <div className="flex items-center justify-between">
+        <div>
+          <h4 className="font-semibold text-gray-800 mb-1">
+            더 깊은 상담이 필요하신가요?
+          </h4>
+          <p className="text-sm text-gray-600">
+            제임스와 1:1 커피챗으로 맞춤 상담을 받아보세요
+          </p>
+        </div>
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm whitespace-nowrap">
+          커피챗 신청 →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+--- src/components/QAMentorSection.tsx ---
+// src/components/QAMentorSection.tsx
+
+
+export default function QAMentorSection() {
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleOpenChat = () => {
+    // 챗봇 열기 이벤트 발생
+    const event = new CustomEvent('openQAMentor')
+    window.dispatchEvent(event)
+  }
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* 좌측: 텍스트 콘텐츠 */}
+          <div>
+            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <span>🎯</span>
+              <span>QA 고민 해결소</span>
+            </div>
+            
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              시니어 QA 엔지니어 제이와<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                실시간 상담
+              </span>
+              을 나눠보세요
+            </h2>
+            
+            <p className="text-lg text-gray-600 mb-8">
+              테스트 전략부터 커리어 개발까지,<br />
+              현업 시니어의 실전 노하우를 바로 얻을 수 있어요.
+            </p>
+
+            {/* 특징 리스트 */}
+            <ul className="space-y-3 mb-8">
+              <li className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-gray-700">10가지 QA 고민 카테고리 맞춤 상담</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-gray-700">실무 경험 기반 실질적인 조언</span>
+              </li>
+              <li className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-gray-700">24시간 언제든 편하게 질문 가능</span>
+              </li>
+            </ul>
+
+            {/* CTA 버튼 */}
+            <button
+              onClick={handleOpenChat}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-medium hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              <span>무료로 상담 시작하기</span>
+              <svg 
+                className={`w-5 h-5 transform transition-transform ${isHovered ? 'translate-x-1' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+
+            <p className="text-sm text-gray-500 mt-4">
+              💬 평균 응답 시간 30초 · 🔒 대화 내용 보안 유지
+            </p>
+          </div>
+
+          {/* 우측: 시각적 요소 */}
+          <div className="relative">
+            {/* 챗봇 미리보기 */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">🧑‍💼</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold">시니어 QA 멘토</h4>
+                  <p className="text-sm text-gray-500">시니어 QA 엔지니어 제이</p>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="bg-gray-100 rounded-xl p-3 max-w-[80%]">
+                  <p className="text-sm">안녕하세요! QA 관련 어떤 고민이든 편하게 물어보세요 😊</p>
+                </div>
+                <div className="bg-blue-600 text-white rounded-xl p-3 max-w-[80%] ml-auto">
+                  <p className="text-sm">자동화 테스트 도입을 고민하고 있어요</p>
+                </div>
+                <div className="bg-gray-100 rounded-xl p-3 max-w-[80%]">
+                  <p className="text-sm">자동화 도입, 좋은 선택이에요! ROI를 고려한 접근이 중요한데...</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 데코레이션 요소들 */}
+            <div className="absolute -top-4 -left-4 w-20 h-20 bg-purple-200 rounded-full opacity-50 blur-xl"></div>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-blue-200 rounded-full opacity-50 blur-xl"></div>
+            
+            {/* 플로팅 아이콘들 */}
+            <div className="absolute top-0 right-0 animate-bounce">
+              <span className="text-3xl">🎯</span>
+            </div>
+            <div className="absolute bottom-0 left-0 animate-pulse">
+              <span className="text-3xl">💡</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 하단 통계 */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900">1,500+</div>
+            <div className="text-sm text-gray-600 mt-1">상담 완료</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900">4.9/5</div>
+            <div className="text-sm text-gray-600 mt-1">만족도</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900">30초</div>
+            <div className="text-sm text-gray-600 mt-1">평균 응답</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-gray-900">24/7</div>
+            <div className="text-sm text-gray-600 mt-1">상시 운영</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+===== RELATED TYPES =====
+
+===== API CALLS =====
+
+===== STATE MANAGEMENT =====
+src/stores/serviceStore.ts-interface ServiceState {
+src/stores/serviceStore.ts-  // Coffee Chat
+src/stores/serviceStore.ts:  coffeeSlots: CoffeeChatSlot[]
+src/stores/serviceStore.ts-  fetchCoffeeSlots: () => Promise<void>
+src/stores/serviceStore.ts-  bookCoffeeSlot: (slotId: string) => Promise<void>
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Education
+src/stores/serviceStore.ts-  courses: Course[]
+src/stores/serviceStore.ts-  myCourses: Course[]
+src/stores/serviceStore.ts-  fetchCourses: () => Promise<void>
+src/stores/serviceStore.ts-  fetchMyCourses: () => Promise<void>
+src/stores/serviceStore.ts-  enrollCourse: (courseId: string) => Promise<void>
+src/stores/serviceStore.ts-  
+--
+src/stores/serviceStore.ts-export const useServiceStore = create<ServiceState>((set, get) => ({
+src/stores/serviceStore.ts-  // State
+src/stores/serviceStore.ts:  coffeeSlots: [],
+src/stores/serviceStore.ts-  courses: [],
+src/stores/serviceStore.ts-  myCourses: [],
+src/stores/serviceStore.ts-  betaTests: [],
+src/stores/serviceStore.ts-  loading: false,
+src/stores/serviceStore.ts-  error: null,
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Coffee Chat Methods
+src/stores/serviceStore.ts-  fetchCoffeeSlots: async () => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+--
+src/stores/serviceStore.ts-      setTimeout(() => {
+src/stores/serviceStore.ts-        set({ 
+src/stores/serviceStore.ts:          coffeeSlots: [], 
+src/stores/serviceStore.ts-          loading: false,
+src/stores/serviceStore.ts-          error: 'API가 준비 중입니다. 곧 실제 커피챗 정보를 확인하실 수 있습니다.'
+src/stores/serviceStore.ts-        })
+src/stores/serviceStore.ts-      }, 300)
+src/stores/serviceStore.ts-      return
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    try {
+src/stores/serviceStore.ts:      const response = await api.get<CoffeeChatSlot[]>('/api/coffee-chat/slots')
+src/stores/serviceStore.ts:      set({ coffeeSlots: response.data, loading: false })
+src/stores/serviceStore.ts-    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch coffee slots:', error)
+src/stores/serviceStore.ts-      set({ error: error.response?.data?.detail || '커피챗 시간을 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-  },
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  bookCoffeeSlot: async (slotId: string) => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts-      setTimeout(() => {
+src/stores/serviceStore.ts-        set({ loading: false })
+--
+src/stores/serviceStore.ts-    
+src/stores/serviceStore.ts-    try {
+src/stores/serviceStore.ts:      await api.post(`/api/coffee-chat/slots/${slotId}/book`)
+src/stores/serviceStore.ts-      await get().fetchCoffeeSlots()
+src/stores/serviceStore.ts-    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to book coffee slot:', error)
+src/stores/serviceStore.ts-      const errorMessage = error.response?.data?.detail || '예약에 실패했습니다.'
+src/stores/serviceStore.ts-      set({ error: errorMessage, loading: false })
+src/stores/serviceStore.ts-      throw new Error(errorMessage)
+src/stores/serviceStore.ts-    }
+src/stores/serviceStore.ts-  },
+src/stores/serviceStore.ts-  
+src/stores/serviceStore.ts-  // Education Methods
+src/stores/serviceStore.ts-  fetchCourses: async () => {
+src/stores/serviceStore.ts-    set({ loading: true, error: null })
+src/stores/serviceStore.ts-    
+--
+src/stores/authStore.ts-  membership_tier?: string
+src/stores/authStore.ts-  // 멘토 관련 추가 필드
+src/stores/authStore.ts:  mentorId?: number  // 멘토로 등록된 경우 멘토 ID
+src/stores/authStore.ts:  mentorStatus?: 'pending' | 'approved' | 'rejected'  // 멘토 승인 상태
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface AuthState {
+src/stores/authStore.ts-  user: User | null
+src/stores/authStore.ts-  isAuthenticated: boolean
+src/stores/authStore.ts-  token: string | null
+src/stores/authStore.ts-  login: (email: string, password: string) => Promise<void>
+src/stores/authStore.ts-  signup: (data: SignupData) => Promise<void>
+src/stores/authStore.ts-  loginWithImweb: (code: string) => Promise<void>
+src/stores/authStore.ts-  logout: () => void
+src/stores/authStore.ts-  checkAuth: () => Promise<void>
+src/stores/authStore.ts-  setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
+src/stores/authStore.ts:  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface SignupData {
+src/stores/authStore.ts-  email: string
+src/stores/authStore.ts-  password: string
+src/stores/authStore.ts-  name: string
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface LoginResponse {
+src/stores/authStore.ts-  access_token: string
+--
+src/stores/authStore.ts-          // 멘토 상태 확인 (선택사항)
+src/stores/authStore.ts-          try {
+src/stores/authStore.ts:            const mentorResponse = await api.get('/mentors/my-status')
+src/stores/authStore.ts:            if (mentorResponse.data) {
+src/stores/authStore.ts:              response.data.mentorId = mentorResponse.data.mentorId
+src/stores/authStore.ts:              response.data.mentorStatus = mentorResponse.data.status
+src/stores/authStore.ts-            }
+src/stores/authStore.ts:          } catch (mentorError) {
+src/stores/authStore.ts-            // 멘토가 아닌 경우 에러 무시
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-          
+src/stores/authStore.ts-          set({
+src/stores/authStore.ts-            user: response.data,
+src/stores/authStore.ts-            isAuthenticated: true,
+src/stores/authStore.ts-            token
+src/stores/authStore.ts-          })
+src/stores/authStore.ts-        } catch (error) {
+src/stores/authStore.ts-          console.error('Auth check failed:', error)
+--
+src/stores/authStore.ts-
+src/stores/authStore.ts-      // 멘토 상태 업데이트 (멘토 승인/거절 후 사용)
+src/stores/authStore.ts:      updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => {
+src/stores/authStore.ts-        set((state) => ({
+src/stores/authStore.ts-          user: state.user ? { 
+src/stores/authStore.ts-            ...state.user, 
+src/stores/authStore.ts:            mentorStatus,
+src/stores/authStore.ts:            mentorId: mentorId || state.user.mentorId 
+src/stores/authStore.ts-          } : null
+src/stores/authStore.ts-        }))
+src/stores/authStore.ts-      }
+src/stores/authStore.ts-    }),
+src/stores/authStore.ts-    {
+src/stores/authStore.ts-      name: 'auth-storage',
+src/stores/authStore.ts-      partialize: (state) => ({
+src/stores/authStore.ts-        user: state.user,
+src/stores/authStore.ts-        isAuthenticated: state.isAuthenticated,
+src/stores/authStore.ts-        token: state.token  // token도 persist에 추가
+
+===== CONFIGURATIONS =====
+src/config/qaMentorPrompts.ts:      coffeeChat: [
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.readonly',
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.events'
+src/config/googleCalendar.ts:    redirectUri: `${window.location.origin}/services/coffee-chat/calendar-callback`
+
+===== SUMMARY =====
+Components found:
+       9
+
+API endpoints used:
+      const response = await api.delete('/coffee-chat/calendar/disconnect'); // /api 제거
+      const response = await api.get('/coffee-chat/bookings', { // /api 제거
+      const response = await api.get('/coffee-chat/calendar/status'); // /api 제거
+      const response = await api.get('/coffee-chat/mentors', { params
+      const response = await api.get('/coffee-chat/mentors/dashboard'); // /api 제거
+      const response = await api.get(`/coffee-chat/bookings/${bookingId}`); // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}/availability`, { // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}`); // /api 제거
+      const response = await api.post('/coffee-chat/bookings', bookingData); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/callback', { code }); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/init'); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/sync'); // /api 제거
+      const response = await api.post('/coffee-chat/mentors/register', mentorData); // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/cancel`, {  // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/confirm-payment`, { // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/payment`); // /api 제거
+      const response = await api.put('/coffee-chat/mentors/profile', mentorData); // /api 제거

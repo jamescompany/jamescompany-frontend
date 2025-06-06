@@ -1,4 +1,5 @@
 // src/services/auth.service.ts
+
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -8,9 +9,10 @@ interface LoginResponse {
   refresh_token?: string;
   token_type: string;
   user: {
-    id: number;
+    id: string;  // UUID로 변경
     email: string;
     name: string;
+    role: 'user' | 'admin' | 'mentor' | 'company';
     profile_image?: string;
     membership_tier: string;
     is_admin: boolean;
@@ -26,17 +28,11 @@ interface SignupData {
 class AuthService {
   // 이메일/비밀번호 로그인
   async login(email: string, password: string): Promise<LoginResponse> {
-    const formData = new FormData();
-    formData.append('username', email); // OAuth2PasswordRequestForm은 username 필드 사용
-    formData.append('password', password);
-
     const response = await axios.post<LoginResponse>(
-      `${API_URL}/api/auth/login`,
-      formData,
+      `${API_URL}/api/v1/auth/login`,
       {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        email,
+        password
       }
     );
 
@@ -45,14 +41,14 @@ class AuthService {
 
   // 회원가입
   async signup(data: SignupData) {
-    const response = await axios.post(`${API_URL}/auth/signup`, data);
+    const response = await axios.post(`${API_URL}/api/v1/auth/register`, data);
     return response.data;
   }
 
   // 토큰 새로고침
   async refreshToken(refreshToken: string): Promise<LoginResponse> {
     const response = await axios.post<LoginResponse>(
-      `${API_URL}/auth/refresh`,
+      `${API_URL}/api/v1/auth/refresh`,
       { refresh_token: refreshToken }
     );
     return response.data;
@@ -65,7 +61,7 @@ class AuthService {
       throw new Error('No token found');
     }
 
-    const response = await axios.get(`${API_URL}/auth/me`, {
+    const response = await axios.get(`${API_URL}/api/v1/users/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

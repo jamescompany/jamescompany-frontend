@@ -10,9 +10,11 @@ interface OAuthUser {
   id: string
   email: string
   name: string
-  role: 'user' | 'admin'
+  is_admin: boolean
+  is_active: boolean
+  membership_tier: string
+  created_at: string
   profile_image?: string
-  membership_tier?: string
 }
 
 export default function OAuthCallback() {
@@ -47,12 +49,15 @@ export default function OAuthCallback() {
 
         // 사용자 정보 가져오기
         try {
-          const response = await api.get<OAuthUser>('/api/users/me')
+          const response = await api.get<OAuthUser>('/api/v1/users/me')
           const user = {
             id: response.data.id,
             email: response.data.email,
             name: response.data.name,
-            role: response.data.role
+            role: response.data.is_admin ? 'admin' as const : 'user' as const,
+            is_admin: response.data.is_admin,
+            membership_tier: response.data.membership_tier,
+            profile_image: response.data.profile_image
           }
           
           // authStore에 인증 상태 설정

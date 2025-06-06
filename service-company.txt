@@ -1,0 +1,1602 @@
+Generated at: Fri Jun  6 14:34:40 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+===== RELATED TYPES =====
+
+===== API CALLS =====
+src/services/auth.service.ts:// src/services/auth.service.ts
+src/services/auth.service.ts:import axios from 'axios';
+src/services/auth.service.ts:
+src/services/auth.service.ts:const API_URL = import.meta.env.VITE_API_URL;
+src/services/auth.service.ts:
+src/services/auth.service.ts:interface LoginResponse {
+src/services/auth.service.ts:  access_token: string;
+src/services/auth.service.ts:  refresh_token?: string;
+src/services/auth.service.ts:  token_type: string;
+src/services/auth.service.ts:  user: {
+src/services/auth.service.ts:    id: number;
+src/services/auth.service.ts:    email: string;
+src/services/auth.service.ts:    name: string;
+src/services/auth.service.ts:    profile_image?: string;
+src/services/auth.service.ts:    membership_tier: string;
+src/services/auth.service.ts:    is_admin: boolean;
+src/services/auth.service.ts:  };
+src/services/auth.service.ts:}
+src/services/auth.service.ts:
+src/services/auth.service.ts:interface SignupData {
+src/services/auth.service.ts:  email: string;
+src/services/auth.service.ts:  password: string;
+src/services/auth.service.ts:  name: string;
+src/services/auth.service.ts:}
+src/services/auth.service.ts:
+src/services/auth.service.ts:class AuthService {
+src/services/auth.service.ts:  // 이메일/비밀번호 로그인
+src/services/auth.service.ts:  async login(email: string, password: string): Promise<LoginResponse> {
+src/services/auth.service.ts:    const formData = new FormData();
+src/services/auth.service.ts:    formData.append('username', email); // OAuth2PasswordRequestForm은 username 필드 사용
+src/services/auth.service.ts:    formData.append('password', password);
+src/services/auth.service.ts:
+src/services/auth.service.ts:    const response = await axios.post<LoginResponse>(
+src/services/auth.service.ts:      `${API_URL}/api/auth/login`,
+src/services/auth.service.ts:      formData,
+src/services/auth.service.ts:      {
+src/services/auth.service.ts:        headers: {
+src/services/auth.service.ts:          'Content-Type': 'multipart/form-data',
+src/services/auth.service.ts:        },
+src/services/auth.service.ts:      }
+src/services/auth.service.ts:    );
+src/services/auth.service.ts:
+src/services/auth.service.ts:    return response.data;
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // 회원가입
+src/services/auth.service.ts:  async signup(data: SignupData) {
+src/services/auth.service.ts:    const response = await axios.post(`${API_URL}/auth/signup`, data);
+src/services/auth.service.ts:    return response.data;
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // 토큰 새로고침
+src/services/auth.service.ts:  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+src/services/auth.service.ts:    const response = await axios.post<LoginResponse>(
+src/services/auth.service.ts:      `${API_URL}/auth/refresh`,
+src/services/auth.service.ts:      { refresh_token: refreshToken }
+src/services/auth.service.ts:    );
+src/services/auth.service.ts:    return response.data;
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // 현재 사용자 정보 가져오기
+src/services/auth.service.ts:  async getCurrentUser() {
+src/services/auth.service.ts:    const token = localStorage.getItem('access_token');
+src/services/auth.service.ts:    if (!token) {
+src/services/auth.service.ts:      throw new Error('No token found');
+src/services/auth.service.ts:    }
+src/services/auth.service.ts:
+src/services/auth.service.ts:    const response = await axios.get(`${API_URL}/auth/me`, {
+src/services/auth.service.ts:      headers: {
+src/services/auth.service.ts:        Authorization: `Bearer ${token}`,
+src/services/auth.service.ts:      },
+src/services/auth.service.ts:    });
+src/services/auth.service.ts:
+src/services/auth.service.ts:    return response.data;
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // 로그아웃
+src/services/auth.service.ts:  logout() {
+src/services/auth.service.ts:    localStorage.removeItem('access_token');
+src/services/auth.service.ts:    localStorage.removeItem('refresh_token');
+src/services/auth.service.ts:    window.location.href = '/login';
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // 토큰 유효성 검사
+src/services/auth.service.ts:  isAuthenticated(): boolean {
+src/services/auth.service.ts:    return !!localStorage.getItem('access_token');
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:
+src/services/auth.service.ts:  // Axios 인터셉터 설정
+src/services/auth.service.ts:  setupAxiosInterceptors() {
+src/services/auth.service.ts:    // 요청 인터셉터
+src/services/auth.service.ts:    axios.interceptors.request.use(
+src/services/auth.service.ts:      (config) => {
+src/services/auth.service.ts:        const token = localStorage.getItem('access_token');
+src/services/auth.service.ts:        if (token) {
+src/services/auth.service.ts:          config.headers.Authorization = `Bearer ${token}`;
+src/services/auth.service.ts:        }
+src/services/auth.service.ts:        return config;
+src/services/auth.service.ts:      },
+src/services/auth.service.ts:      (error) => Promise.reject(error)
+src/services/auth.service.ts:    );
+src/services/auth.service.ts:
+src/services/auth.service.ts:    // 응답 인터셉터
+src/services/auth.service.ts:    axios.interceptors.response.use(
+src/services/auth.service.ts:      (response) => response,
+src/services/auth.service.ts:      async (error) => {
+src/services/auth.service.ts:        const originalRequest = error.config;
+src/services/auth.service.ts:
+src/services/auth.service.ts:        if (error.response?.status === 401 && !originalRequest._retry) {
+src/services/auth.service.ts:          originalRequest._retry = true;
+src/services/auth.service.ts:
+src/services/auth.service.ts:          try {
+src/services/auth.service.ts:            const refreshToken = localStorage.getItem('refresh_token');
+src/services/auth.service.ts:            if (refreshToken) {
+src/services/auth.service.ts:              const response = await this.refreshToken(refreshToken);
+src/services/auth.service.ts:              localStorage.setItem('access_token', response.access_token);
+src/services/auth.service.ts:              if (response.refresh_token) {
+src/services/auth.service.ts:                localStorage.setItem('refresh_token', response.refresh_token);
+src/services/auth.service.ts:              }
+src/services/auth.service.ts:              
+src/services/auth.service.ts:              // 원래 요청 재시도
+src/services/auth.service.ts:              originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
+src/services/auth.service.ts:              return axios(originalRequest);
+src/services/auth.service.ts:            }
+src/services/auth.service.ts:          } catch (refreshError) {
+src/services/auth.service.ts:            // 리프레시 토큰도 만료된 경우
+src/services/auth.service.ts:            this.logout();
+src/services/auth.service.ts:            return Promise.reject(refreshError);
+src/services/auth.service.ts:          }
+src/services/auth.service.ts:        }
+src/services/auth.service.ts:
+src/services/auth.service.ts:        return Promise.reject(error);
+src/services/auth.service.ts:      }
+src/services/auth.service.ts:    );
+src/services/auth.service.ts:  }
+src/services/auth.service.ts:}
+src/services/auth.service.ts:
+src/services/auth.service.ts:export const authService = new AuthService();
+src/services/auth.service.ts:export default authService;
+--
+src/services/companyEmailService.ts:// src/services/companyEmailService.ts
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:interface EmailData {
+src/services/companyEmailService.ts:  companyName: string;
+src/services/companyEmailService.ts:  contactEmail: string;
+src/services/companyEmailService.ts:  position: string;
+src/services/companyEmailService.ts:  managementToken: string;
+src/services/companyEmailService.ts:  status: 'pending' | 'approved' | 'rejected';
+src/services/companyEmailService.ts:}
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:export const companyEmailTemplates = {
+src/services/companyEmailService.ts:  // 채용공고 접수 확인 이메일
+src/services/companyEmailService.ts:  applicationReceived: (data: EmailData) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] ${data.companyName}님의 채용공고가 접수되었습니다`,
+src/services/companyEmailService.ts:    html: `
+src/services/companyEmailService.ts:      <!DOCTYPE html>
+src/services/companyEmailService.ts:      <html>
+src/services/companyEmailService.ts:      <head>
+src/services/companyEmailService.ts:        <style>
+src/services/companyEmailService.ts:          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+src/services/companyEmailService.ts:          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+src/services/companyEmailService.ts:          .header { background: linear-gradient(to right, #3B82F6, #8B5CF6); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+src/services/companyEmailService.ts:          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+src/services/companyEmailService.ts:          .button { display: inline-block; background: linear-gradient(to right, #3B82F6, #8B5CF6); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+src/services/companyEmailService.ts:          .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb; }
+src/services/companyEmailService.ts:          .footer { text-align: center; margin-top: 40px; color: #6b7280; font-size: 14px; }
+src/services/companyEmailService.ts:        </style>
+src/services/companyEmailService.ts:      </head>
+src/services/companyEmailService.ts:      <body>
+src/services/companyEmailService.ts:        <div class="container">
+src/services/companyEmailService.ts:          <div class="header">
+src/services/companyEmailService.ts:            <h1>채용공고 접수 확인</h1>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p><strong>"${data.position}"</strong> 포지션의 채용공고가 성공적으로 접수되었습니다.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="info-box">
+src/services/companyEmailService.ts:              <h3>다음 단계</h3>
+src/services/companyEmailService.ts:              <ol>
+src/services/companyEmailService.ts:                <li>제임스컴퍼니 팀이 24시간 이내에 채용공고를 검토합니다</li>
+src/services/companyEmailService.ts:                <li>승인되면 즉시 게시되며, 관리 링크를 보내드립니다</li>
+src/services/companyEmailService.ts:                <li>검토 중 추가 정보가 필요한 경우 연락드리겠습니다</li>
+src/services/companyEmailService.ts:              </ol>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>채용공고 검토에는 보통 1-2 영업일이 소요됩니다.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="info-box" style="background: #EFF6FF; border-color: #3B82F6;">
+src/services/companyEmailService.ts:              <p><strong>💡 알고 계셨나요?</strong></p>
+src/services/companyEmailService.ts:              <p>제임스컴퍼니를 통한 채용 시 평균 지원율이 일반 채용 플랫폼 대비 3배 높습니다.</p>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>문의사항이 있으시면 언제든 연락주세요.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>감사합니다.<br>
+src/services/companyEmailService.ts:            제임스컴퍼니 팀 드림</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="footer">
+src/services/companyEmailService.ts:            <p>이 이메일은 ${data.contactEmail}로 발송되었습니다.</p>
+src/services/companyEmailService.ts:            <p>© 2025 JamesCompany. All rights reserved.</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:        </div>
+src/services/companyEmailService.ts:      </body>
+src/services/companyEmailService.ts:      </html>
+src/services/companyEmailService.ts:    `
+src/services/companyEmailService.ts:  }),
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:  // 채용공고 승인 및 관리 링크 이메일
+src/services/companyEmailService.ts:  applicationApproved: (data: EmailData) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] 축하합니다! ${data.position} 채용공고가 게시되었습니다`,
+src/services/companyEmailService.ts:    html: `
+src/services/companyEmailService.ts:      <!DOCTYPE html>
+src/services/companyEmailService.ts:      <html>
+src/services/companyEmailService.ts:      <head>
+src/services/companyEmailService.ts:        <style>
+src/services/companyEmailService.ts:          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+src/services/companyEmailService.ts:          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+src/services/companyEmailService.ts:          .header { background: linear-gradient(to right, #10B981, #3B82F6); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+src/services/companyEmailService.ts:          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+src/services/companyEmailService.ts:          .button { display: inline-block; background: linear-gradient(to right, #3B82F6, #8B5CF6); color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+src/services/companyEmailService.ts:          .info-box { background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb; }
+src/services/companyEmailService.ts:          .feature { display: flex; align-items: center; margin: 10px 0; }
+src/services/companyEmailService.ts:          .feature-icon { width: 24px; height: 24px; margin-right: 10px; }
+src/services/companyEmailService.ts:          .warning-box { background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #F59E0B; }
+src/services/companyEmailService.ts:          .footer { text-align: center; margin-top: 40px; color: #6b7280; font-size: 14px; }
+src/services/companyEmailService.ts:        </style>
+src/services/companyEmailService.ts:      </head>
+src/services/companyEmailService.ts:      <body>
+src/services/companyEmailService.ts:        <div class="container">
+src/services/companyEmailService.ts:          <div class="header">
+src/services/companyEmailService.ts:            <h1>🎉 채용공고가 게시되었습니다!</h1>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p><strong>"${data.position}"</strong> 포지션이 제임스컴퍼니에 성공적으로 게시되었습니다.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts:                채용 관리 대시보드 바로가기
+src/services/companyEmailService.ts:              </a>
+src/services/companyEmailService.ts:            </center>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="info-box">
+src/services/companyEmailService.ts:              <h3>관리 대시보드에서 할 수 있는 일</h3>
+src/services/companyEmailService.ts:              <div class="feature">
+src/services/companyEmailService.ts:                <span class="feature-icon">📊</span>
+src/services/companyEmailService.ts:                <span>실시간 조회수 및 지원 현황 확인</span>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="feature">
+src/services/companyEmailService.ts:                <span class="feature-icon">👥</span>
+src/services/companyEmailService.ts:                <span>지원자 이력서 열람 및 관리</span>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="feature">
+src/services/companyEmailService.ts:                <span class="feature-icon">💬</span>
+src/services/companyEmailService.ts:                <span>지원자와 직접 소통</span>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="feature">
+src/services/companyEmailService.ts:                <span class="feature-icon">📈</span>
+src/services/companyEmailService.ts:                <span>채용 성과 분석 리포트</span>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="feature">
+src/services/companyEmailService.ts:                <span class="feature-icon">✏️</span>
+src/services/companyEmailService.ts:                <span>채용공고 수정 및 관리</span>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="warning-box">
+src/services/companyEmailService.ts:              <strong>⚠️ 중요:</strong> 이 링크는 보안을 위해 고유하게 생성되었습니다. 
+src/services/companyEmailService.ts:              안전한 곳에 보관하시고, 타인과 공유하지 마세요.
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="info-box" style="background: #F0FDF4; border-color: #10B981;">
+src/services/companyEmailService.ts:              <h3>💡 채용 성공 팁</h3>
+src/services/companyEmailService.ts:              <ul>
+src/services/companyEmailService.ts:                <li>지원자가 들어오면 빠르게 검토하세요 (24시간 이내 권장)</li>
+src/services/companyEmailService.ts:                <li>제임스 스코어를 참고하여 우수 지원자를 놓치지 마세요</li>
+src/services/companyEmailService.ts:                <li>정기적으로 대시보드를 확인하여 새로운 지원자를 확인하세요</li>
+src/services/companyEmailService.ts:              </ul>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>더 많은 기능을 원하시나요? <a href="https://jamescompany.kr/company/signup">기업 회원으로 가입</a>하시면 더 강력한 채용 도구를 사용하실 수 있습니다.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>성공적인 채용을 기원합니다!<br>
+src/services/companyEmailService.ts:            제임스컴퍼니 팀 드림</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="footer">
+src/services/companyEmailService.ts:            <p>관리 링크: <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">https://jamescompany.kr/company/dashboard/${data.managementToken}</code></p>
+src/services/companyEmailService.ts:            <p>이 이메일은 ${data.contactEmail}로 발송되었습니다.</p>
+src/services/companyEmailService.ts:            <p>© 2025 JamesCompany. All rights reserved.</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:        </div>
+src/services/companyEmailService.ts:      </body>
+src/services/companyEmailService.ts:      </html>
+src/services/companyEmailService.ts:    `
+src/services/companyEmailService.ts:  }),
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:  // 새로운 지원자 알림 이메일
+src/services/companyEmailService.ts:  newApplication: (data: EmailData & { applicantCount: number }) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] ${data.position} 포지션에 새로운 지원자가 있습니다`,
+src/services/companyEmailService.ts:    html: `
+src/services/companyEmailService.ts:      <!DOCTYPE html>
+src/services/companyEmailService.ts:      <html>
+src/services/companyEmailService.ts:      <head>
+src/services/companyEmailService.ts:        <style>
+src/services/companyEmailService.ts:          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+src/services/companyEmailService.ts:          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+src/services/companyEmailService.ts:          .header { background: linear-gradient(to right, #8B5CF6, #EC4899); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+src/services/companyEmailService.ts:          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+src/services/companyEmailService.ts:          .button { display: inline-block; background: linear-gradient(to right, #8B5CF6, #EC4899); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+src/services/companyEmailService.ts:          .stat-box { background: white; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e5e7eb; }
+src/services/companyEmailService.ts:          .footer { text-align: center; margin-top: 40px; color: #6b7280; font-size: 14px; }
+src/services/companyEmailService.ts:        </style>
+src/services/companyEmailService.ts:      </head>
+src/services/companyEmailService.ts:      <body>
+src/services/companyEmailService.ts:        <div class="container">
+src/services/companyEmailService.ts:          <div class="header">
+src/services/companyEmailService.ts:            <h1>🎯 새로운 지원자 알림</h1>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="stat-box">
+src/services/companyEmailService.ts:              <h2 style="color: #8B5CF6; margin: 0;">${data.applicantCount}명</h2>
+src/services/companyEmailService.ts:              <p style="margin: 5px 0;">새로운 지원자</p>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p><strong>"${data.position}"</strong> 포지션에 새로운 지원자가 있습니다.</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts:                지원자 확인하기
+src/services/companyEmailService.ts:              </a>
+src/services/companyEmailService.ts:            </center>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p style="background: #EDE9FE; padding: 15px; border-radius: 8px; border-left: 4px solid #8B5CF6;">
+src/services/companyEmailService.ts:              💡 <strong>빠른 응답이 중요합니다!</strong><br>
+src/services/companyEmailService.ts:              24시간 이내에 지원자를 검토하면 우수 인재 채용 확률이 3배 높아집니다.
+src/services/companyEmailService.ts:            </p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>좋은 인재와의 만남을 응원합니다!</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="footer">
+src/services/companyEmailService.ts:            <p>알림 설정은 대시보드에서 변경할 수 있습니다.</p>
+src/services/companyEmailService.ts:            <p>© 2025 JamesCompany. All rights reserved.</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:        </div>
+src/services/companyEmailService.ts:      </body>
+src/services/companyEmailService.ts:      </html>
+src/services/companyEmailService.ts:    `
+src/services/companyEmailService.ts:  }),
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:  // 주간 리포트 이메일
+src/services/companyEmailService.ts:  weeklyReport: (data: EmailData & { stats: any }) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] ${data.companyName}님의 주간 채용 리포트`,
+src/services/companyEmailService.ts:    html: `
+src/services/companyEmailService.ts:      <!DOCTYPE html>
+src/services/companyEmailService.ts:      <html>
+src/services/companyEmailService.ts:      <head>
+src/services/companyEmailService.ts:        <style>
+src/services/companyEmailService.ts:          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+src/services/companyEmailService.ts:          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+src/services/companyEmailService.ts:          .header { background: linear-gradient(to right, #6366F1, #8B5CF6); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+src/services/companyEmailService.ts:          .content { background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }
+src/services/companyEmailService.ts:          .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+src/services/companyEmailService.ts:          .stat-card { background: white; padding: 20px; border-radius: 8px; text-align: center; border: 1px solid #e5e7eb; }
+src/services/companyEmailService.ts:          .stat-number { font-size: 28px; font-weight: bold; color: #6366F1; }
+src/services/companyEmailService.ts:          .stat-label { color: #6b7280; font-size: 14px; }
+src/services/companyEmailService.ts:          .button { display: inline-block; background: linear-gradient(to right, #6366F1, #8B5CF6); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+src/services/companyEmailService.ts:          .footer { text-align: center; margin-top: 40px; color: #6b7280; font-size: 14px; }
+src/services/companyEmailService.ts:        </style>
+src/services/companyEmailService.ts:      </head>
+src/services/companyEmailService.ts:      <body>
+src/services/companyEmailService.ts:        <div class="container">
+src/services/companyEmailService.ts:          <div class="header">
+src/services/companyEmailService.ts:            <h1>📊 주간 채용 리포트</h1>
+src/services/companyEmailService.ts:            <p style="margin: 0; opacity: 0.9;">지난 7일간의 채용 성과</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div class="stats-grid">
+src/services/companyEmailService.ts:              <div class="stat-card">
+src/services/companyEmailService.ts:                <div class="stat-number">${data.stats.weeklyViews}</div>
+src/services/companyEmailService.ts:                <div class="stat-label">조회수</div>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="stat-card">
+src/services/companyEmailService.ts:                <div class="stat-number">${data.stats.weeklyApplications}</div>
+src/services/companyEmailService.ts:                <div class="stat-label">새 지원자</div>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="stat-card">
+src/services/companyEmailService.ts:                <div class="stat-number">${data.stats.conversionRate}%</div>
+src/services/companyEmailService.ts:                <div class="stat-label">지원 전환율</div>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:              <div class="stat-card">
+src/services/companyEmailService.ts:                <div class="stat-number">${data.stats.avgJamesScore}</div>
+src/services/companyEmailService.ts:                <div class="stat-label">평균 제임스 스코어</div>
+src/services/companyEmailService.ts:              </div>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts:                상세 리포트 보기
+src/services/companyEmailService.ts:              </a>
+src/services/companyEmailService.ts:            </center>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+src/services/companyEmailService.ts:              <h3 style="margin-top: 0;">이번 주 하이라이트</h3>
+src/services/companyEmailService.ts:              <ul>
+src/services/companyEmailService.ts:                <li>가장 많은 조회를 받은 날: ${data.stats.bestDay}</li>
+src/services/companyEmailService.ts:                <li>최고 제임스 스코어 지원자: ${data.stats.topApplicant} (${data.stats.topScore}점)</li>
+src/services/companyEmailService.ts:                <li>평균 지원서 검토 시간: ${data.stats.avgReviewTime}</li>
+src/services/companyEmailService.ts:              </ul>
+src/services/companyEmailService.ts:            </div>
+src/services/companyEmailService.ts:            
+src/services/companyEmailService.ts:            <p>더 나은 채용을 위해 제임스컴퍼니가 항상 함께하겠습니다.</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:          <div class="footer">
+src/services/companyEmailService.ts:            <p>주간 리포트 수신을 원하지 않으시면 <a href="#">여기</a>를 클릭하세요.</p>
+src/services/companyEmailService.ts:            <p>© 2025 JamesCompany. All rights reserved.</p>
+src/services/companyEmailService.ts:          </div>
+src/services/companyEmailService.ts:        </div>
+src/services/companyEmailService.ts:      </body>
+src/services/companyEmailService.ts:      </html>
+src/services/companyEmailService.ts:    `
+src/services/companyEmailService.ts:  })
+src/services/companyEmailService.ts:};
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:// 이메일 발송 서비스 (실제 구현시 백엔드에서 처리)
+src/services/companyEmailService.ts:export const sendCompanyEmail = async (
+src/services/companyEmailService.ts:  type: keyof typeof companyEmailTemplates,
+src/services/companyEmailService.ts:  data: any
+src/services/companyEmailService.ts:) => {
+src/services/companyEmailService.ts:  const template = companyEmailTemplates[type](data);
+src/services/companyEmailService.ts:  
+src/services/companyEmailService.ts:  // 실제로는 백엔드 API 호출
+src/services/companyEmailService.ts:  const response = await fetch('/api/email/send', {
+src/services/companyEmailService.ts:    method: 'POST',
+src/services/companyEmailService.ts:    headers: {
+src/services/companyEmailService.ts:      'Content-Type': 'application/json',
+src/services/companyEmailService.ts:    },
+src/services/companyEmailService.ts:    body: JSON.stringify({
+src/services/companyEmailService.ts:      to: data.contactEmail,
+src/services/companyEmailService.ts:      subject: template.subject,
+src/services/companyEmailService.ts:      html: template.html,
+src/services/companyEmailService.ts:    }),
+src/services/companyEmailService.ts:  });
+src/services/companyEmailService.ts:  
+src/services/companyEmailService.ts:  return response.json();
+src/services/companyEmailService.ts:};
+src/services/companyEmailService.ts:
+src/services/companyEmailService.ts:// 토큰 생성 유틸리티 (브라우저 환경용)
+src/services/companyEmailService.ts:export const generateManagementToken = (companyEmail: string): string => {
+src/services/companyEmailService.ts:  // 브라우저 환경에서 사용 가능한 방법
+src/services/companyEmailService.ts:  const timestamp = Date.now();
+src/services/companyEmailService.ts:  const random = Math.random().toString(36).substring(2, 15);
+src/services/companyEmailService.ts:  const tokenString = `${companyEmail}-${timestamp}-${random}`;
+src/services/companyEmailService.ts:  
+src/services/companyEmailService.ts:  // Base64 인코딩 (브라우저 호환)
+src/services/companyEmailService.ts:  return btoa(tokenString);
+src/services/companyEmailService.ts:};
+--
+src/services/api.ts:// src/services/api.ts
+src/services/api.ts:
+src/services/api.ts:import axios from 'axios';
+src/services/api.ts:import { useAuthStore } from '../stores/authStore';
+src/services/api.ts:
+src/services/api.ts:const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+src/services/api.ts:
+src/services/api.ts:const api = axios.create({
+src/services/api.ts:  baseURL: API_BASE_URL,
+src/services/api.ts:  headers: {
+src/services/api.ts:    'Content-Type': 'application/json',
+src/services/api.ts:  },
+src/services/api.ts:});
+src/services/api.ts:
+src/services/api.ts:// Request interceptor to add auth token
+src/services/api.ts:api.interceptors.request.use(
+src/services/api.ts:  (config) => {
+src/services/api.ts:    const token = useAuthStore.getState().token;
+src/services/api.ts:    if (token) {
+src/services/api.ts:      config.headers.Authorization = `Bearer ${token}`;
+src/services/api.ts:    }
+src/services/api.ts:    return config;
+src/services/api.ts:  },
+src/services/api.ts:  (error) => {
+src/services/api.ts:    return Promise.reject(error);
+src/services/api.ts:  }
+src/services/api.ts:);
+src/services/api.ts:
+src/services/api.ts:// Response interceptor to handle auth errors
+src/services/api.ts:api.interceptors.response.use(
+src/services/api.ts:  (response) => response,
+src/services/api.ts:  (error) => {
+src/services/api.ts:    if (error.response?.status === 401) {
+src/services/api.ts:      useAuthStore.getState().logout();
+src/services/api.ts:      window.location.href = '/login';
+src/services/api.ts:    }
+src/services/api.ts:    return Promise.reject(error);
+src/services/api.ts:  }
+src/services/api.ts:);
+src/services/api.ts:
+src/services/api.ts:export default api;
+
+===== STATE MANAGEMENT =====
+src/stores/locationStore.ts:// src/stores/locationStore.ts
+src/stores/locationStore.ts:
+src/stores/locationStore.ts:import { create } from 'zustand';
+src/stores/locationStore.ts:import { persist } from 'zustand/middleware';
+src/stores/locationStore.ts:
+src/stores/locationStore.ts:interface Location {
+src/stores/locationStore.ts:  city: string;
+src/stores/locationStore.ts:  district: string;
+src/stores/locationStore.ts:  neighborhood: string;
+src/stores/locationStore.ts:  nearbyStation?: string;
+src/stores/locationStore.ts:  coordinates?: {
+src/stores/locationStore.ts:    lat: number;
+src/stores/locationStore.ts:    lng: number;
+src/stores/locationStore.ts:  };
+src/stores/locationStore.ts:}
+src/stores/locationStore.ts:
+src/stores/locationStore.ts:interface LocationStore {
+src/stores/locationStore.ts:  userLocation: Location | null;
+src/stores/locationStore.ts:  preferredDistance: number;
+src/stores/locationStore.ts:  setUserLocation: (location: Location) => void;
+src/stores/locationStore.ts:  setPreferredDistance: (distance: number) => void;
+src/stores/locationStore.ts:  clearLocation: () => void;
+src/stores/locationStore.ts:}
+src/stores/locationStore.ts:
+src/stores/locationStore.ts:export const useLocationStore = create<LocationStore>()(
+src/stores/locationStore.ts:  persist(
+src/stores/locationStore.ts:    (set) => ({
+src/stores/locationStore.ts:      userLocation: null,
+src/stores/locationStore.ts:      preferredDistance: 20, // 기본값 20km
+src/stores/locationStore.ts:
+src/stores/locationStore.ts:      setUserLocation: (location) => set({ userLocation: location }),
+src/stores/locationStore.ts:      
+src/stores/locationStore.ts:      setPreferredDistance: (distance) => set({ preferredDistance: distance }),
+src/stores/locationStore.ts:      
+src/stores/locationStore.ts:      clearLocation: () => set({ userLocation: null, preferredDistance: 20 }),
+src/stores/locationStore.ts:    }),
+src/stores/locationStore.ts:    {
+src/stores/locationStore.ts:      name: 'location-storage', // localStorage에 저장될 키 이름
+src/stores/locationStore.ts:    }
+src/stores/locationStore.ts:  )
+src/stores/locationStore.ts:);
+--
+src/stores/serviceStore.ts:// src/stores/serviceStore.ts
+src/stores/serviceStore.ts:import { create } from 'zustand'
+src/stores/serviceStore.ts:import api from '../services/api'
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:interface CoffeeChatSlot {
+src/stores/serviceStore.ts:  id: string
+src/stores/serviceStore.ts:  date: string
+src/stores/serviceStore.ts:  time: string
+src/stores/serviceStore.ts:  type: 'online' | 'offline'
+src/stores/serviceStore.ts:  available: boolean
+src/stores/serviceStore.ts:}
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:interface Course {
+src/stores/serviceStore.ts:  id: string
+src/stores/serviceStore.ts:  title: string
+src/stores/serviceStore.ts:  description: string
+src/stores/serviceStore.ts:  price: number
+src/stores/serviceStore.ts:  duration: string
+src/stores/serviceStore.ts:  enrolled?: boolean
+src/stores/serviceStore.ts:}
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:interface BetaTest {
+src/stores/serviceStore.ts:  id: string
+src/stores/serviceStore.ts:  appName: string
+src/stores/serviceStore.ts:  description: string
+src/stores/serviceStore.ts:  deadline: string
+src/stores/serviceStore.ts:  participants: number
+src/stores/serviceStore.ts:  maxParticipants: number
+src/stores/serviceStore.ts:}
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:interface ServiceState {
+src/stores/serviceStore.ts:  // Coffee Chat
+src/stores/serviceStore.ts:  coffeeSlots: CoffeeChatSlot[]
+src/stores/serviceStore.ts:  fetchCoffeeSlots: () => Promise<void>
+src/stores/serviceStore.ts:  bookCoffeeSlot: (slotId: string) => Promise<void>
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Education
+src/stores/serviceStore.ts:  courses: Course[]
+src/stores/serviceStore.ts:  myCourses: Course[]
+src/stores/serviceStore.ts:  fetchCourses: () => Promise<void>
+src/stores/serviceStore.ts:  fetchMyCourses: () => Promise<void>
+src/stores/serviceStore.ts:  enrollCourse: (courseId: string) => Promise<void>
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Bug Bounty
+src/stores/serviceStore.ts:  betaTests: BetaTest[]
+src/stores/serviceStore.ts:  fetchBetaTests: () => Promise<void>
+src/stores/serviceStore.ts:  applyBetaTest: (testId: string) => Promise<void>
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Loading states
+src/stores/serviceStore.ts:  loading: boolean
+src/stores/serviceStore.ts:  error: string | null
+src/stores/serviceStore.ts:}
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:// 개발 환경에서 API 호출 비활성화 (임시)
+src/stores/serviceStore.ts:const USE_MOCK_DATA = true; // 백엔드 API가 준비되면 false로 변경
+src/stores/serviceStore.ts:
+src/stores/serviceStore.ts:export const useServiceStore = create<ServiceState>((set, get) => ({
+src/stores/serviceStore.ts:  // State
+src/stores/serviceStore.ts:  coffeeSlots: [],
+src/stores/serviceStore.ts:  courses: [],
+src/stores/serviceStore.ts:  myCourses: [],
+src/stores/serviceStore.ts:  betaTests: [],
+src/stores/serviceStore.ts:  loading: false,
+src/stores/serviceStore.ts:  error: null,
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Coffee Chat Methods
+src/stores/serviceStore.ts:  fetchCoffeeSlots: async () => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    // Mock 데이터 사용
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ 
+src/stores/serviceStore.ts:          coffeeSlots: [], 
+src/stores/serviceStore.ts:          loading: false,
+src/stores/serviceStore.ts:          error: 'API가 준비 중입니다. 곧 실제 커피챗 정보를 확인하실 수 있습니다.'
+src/stores/serviceStore.ts:        })
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      const response = await api.get<CoffeeChatSlot[]>('/api/coffee-chat/slots')
+src/stores/serviceStore.ts:      set({ coffeeSlots: response.data, loading: false })
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch coffee slots:', error)
+src/stores/serviceStore.ts:      set({ error: error.response?.data?.detail || '커피챗 시간을 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  bookCoffeeSlot: async (slotId: string) => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ loading: false })
+src/stores/serviceStore.ts:        alert('서비스 준비 중입니다.')
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      await api.post(`/api/coffee-chat/slots/${slotId}/book`)
+src/stores/serviceStore.ts:      await get().fetchCoffeeSlots()
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to book coffee slot:', error)
+src/stores/serviceStore.ts:      const errorMessage = error.response?.data?.detail || '예약에 실패했습니다.'
+src/stores/serviceStore.ts:      set({ error: errorMessage, loading: false })
+src/stores/serviceStore.ts:      throw new Error(errorMessage)
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Education Methods
+src/stores/serviceStore.ts:  fetchCourses: async () => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ 
+src/stores/serviceStore.ts:          courses: [], 
+src/stores/serviceStore.ts:          loading: false,
+src/stores/serviceStore.ts:          error: '새로운 교육 과정을 준비 중입니다. 곧 다양한 강의를 만나보실 수 있습니다.'
+src/stores/serviceStore.ts:        })
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      const response = await api.get<Course[]>('/api/courses')
+src/stores/serviceStore.ts:      set({ courses: response.data, loading: false })
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch courses:', error)
+src/stores/serviceStore.ts:      set({ error: error.response?.data?.detail || '강좌 목록을 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  fetchMyCourses: async () => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ myCourses: [], loading: false })
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      const response = await api.get<Course[]>('/api/courses/my')
+src/stores/serviceStore.ts:      set({ myCourses: response.data, loading: false })
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch my courses:', error)
+src/stores/serviceStore.ts:      set({ error: error.response?.data?.detail || '수강 중인 강좌를 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  enrollCourse: async (courseId: string) => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ loading: false })
+src/stores/serviceStore.ts:        alert('서비스 준비 중입니다.')
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      await api.post(`/api/courses/${courseId}/enroll`)
+src/stores/serviceStore.ts:      await Promise.all([
+src/stores/serviceStore.ts:        get().fetchCourses(),
+src/stores/serviceStore.ts:        get().fetchMyCourses()
+src/stores/serviceStore.ts:      ])
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to enroll course:', error)
+src/stores/serviceStore.ts:      const errorMessage = error.response?.data?.detail || '수강 신청에 실패했습니다.'
+src/stores/serviceStore.ts:      set({ error: errorMessage, loading: false })
+src/stores/serviceStore.ts:      throw new Error(errorMessage)
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  // Bug Bounty Methods
+src/stores/serviceStore.ts:  fetchBetaTests: async () => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ 
+src/stores/serviceStore.ts:          betaTests: [], 
+src/stores/serviceStore.ts:          loading: false,
+src/stores/serviceStore.ts:          error: '새로운 베타 테스트 프로그램을 준비 중입니다. 곧 더 많은 기회를 제공할 예정입니다.'
+src/stores/serviceStore.ts:        })
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      const response = await api.get<BetaTest[]>('/api/beta-tests')
+src/stores/serviceStore.ts:      set({ betaTests: response.data, loading: false })
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to fetch beta tests:', error)
+src/stores/serviceStore.ts:      set({ error: error.response?.data?.detail || '베타 테스트 목록을 불러오는데 실패했습니다.', loading: false })
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  },
+src/stores/serviceStore.ts:  
+src/stores/serviceStore.ts:  applyBetaTest: async (testId: string) => {
+src/stores/serviceStore.ts:    set({ loading: true, error: null })
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    if (USE_MOCK_DATA) {
+src/stores/serviceStore.ts:      setTimeout(() => {
+src/stores/serviceStore.ts:        set({ loading: false })
+src/stores/serviceStore.ts:        alert('서비스 준비 중입니다.')
+src/stores/serviceStore.ts:      }, 300)
+src/stores/serviceStore.ts:      return
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:    
+src/stores/serviceStore.ts:    try {
+src/stores/serviceStore.ts:      await api.post(`/api/beta-tests/${testId}/apply`)
+src/stores/serviceStore.ts:      await get().fetchBetaTests()
+src/stores/serviceStore.ts:    } catch (error: any) {
+src/stores/serviceStore.ts:      console.error('Failed to apply beta test:', error)
+src/stores/serviceStore.ts:      const errorMessage = error.response?.data?.detail || '베타 테스트 신청에 실패했습니다.'
+src/stores/serviceStore.ts:      set({ error: errorMessage, loading: false })
+src/stores/serviceStore.ts:      throw new Error(errorMessage)
+src/stores/serviceStore.ts:    }
+src/stores/serviceStore.ts:  }
+src/stores/serviceStore.ts:}))
+--
+src/stores/authStore.ts:// src/stores/authStore.ts
+src/stores/authStore.ts:
+src/stores/authStore.ts:import { create } from 'zustand'
+src/stores/authStore.ts:import { persist } from 'zustand/middleware'
+src/stores/authStore.ts:import api from '../services/api'
+src/stores/authStore.ts:
+src/stores/authStore.ts:interface User {
+src/stores/authStore.ts:  id: string
+src/stores/authStore.ts:  email: string
+src/stores/authStore.ts:  name: string
+src/stores/authStore.ts:  role: 'user' | 'admin'  // 기존 구조 유지
+src/stores/authStore.ts:  imwebId?: string
+src/stores/authStore.ts:  membership_tier?: string
+src/stores/authStore.ts:  // 멘토 관련 추가 필드
+src/stores/authStore.ts:  mentorId?: number  // 멘토로 등록된 경우 멘토 ID
+src/stores/authStore.ts:  mentorStatus?: 'pending' | 'approved' | 'rejected'  // 멘토 승인 상태
+src/stores/authStore.ts:}
+src/stores/authStore.ts:
+src/stores/authStore.ts:interface AuthState {
+src/stores/authStore.ts:  user: User | null
+src/stores/authStore.ts:  isAuthenticated: boolean
+src/stores/authStore.ts:  token: string | null
+src/stores/authStore.ts:  login: (email: string, password: string) => Promise<void>
+src/stores/authStore.ts:  signup: (data: SignupData) => Promise<void>
+src/stores/authStore.ts:  loginWithImweb: (code: string) => Promise<void>
+src/stores/authStore.ts:  logout: () => void
+src/stores/authStore.ts:  checkAuth: () => Promise<void>
+src/stores/authStore.ts:  setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
+src/stores/authStore.ts:  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
+src/stores/authStore.ts:}
+src/stores/authStore.ts:
+src/stores/authStore.ts:interface SignupData {
+src/stores/authStore.ts:  email: string
+src/stores/authStore.ts:  password: string
+src/stores/authStore.ts:  name: string
+src/stores/authStore.ts:}
+src/stores/authStore.ts:
+src/stores/authStore.ts:interface LoginResponse {
+src/stores/authStore.ts:  access_token: string
+src/stores/authStore.ts:  refresh_token?: string
+src/stores/authStore.ts:  token_type: string
+src/stores/authStore.ts:  user: User
+src/stores/authStore.ts:}
+src/stores/authStore.ts:
+src/stores/authStore.ts:export const useAuthStore = create<AuthState>()(
+src/stores/authStore.ts:  persist(
+src/stores/authStore.ts:    (set, get) => ({
+src/stores/authStore.ts:      user: null,
+src/stores/authStore.ts:      isAuthenticated: false,
+src/stores/authStore.ts:      token: null,
+src/stores/authStore.ts:
+src/stores/authStore.ts:      login: async (email: string, password: string) => {
+src/stores/authStore.ts:        try {
+src/stores/authStore.ts:          const response = await api.post('/auth/login', { 
+src/stores/authStore.ts:            email, 
+src/stores/authStore.ts:            password 
+src/stores/authStore.ts:          });
+src/stores/authStore.ts:
+src/stores/authStore.ts:          const { access_token, user } = response.data
+src/stores/authStore.ts:
+src/stores/authStore.ts:          // 토큰 저장
+src/stores/authStore.ts:          localStorage.setItem('access_token', access_token)
+src/stores/authStore.ts:
+src/stores/authStore.ts:          set({
+src/stores/authStore.ts:            user,
+src/stores/authStore.ts:            isAuthenticated: true,
+src/stores/authStore.ts:            token: access_token
+src/stores/authStore.ts:          })
+src/stores/authStore.ts:        } catch (error: any) {
+src/stores/authStore.ts:          console.error('Login error:', error)
+src/stores/authStore.ts:          if (error.response?.status === 401) {
+src/stores/authStore.ts:            throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.')
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:          throw new Error('로그인 중 오류가 발생했습니다.')
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      signup: async (data: SignupData) => {
+src/stores/authStore.ts:        try {
+src/stores/authStore.ts:          // 회원가입 - /api/v1 경로 추가
+src/stores/authStore.ts:          const signupResponse = await api.post('/auth/register', data);
+src/stores/authStore.ts:          console.log('Signup response:', signupResponse);
+src/stores/authStore.ts:
+src/stores/authStore.ts:          // 회원가입 성공 후 자동 로그인
+src/stores/authStore.ts:          try {
+src/stores/authStore.ts:            await get().login(data.email, data.password)
+src/stores/authStore.ts:          } catch (loginError) {
+src/stores/authStore.ts:            console.error('Auto-login failed after signup:', loginError)
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:        } catch (error: any) {
+src/stores/authStore.ts:          console.error('Signup error:', error)
+src/stores/authStore.ts:          if (error.response?.data?.detail) {
+src/stores/authStore.ts:            throw new Error(error.response.data.detail)
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:          throw new Error('회원가입 중 오류가 발생했습니다.')
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      loginWithImweb: async (code: string) => {
+src/stores/authStore.ts:        try {
+src/stores/authStore.ts:          const response = await api.post<LoginResponse>('/auth/imweb/callback', {
+src/stores/authStore.ts:            code,
+src/stores/authStore.ts:          })
+src/stores/authStore.ts:
+src/stores/authStore.ts:          const { access_token, user } = response.data
+src/stores/authStore.ts:
+src/stores/authStore.ts:          // 토큰 저장
+src/stores/authStore.ts:          localStorage.setItem('access_token', access_token)
+src/stores/authStore.ts:
+src/stores/authStore.ts:          set({
+src/stores/authStore.ts:            user,
+src/stores/authStore.ts:            isAuthenticated: true,
+src/stores/authStore.ts:            token: access_token
+src/stores/authStore.ts:          })
+src/stores/authStore.ts:        } catch (error: any) {
+src/stores/authStore.ts:          console.error('Imweb login error:', error)
+src/stores/authStore.ts:          throw new Error('imweb 로그인 중 오류가 발생했습니다.')
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      logout: () => {
+src/stores/authStore.ts:        // 토큰 삭제
+src/stores/authStore.ts:        localStorage.removeItem('access_token')
+src/stores/authStore.ts:        localStorage.removeItem('refresh_token')
+src/stores/authStore.ts:
+src/stores/authStore.ts:        // 상태 초기화
+src/stores/authStore.ts:        set({
+src/stores/authStore.ts:          user: null,
+src/stores/authStore.ts:          isAuthenticated: false,
+src/stores/authStore.ts:          token: null
+src/stores/authStore.ts:        })
+src/stores/authStore.ts:
+src/stores/authStore.ts:        // 로그아웃 API 호출 (선택사항)
+src/stores/authStore.ts:        api.post('/auth/logout').catch(console.error)
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      checkAuth: async () => {
+src/stores/authStore.ts:        const token = localStorage.getItem('access_token')
+src/stores/authStore.ts:        const currentState = get()
+src/stores/authStore.ts:        
+src/stores/authStore.ts:        // 이미 인증된 상태이고 토큰이 있으면 API 호출 스킵
+src/stores/authStore.ts:        if (currentState.isAuthenticated && currentState.token && token) {
+src/stores/authStore.ts:          return
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:        
+src/stores/authStore.ts:        if (!token) {
+src/stores/authStore.ts:          set({ isAuthenticated: false, user: null, token: null })
+src/stores/authStore.ts:          return
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:
+src/stores/authStore.ts:        try {
+src/stores/authStore.ts:          const response = await api.get<User>('/users/me')
+src/stores/authStore.ts:          
+src/stores/authStore.ts:          // 멘토 상태 확인 (선택사항)
+src/stores/authStore.ts:          try {
+src/stores/authStore.ts:            const mentorResponse = await api.get('/mentors/my-status')
+src/stores/authStore.ts:            if (mentorResponse.data) {
+src/stores/authStore.ts:              response.data.mentorId = mentorResponse.data.mentorId
+src/stores/authStore.ts:              response.data.mentorStatus = mentorResponse.data.status
+src/stores/authStore.ts:            }
+src/stores/authStore.ts:          } catch (mentorError) {
+src/stores/authStore.ts:            // 멘토가 아닌 경우 에러 무시
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:          
+src/stores/authStore.ts:          set({
+src/stores/authStore.ts:            user: response.data,
+src/stores/authStore.ts:            isAuthenticated: true,
+src/stores/authStore.ts:            token
+src/stores/authStore.ts:          })
+src/stores/authStore.ts:        } catch (error) {
+src/stores/authStore.ts:          console.error('Auth check failed:', error)
+src/stores/authStore.ts:          // 네트워크 에러인 경우 상태를 유지
+src/stores/authStore.ts:          if (!navigator.onLine) {
+src/stores/authStore.ts:            console.log('Offline - keeping auth state')
+src/stores/authStore.ts:            return
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:          // 401 에러인 경우만 로그아웃 처리
+src/stores/authStore.ts:          if ((error as any).response?.status === 401) {
+src/stores/authStore.ts:            localStorage.removeItem('access_token')
+src/stores/authStore.ts:            set({ isAuthenticated: false, user: null, token: null })
+src/stores/authStore.ts:          }
+src/stores/authStore.ts:          // 다른 에러는 상태 유지
+src/stores/authStore.ts:        }
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      // OAuth 로그인 후 인증 상태 설정을 위한 메서드
+src/stores/authStore.ts:      setAuth: (isAuthenticated: boolean, user: User | null = null, token: string | null = null) => {
+src/stores/authStore.ts:        set({ isAuthenticated, user, token })
+src/stores/authStore.ts:      },
+src/stores/authStore.ts:
+src/stores/authStore.ts:      // 멘토 상태 업데이트 (멘토 승인/거절 후 사용)
+src/stores/authStore.ts:      updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => {
+src/stores/authStore.ts:        set((state) => ({
+src/stores/authStore.ts:          user: state.user ? { 
+src/stores/authStore.ts:            ...state.user, 
+src/stores/authStore.ts:            mentorStatus,
+src/stores/authStore.ts:            mentorId: mentorId || state.user.mentorId 
+src/stores/authStore.ts:          } : null
+src/stores/authStore.ts:        }))
+src/stores/authStore.ts:      }
+src/stores/authStore.ts:    }),
+src/stores/authStore.ts:    {
+src/stores/authStore.ts:      name: 'auth-storage',
+src/stores/authStore.ts:      partialize: (state) => ({
+src/stores/authStore.ts:        user: state.user,
+src/stores/authStore.ts:        isAuthenticated: state.isAuthenticated,
+src/stores/authStore.ts:        token: state.token  // token도 persist에 추가
+src/stores/authStore.ts:      }),
+src/stores/authStore.ts:    }
+src/stores/authStore.ts:  )
+src/stores/authStore.ts:)
+
+===== CONFIGURATIONS =====
+src/config/companyThemes.ts:// src/styles/recruitment/companyThemes.ts
+src/config/companyThemes.ts:
+src/config/companyThemes.ts:export interface CompanyTheme {
+src/config/companyThemes.ts:    gradient: string;
+src/config/companyThemes.ts:    bgGradient: string;
+src/config/companyThemes.ts:    accent: string;
+src/config/companyThemes.ts:    icon: string;
+src/config/companyThemes.ts:    bgPattern: string;
+src/config/companyThemes.ts:  }
+src/config/companyThemes.ts:  
+src/config/companyThemes.ts:  export const companyThemes: Record<string, CompanyTheme> = {
+src/config/companyThemes.ts:    '테크스타트업 A': {
+src/config/companyThemes.ts:      gradient: 'from-purple-600 via-pink-600 to-red-600',
+src/config/companyThemes.ts:      bgGradient: 'from-purple-900/20 via-pink-900/20 to-red-900/20',
+src/config/companyThemes.ts:      accent: 'purple',
+src/config/companyThemes.ts:      icon: '🚀',
+src/config/companyThemes.ts:      bgPattern: 'radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+src/config/companyThemes.ts:    },
+src/config/companyThemes.ts:    '핀테크 기업 B': {
+src/config/companyThemes.ts:      gradient: 'from-blue-600 via-cyan-600 to-teal-600',
+src/config/companyThemes.ts:      bgGradient: 'from-blue-900/20 via-cyan-900/20 to-teal-900/20',
+src/config/companyThemes.ts:      accent: 'blue',
+src/config/companyThemes.ts:      icon: '💳',
+src/config/companyThemes.ts:      bgPattern: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
+src/config/companyThemes.ts:    },
+src/config/companyThemes.ts:    'e커머스 플랫폼 C': {
+src/config/companyThemes.ts:      gradient: 'from-orange-600 via-amber-600 to-yellow-600',
+src/config/companyThemes.ts:      bgGradient: 'from-orange-900/20 via-amber-900/20 to-yellow-900/20',
+src/config/companyThemes.ts:      accent: 'orange',
+src/config/companyThemes.ts:      icon: '🛒',
+src/config/companyThemes.ts:      bgPattern: 'radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.1) 0%, transparent 50%)',
+src/config/companyThemes.ts:    },
+src/config/companyThemes.ts:  };
+src/config/companyThemes.ts:  
+src/config/companyThemes.ts:  // 기본 테마 반환 함수
+src/config/companyThemes.ts:  export const getTheme = (companyName: string): CompanyTheme => {
+src/config/companyThemes.ts:    return companyThemes[companyName] || companyThemes['테크스타트업 A'];
+src/config/companyThemes.ts:  };
+src/config/qaMentorPrompts.ts:// src/config/qaMentorPrompts.ts
+src/config/qaMentorPrompts.ts:
+src/config/qaMentorPrompts.ts:export const qaMentorPrompts = {
+src/config/qaMentorPrompts.ts:    // 시스템 프롬프트
+src/config/qaMentorPrompts.ts:    system: {
+src/config/qaMentorPrompts.ts:      base: `당신은 15년차 시니어 QA 엔지니어 제이입니다. 요즘 트렌드를 잘 알고 있으며, 실무 경험이 풍부합니다.
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:  상담 스타일:
+src/config/qaMentorPrompts.ts:  - 친근하고 격식 없는 선배처럼 대화
+src/config/qaMentorPrompts.ts:  - 실제 경험을 바탕으로 한 현실적인 조언
+src/config/qaMentorPrompts.ts:  - 트렌드와 실무를 균형있게 언급
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:  응답 구조:
+src/config/qaMentorPrompts.ts:  1. 공감: 상대방의 고민에 진심으로 공감 표현
+src/config/qaMentorPrompts.ts:  2. 상황 분석: 왜 이런 고민이 생기는지, 업계 상황은 어떤지 설명
+src/config/qaMentorPrompts.ts:  3. 조언: 구체적이고 실행 가능한 조언 제공
+src/config/qaMentorPrompts.ts:  4. 격려: 긍정적인 메시지로 용기 부여
+src/config/qaMentorPrompts.ts:  5. 응원: 마지막에 "더 깊은 논의가 필요하다면 제임스와 커피챗을 추천합니다" 라고 자연스럽게 유도
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:  말투:
+src/config/qaMentorPrompts.ts:  - 경어체 사용하되 딱딱하지 않게
+src/config/qaMentorPrompts.ts:  - 이모지를 적절히 사용
+src/config/qaMentorPrompts.ts:  - "~하세요"보다는 "~해보는 건 어떨까요?" 같은 제안형`,
+src/config/qaMentorPrompts.ts:    },
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:    // 카테고리별 특화 프롬프트
+src/config/qaMentorPrompts.ts:    categories: {
+src/config/qaMentorPrompts.ts:      'test-strategy': `테스트 전략 수립에 대한 고민을 상담합니다.
+src/config/qaMentorPrompts.ts:  - 리스크 기반 테스트 접근법
+src/config/qaMentorPrompts.ts:  - 애자일 환경에서의 테스트 전략
+src/config/qaMentorPrompts.ts:  - 테스트 커버리지 최적화
+src/config/qaMentorPrompts.ts:  - 효율적인 리소스 배분`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'automation': `자동화 테스트 도입과 운영에 대해 상담합니다.
+src/config/qaMentorPrompts.ts:  - 자동화 도구 선택 (Selenium, Cypress, Playwright 등)
+src/config/qaMentorPrompts.ts:  - ROI 기반 자동화 대상 선정
+src/config/qaMentorPrompts.ts:  - CI/CD 파이프라인 통합
+src/config/qaMentorPrompts.ts:  - 자동화 테스트 유지보수`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'collaboration': `개발팀과의 협업 방법을 상담합니다.
+src/config/qaMentorPrompts.ts:  - 개발자와의 효과적인 커뮤니케이션
+src/config/qaMentorPrompts.ts:  - 버그 리포트 작성법
+src/config/qaMentorPrompts.ts:  - 스크럼/칸반에서 QA 역할
+src/config/qaMentorPrompts.ts:  - 품질 문화 구축`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'career': `QA 커리어 개발과 성장을 상담합니다.
+src/config/qaMentorPrompts.ts:  - 주니어에서 시니어로 성장 경로
+src/config/qaMentorPrompts.ts:  - 필요한 스킬셋과 학습 방법
+src/config/qaMentorPrompts.ts:  - 이직 준비와 포트폴리오
+src/config/qaMentorPrompts.ts:  - QA 리더십과 매니지먼트`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'tools': `테스트 도구와 환경 구축을 상담합니다.
+src/config/qaMentorPrompts.ts:  - 프로젝트에 맞는 도구 선택
+src/config/qaMentorPrompts.ts:  - 테스트 환경 구성
+src/config/qaMentorPrompts.ts:  - 성능/보안 테스트 도구
+src/config/qaMentorPrompts.ts:  - 모니터링과 로깅`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'metrics': `QA 지표 관리와 리포팅을 상담합니다.
+src/config/qaMentorPrompts.ts:  - 의미있는 QA 메트릭스 정의
+src/config/qaMentorPrompts.ts:  - 대시보드 구성
+src/config/qaMentorPrompts.ts:  - 경영진 보고서 작성
+src/config/qaMentorPrompts.ts:  - 품질 트렌드 분석`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'bug-management': `버그 관리 프로세스를 상담합니다.
+src/config/qaMentorPrompts.ts:  - 효과적인 버그 분류와 우선순위
+src/config/qaMentorPrompts.ts:  - JIRA, Bugzilla 등 도구 활용
+src/config/qaMentorPrompts.ts:  - 버그 수명주기 관리
+src/config/qaMentorPrompts.ts:  - Root Cause Analysis`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'test-case': `테스트 케이스 작성과 관리를 상담합니다.
+src/config/qaMentorPrompts.ts:  - 효과적인 테스트 케이스 설계
+src/config/qaMentorPrompts.ts:  - BDD/TDD 접근법
+src/config/qaMentorPrompts.ts:  - 테스트 케이스 리뷰
+src/config/qaMentorPrompts.ts:  - 테스트 데이터 관리`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'beginner': `신입/초보 QA의 성장을 돕습니다.
+src/config/qaMentorPrompts.ts:  - QA 기초 개념과 용어
+src/config/qaMentorPrompts.ts:  - 첫 직장 적응법
+src/config/qaMentorPrompts.ts:  - 학습 로드맵
+src/config/qaMentorPrompts.ts:  - 커뮤니티 활동`,
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:      'other': `기타 QA 관련 모든 주제를 상담합니다.`
+src/config/qaMentorPrompts.ts:    },
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:    // 응답 예시
+src/config/qaMentorPrompts.ts:    responseExamples: {
+src/config/qaMentorPrompts.ts:      empathy: [
+src/config/qaMentorPrompts.ts:        "아, 그런 고민이 있으시군요! 정말 공감이 돼요. 😊",
+src/config/qaMentorPrompts.ts:        "많은 QA 엔지니어들이 비슷한 고민을 하고 있어요.",
+src/config/qaMentorPrompts.ts:        "그 상황 정말 어려우셨겠어요.",
+src/config/qaMentorPrompts.ts:        "충분히 이해가 됩니다. 저도 그런 경험이 있었거든요.",
+src/config/qaMentorPrompts.ts:      ],
+src/config/qaMentorPrompts.ts:      
+src/config/qaMentorPrompts.ts:      encouragement: [
+src/config/qaMentorPrompts.ts:        "분명 좋은 방향으로 해결될 거예요! 💪",
+src/config/qaMentorPrompts.ts:        "한 걸음씩 나아가다 보면 어느새 성장해 있을 거예요.",
+src/config/qaMentorPrompts.ts:        "이미 충분히 잘하고 계신 것 같아요!",
+src/config/qaMentorPrompts.ts:        "포기하지 마세요. QA는 정말 가치있는 일이에요.",
+src/config/qaMentorPrompts.ts:      ],
+src/config/qaMentorPrompts.ts:      
+src/config/qaMentorPrompts.ts:      coffeeChat: [
+src/config/qaMentorPrompts.ts:        "더 깊이 있는 논의가 필요하시다면, 제임스와의 커피챗을 통해 1:1로 상담받아보시는 것도 추천드려요!",
+src/config/qaMentorPrompts.ts:        "구체적인 사례와 함께 더 자세한 상담이 필요하시다면, 제임스와 커피챗을 해보시는 건 어떨까요?",
+src/config/qaMentorPrompts.ts:        "혹시 실무 경험을 바탕으로 한 맞춤형 조언이 필요하시다면, 제임스와의 커피챗을 고려해보세요!",
+src/config/qaMentorPrompts.ts:      ]
+src/config/qaMentorPrompts.ts:    },
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:    // 시간대별 인사말
+src/config/qaMentorPrompts.ts:    greetings: {
+src/config/qaMentorPrompts.ts:      morning: "좋은 아침이에요! ☀️ 오늘도 품질 높은 하루 되세요!",
+src/config/qaMentorPrompts.ts:      afternoon: "안녕하세요! 🌤️ 오후 업무는 잘 진행되고 있나요?",
+src/config/qaMentorPrompts.ts:      evening: "저녁 시간이네요. 🌙 오늘 하루 테스트는 잘 마무리하셨나요?",
+src/config/qaMentorPrompts.ts:      night: "늦은 시간까지 고생이 많으시네요. 🌃 야근하시는 건 아니죠?",
+src/config/qaMentorPrompts.ts:    }
+src/config/qaMentorPrompts.ts:  }
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:  // 레벨별 맞춤 조언
+src/config/qaMentorPrompts.ts:  export function getAdviceByLevel(level: 'junior' | 'middle' | 'senior', category: 'default' | 'automation' | 'career'): string {
+src/config/qaMentorPrompts.ts:    const adviceMap = {
+src/config/qaMentorPrompts.ts:      junior: {
+src/config/qaMentorPrompts.ts:        default: "기초를 탄탄히 다지는 것이 중요해요. 작은 성공 경험을 쌓아가세요!",
+src/config/qaMentorPrompts.ts:        automation: "수동 테스트를 충분히 익힌 후 자동화를 시작하는 것을 추천해요.",
+src/config/qaMentorPrompts.ts:        career: "다양한 도메인을 경험하면서 자신의 강점을 찾아보세요.",
+src/config/qaMentorPrompts.ts:      },
+src/config/qaMentorPrompts.ts:      middle: {
+src/config/qaMentorPrompts.ts:        default: "이제 전문성을 깊이 있게 만들어갈 시기예요. 리더십도 키워보세요!",
+src/config/qaMentorPrompts.ts:        automation: "팀의 자동화 전략을 주도적으로 이끌어보는 건 어떨까요?",
+src/config/qaMentorPrompts.ts:        career: "시니어로 가는 길목에서 기술력과 소프트 스킬의 균형이 중요해요.",
+src/config/qaMentorPrompts.ts:      },
+src/config/qaMentorPrompts.ts:      senior: {
+src/config/qaMentorPrompts.ts:        default: "후배 양성과 조직의 품질 문화를 이끄는 역할도 중요해요.",
+src/config/qaMentorPrompts.ts:        automation: "자동화 프레임워크 설계와 전사적 품질 전략을 고민해보세요.",
+src/config/qaMentorPrompts.ts:        career: "테크 리드나 QA 매니저로의 커리어 전환도 고려해볼 시기예요.",
+src/config/qaMentorPrompts.ts:      }
+src/config/qaMentorPrompts.ts:    }
+src/config/qaMentorPrompts.ts:  
+src/config/qaMentorPrompts.ts:    return adviceMap[level][category] || adviceMap[level].default;
+src/config/qaMentorPrompts.ts:  }
+src/config/advancedPrompts.ts:// src/config/advancedPrompts.ts
+src/config/advancedPrompts.ts:
+src/config/advancedPrompts.ts:export const advancedPrompts = {
+src/config/advancedPrompts.ts:    // 감정 상태별 맞춤 응답
+src/config/advancedPrompts.ts:    emotionalStates: {
+src/config/advancedPrompts.ts:      anxious: `사용자가 불안해하고 있습니다. 
+src/config/advancedPrompts.ts:  - 먼저 안정을 찾을 수 있도록 도와주세요
+src/config/advancedPrompts.ts:  - 호흡법이나 간단한 이완 기법을 제안하세요
+src/config/advancedPrompts.ts:  - 불안의 원인을 천천히 탐색하도록 유도하세요`,
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      sad: `사용자가 슬퍼하고 있습니다.
+src/config/advancedPrompts.ts:  - 충분한 공감과 위로를 표현하세요
+src/config/advancedPrompts.ts:  - 슬픔을 억누르지 말고 받아들이도록 격려하세요
+src/config/advancedPrompts.ts:  - 작은 기쁨을 찾을 수 있는 활동을 제안하세요`,
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      angry: `사용자가 화가 나 있습니다.
+src/config/advancedPrompts.ts:  - 감정을 인정하고 타당성을 확인해주세요
+src/config/advancedPrompts.ts:  - 건강한 방법으로 감정을 표출하도록 안내하세요
+src/config/advancedPrompts.ts:  - 상황을 객관적으로 볼 수 있도록 도와주세요`,
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      confused: `사용자가 혼란스러워하고 있습니다.
+src/config/advancedPrompts.ts:  - 생각을 정리할 수 있도록 도와주세요
+src/config/advancedPrompts.ts:  - 하나씩 차근차근 짚어가며 대화하세요
+src/config/advancedPrompts.ts:  - 명확한 질문으로 핵심을 파악하도록 유도하세요`
+src/config/advancedPrompts.ts:    },
+src/config/advancedPrompts.ts:  
+src/config/advancedPrompts.ts:    // 특수 상황 대응
+src/config/advancedPrompts.ts:    specialCases: {
+src/config/advancedPrompts.ts:      crisis: `긴급 상황 감지 시:
+src/config/advancedPrompts.ts:  - 즉시 전문가 도움을 권유하세요
+src/config/advancedPrompts.ts:  - 긴급 연락처 정보를 제공하세요 (생명의 전화 109)
+src/config/advancedPrompts.ts:  - 안전을 최우선으로 고려하세요`,
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      repeat: `반복적인 고민 패턴 감지 시:
+src/config/advancedPrompts.ts:  - 이전 대화를 참고하여 진전을 확인하세요
+src/config/advancedPrompts.ts:  - 새로운 관점이나 접근법을 제시하세요
+src/config/advancedPrompts.ts:  - 작은 실천 과제를 제안하세요`
+src/config/advancedPrompts.ts:    },
+src/config/advancedPrompts.ts:  
+src/config/advancedPrompts.ts:    // 대화 기법
+src/config/advancedPrompts.ts:    conversationTechniques: {
+src/config/advancedPrompts.ts:      mirroring: "사용자의 언어 스타일과 감정 톤을 반영하여 친밀감을 높이세요",
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      reframing: "부정적인 상황을 다른 관점에서 볼 수 있도록 도와주세요",
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      validation: "사용자의 감정과 경험을 타당한 것으로 인정하고 수용하세요",
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      empowerment: "사용자가 스스로 해결책을 찾을 수 있도록 힘을 실어주세요"
+src/config/advancedPrompts.ts:    },
+src/config/advancedPrompts.ts:  
+src/config/advancedPrompts.ts:    // 마무리 메시지 템플릿
+src/config/advancedPrompts.ts:    closingMessages: {
+src/config/advancedPrompts.ts:      encouragement: [
+src/config/advancedPrompts.ts:        "오늘 용기내어 고민을 나눠주셔서 감사해요. 분명 좋은 방향으로 나아갈 거예요! 🌈",
+src/config/advancedPrompts.ts:        "한 걸음 한 걸음이 모여 큰 변화를 만들어요. 응원할게요! ⭐",
+src/config/advancedPrompts.ts:        "이야기를 들려주셔서 고마워요. 언제든 다시 찾아주세요. 💝"
+src/config/advancedPrompts.ts:      ],
+src/config/advancedPrompts.ts:      
+src/config/advancedPrompts.ts:      actionItems: [
+src/config/advancedPrompts.ts:        "오늘 이야기한 내용 중에서 가장 먼저 시도해보고 싶은 것은 무엇인가요?",
+src/config/advancedPrompts.ts:        "작은 것부터 시작해보는 건 어떨까요? 내일 한 가지만 실천해보세요.",
+src/config/advancedPrompts.ts:        "다음에 만날 때는 어떤 변화가 있었는지 들려주세요!"
+src/config/advancedPrompts.ts:      ]
+src/config/advancedPrompts.ts:    }
+src/config/advancedPrompts.ts:  }
+src/config/advancedPrompts.ts:  
+src/config/advancedPrompts.ts:  // 감정 분석 함수
+src/config/advancedPrompts.ts:  export function analyzeEmotion(text: string): string {
+src/config/advancedPrompts.ts:    const emotions = {
+src/config/advancedPrompts.ts:      anxious: ['불안', '걱정', '초조', '두려', '무서'],
+src/config/advancedPrompts.ts:      sad: ['슬프', '우울', '외로', '힘들', '눈물'],
+src/config/advancedPrompts.ts:      angry: ['화나', '짜증', '분노', '억울', '열받'],
+src/config/advancedPrompts.ts:      confused: ['모르겠', '혼란', '복잡', '어떻게', '뭘']
+src/config/advancedPrompts.ts:    }
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    const lowerText = text.toLowerCase()
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    for (const [emotion, keywords] of Object.entries(emotions)) {
+src/config/advancedPrompts.ts:      if (keywords.some(keyword => lowerText.includes(keyword))) {
+src/config/advancedPrompts.ts:        return emotion
+src/config/advancedPrompts.ts:      }
+src/config/advancedPrompts.ts:    }
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    return 'neutral'
+src/config/advancedPrompts.ts:  }
+src/config/advancedPrompts.ts:  
+src/config/advancedPrompts.ts:  // 응답 개인화 함수
+src/config/advancedPrompts.ts:  export function personalizeResponse(baseResponse: string, timeOfDay: string, emotion: string): string {
+src/config/advancedPrompts.ts:    let personalizedResponse = baseResponse
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    // 시간대별 인사 추가
+src/config/advancedPrompts.ts:    if (timeOfDay === 'morning') {
+src/config/advancedPrompts.ts:      personalizedResponse = '좋은 아침이에요! ☀️ ' + personalizedResponse
+src/config/advancedPrompts.ts:    } else if (timeOfDay === 'night') {
+src/config/advancedPrompts.ts:      personalizedResponse = '늦은 시간까지 고민이 많으시네요. 🌙 ' + personalizedResponse
+src/config/advancedPrompts.ts:    }
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    // 감정별 이모지 추가
+src/config/advancedPrompts.ts:    const emotionEmojis = {
+src/config/advancedPrompts.ts:      anxious: '🤗',
+src/config/advancedPrompts.ts:      sad: '💙',
+src/config/advancedPrompts.ts:      angry: '🌿',
+src/config/advancedPrompts.ts:      confused: '🤔',
+src/config/advancedPrompts.ts:      neutral: '😊'
+src/config/advancedPrompts.ts:    }
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    personalizedResponse += ' ' + emotionEmojis[emotion as keyof typeof emotionEmojis]
+src/config/advancedPrompts.ts:    
+src/config/advancedPrompts.ts:    return personalizedResponse
+src/config/advancedPrompts.ts:  }
+src/config/api.ts:// src/config/api.ts
+src/config/api.ts:
+src/config/api.ts:import axios from "axios";
+src/config/api.ts:
+src/config/api.ts:export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+src/config/api.ts:
+src/config/api.ts:export const api = axios.create({
+src/config/api.ts:  baseURL: API_BASE_URL,
+src/config/api.ts:  headers: {
+src/config/api.ts:    'Content-Type': 'application/json',
+src/config/api.ts:  },
+src/config/api.ts:});
+src/config/worryPrompts.ts:// src/config/worryPrompts.ts
+src/config/worryPrompts.ts:
+src/config/worryPrompts.ts:export const worryPrompts = {
+src/config/worryPrompts.ts:    // 기본 시스템 프롬프트
+src/config/worryPrompts.ts:    system: {
+src/config/worryPrompts.ts:      base: `당신은 따뜻하고 공감능력이 뛰어난 상담사입니다. 
+src/config/worryPrompts.ts:  사용자의 고민을 듣고 위로와 실질적인 조언을 제공합니다.
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:  대화 원칙:
+src/config/worryPrompts.ts:  1. 항상 공감하며 시작하세요
+src/config/worryPrompts.ts:  2. 짧고 읽기 쉬운 문장을 사용하세요
+src/config/worryPrompts.ts:  3. 구체적이고 실행 가능한 조언을 제공하세요
+src/config/worryPrompts.ts:  4. 따뜻하고 친근한 톤을 유지하세요
+src/config/worryPrompts.ts:  5. 이모지를 적절히 사용하여 친근감을 더하세요
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:  응답 형식:
+src/config/worryPrompts.ts:  - 첫 문장: 공감 표현
+src/config/worryPrompts.ts:  - 중간: 상황 분석과 조언
+src/config/worryPrompts.ts:  - 마지막: 격려와 응원의 메시지`,
+src/config/worryPrompts.ts:    },
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:    // 고민 유형별 특화 프롬프트
+src/config/worryPrompts.ts:    categories: {
+src/config/worryPrompts.ts:      work: `직장 생활과 업무 관련 고민에 대해 상담합니다.
+src/config/worryPrompts.ts:  - 업무 스트레스 관리 방법
+src/config/worryPrompts.ts:  - 동료와의 관계 개선
+src/config/worryPrompts.ts:  - 커리어 개발 조언
+src/config/worryPrompts.ts:  - 워라밸 유지 팁`,
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:      relationship: `인간관계 고민에 대해 상담합니다.
+src/config/worryPrompts.ts:  - 가족, 친구, 연인과의 관계
+src/config/worryPrompts.ts:  - 소통 방법 개선
+src/config/worryPrompts.ts:  - 갈등 해결 방안
+src/config/worryPrompts.ts:  - 건강한 관계 유지법`,
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:      personal: `개인적인 고민과 자기계발에 대해 상담합니다.
+src/config/worryPrompts.ts:  - 자존감 향상
+src/config/worryPrompts.ts:  - 목표 설정과 실행
+src/config/worryPrompts.ts:  - 습관 개선
+src/config/worryPrompts.ts:  - 정서적 안정`,
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:      daily: `일상의 작은 고민들에 대해 상담합니다.
+src/config/worryPrompts.ts:  - 일상 스트레스 관리
+src/config/worryPrompts.ts:  - 시간 관리
+src/config/worryPrompts.ts:  - 취미 추천
+src/config/worryPrompts.ts:  - 소소한 행복 찾기`,
+src/config/worryPrompts.ts:    },
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:    // 응답 템플릿
+src/config/worryPrompts.ts:    templates: {
+src/config/worryPrompts.ts:      empathy: [
+src/config/worryPrompts.ts:        "정말 힘드셨겠어요. 😔",
+src/config/worryPrompts.ts:        "그런 마음이 드는 게 당연해요.",
+src/config/worryPrompts.ts:        "충분히 이해가 돼요.",
+src/config/worryPrompts.ts:        "많이 고민하셨군요.",
+src/config/worryPrompts.ts:        "그런 상황이라면 누구나 힘들 거예요.",
+src/config/worryPrompts.ts:      ],
+src/config/worryPrompts.ts:      
+src/config/worryPrompts.ts:      encouragement: [
+src/config/worryPrompts.ts:        "분명히 좋은 방향으로 나아갈 거예요! 💪",
+src/config/worryPrompts.ts:        "한 걸음씩 천천히 가보세요. 응원할게요! 🌟",
+src/config/worryPrompts.ts:        "당신은 충분히 잘하고 있어요. 😊",
+src/config/worryPrompts.ts:        "이 또한 지나갈 거예요. 힘내세요!",
+src/config/worryPrompts.ts:        "작은 변화부터 시작해보세요. 할 수 있어요!",
+src/config/worryPrompts.ts:      ],
+src/config/worryPrompts.ts:    },
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:    // 초기 인사말
+src/config/worryPrompts.ts:    greetings: {
+src/config/worryPrompts.ts:      morning: "좋은 아침이에요! ☀️ 오늘은 어떤 고민이 있으신가요?",
+src/config/worryPrompts.ts:      afternoon: "안녕하세요! 🌤️ 무엇이든 편하게 이야기해주세요.",
+src/config/worryPrompts.ts:      evening: "저녁 시간이네요. 🌙 오늘 하루는 어떠셨나요?",
+src/config/worryPrompts.ts:      night: "늦은 시간이네요. 🌃 잠이 안 오시나요? 고민이 있으시면 들어드릴게요.",
+src/config/worryPrompts.ts:    },
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:    // 고민 수집 시 분류를 위한 키워드
+src/config/worryPrompts.ts:    keywords: {
+src/config/worryPrompts.ts:      work: ['회사', '직장', '업무', '상사', '동료', '퇴사', '이직', '승진', '야근'],
+src/config/worryPrompts.ts:      relationship: ['친구', '가족', '부모님', '연인', '남자친구', '여자친구', '결혼', '이별'],
+src/config/worryPrompts.ts:      personal: ['자존감', '우울', '불안', '목표', '꿈', '미래', '성장', '변화'],
+src/config/worryPrompts.ts:      daily: ['일상', '취미', '운동', '공부', '시간', '돈', '건강', '습관'],
+src/config/worryPrompts.ts:    }
+src/config/worryPrompts.ts:  }
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:  // 시간대별 인사말 선택 함수
+src/config/worryPrompts.ts:  export function getGreeting(): string {
+src/config/worryPrompts.ts:    const hour = new Date().getHours()
+src/config/worryPrompts.ts:    
+src/config/worryPrompts.ts:    if (hour >= 5 && hour < 12) return worryPrompts.greetings.morning
+src/config/worryPrompts.ts:    if (hour >= 12 && hour < 17) return worryPrompts.greetings.afternoon
+src/config/worryPrompts.ts:    if (hour >= 17 && hour < 22) return worryPrompts.greetings.evening
+src/config/worryPrompts.ts:    return worryPrompts.greetings.night
+src/config/worryPrompts.ts:  }
+src/config/worryPrompts.ts:  
+src/config/worryPrompts.ts:  // 고민 카테고리 분류 함수
+src/config/worryPrompts.ts:  export function categorizeWorry(worry: string): string {
+src/config/worryPrompts.ts:    const lowerWorry = worry.toLowerCase()
+src/config/worryPrompts.ts:    
+src/config/worryPrompts.ts:    for (const [category, keywords] of Object.entries(worryPrompts.keywords)) {
+src/config/worryPrompts.ts:      if (keywords.some(keyword => lowerWorry.includes(keyword))) {
+src/config/worryPrompts.ts:        return category
+src/config/worryPrompts.ts:      }
+src/config/worryPrompts.ts:    }
+src/config/worryPrompts.ts:    
+src/config/worryPrompts.ts:    return 'daily' // 기본값
+src/config/worryPrompts.ts:  }
+src/config/googleCalendar.ts:// src/config/googleCalendar.ts
+src/config/googleCalendar.ts:
+src/config/googleCalendar.ts:export const GOOGLE_CALENDAR_CONFIG = {
+src/config/googleCalendar.ts:    // Google Cloud Console에서 발급받은 Client ID
+src/config/googleCalendar.ts:    clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+src/config/googleCalendar.ts:    // 필요한 권한 범위
+src/config/googleCalendar.ts:    scopes: [
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.readonly',
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.events'
+src/config/googleCalendar.ts:    ],
+src/config/googleCalendar.ts:    // OAuth 리다이렉트 URL
+src/config/googleCalendar.ts:    redirectUri: `${window.location.origin}/services/coffee-chat/calendar-callback`
+src/config/googleCalendar.ts:  };
+src/config/googleCalendar.ts:  
+src/config/googleCalendar.ts:  // Google Calendar API 관련 타입 정의
+src/config/googleCalendar.ts:  export interface GoogleCalendarEvent {
+src/config/googleCalendar.ts:    id?: string;
+src/config/googleCalendar.ts:    summary: string;
+src/config/googleCalendar.ts:    description?: string;
+src/config/googleCalendar.ts:    start: {
+src/config/googleCalendar.ts:      dateTime: string;
+src/config/googleCalendar.ts:      timeZone: string;
+src/config/googleCalendar.ts:    };
+src/config/googleCalendar.ts:    end: {
+src/config/googleCalendar.ts:      dateTime: string;
+src/config/googleCalendar.ts:      timeZone: string;
+src/config/googleCalendar.ts:    };
+src/config/googleCalendar.ts:    attendees?: Array<{
+src/config/googleCalendar.ts:      email: string;
+src/config/googleCalendar.ts:      displayName?: string;
+src/config/googleCalendar.ts:      responseStatus?: 'needsAction' | 'declined' | 'tentative' | 'accepted';
+src/config/googleCalendar.ts:    }>;
+src/config/googleCalendar.ts:    conferenceData?: {
+src/config/googleCalendar.ts:      createRequest?: {
+src/config/googleCalendar.ts:        requestId: string;
+src/config/googleCalendar.ts:        conferenceSolutionKey: {
+src/config/googleCalendar.ts:          type: 'hangoutsMeet';
+src/config/googleCalendar.ts:        };
+src/config/googleCalendar.ts:      };
+src/config/googleCalendar.ts:    };
+src/config/googleCalendar.ts:  }
+src/config/googleCalendar.ts:  
+src/config/googleCalendar.ts:  export interface CalendarAvailability {
+src/config/googleCalendar.ts:    date: string;
+src/config/googleCalendar.ts:    slots: Array<{
+src/config/googleCalendar.ts:      start: string;
+src/config/googleCalendar.ts:      end: string;
+src/config/googleCalendar.ts:      available: boolean;
+src/config/googleCalendar.ts:    }>;
+src/config/googleCalendar.ts:  }
+
+===== SUMMARY =====
+Components found:
+       0
+
+API endpoints used:
+                connection == null ? void 0 
+              connection == null ? void 0 
+              if (JSON.stringify(api.getState()) !== JSON.stringify(state[store])) {
+              if (JSON.stringify(api.getState()) !== JSON.stringify(stateFromDevtools)) {
+              return connection == null ? void 0 
+            `),paramPath.replaceWith(paramPath.get("parameter")),scope.registerBinding("param",paramPath)}}(0,_helperCreateClassFeaturesPlugin.injectInitialization)(classPath,path,assigns)}};return{name
+            const mentorResponse = await api.get('/mentors/my-status')
+          `,...u}),c&&n.jsx("p",{className
+          const response = await api.get<OAuthUser>('/api/users/me')
+          const response = await api.get<User>('/users/me')
+          const response = await api.post('/auth/login', { 
+          const response = await api.post<LoginResponse>('/auth/imweb/callback', {
+          const signupResponse = await api.post('/auth/register', data);
+        [store]
+        api.post('/auth/logout').catch(console.error)
+        await api.post(`/api/coffee-chat/sessions/${bookingId}/cancel`, {
+        const response = await api.get('/api/coffee-chat/my-sessions?role=mentee');
+      `},wrapReference(ref,payload){if("lazy/function"===payload)return _core.types.callExpression(ref,[])}})},"./node_modules/.pnpm/@babel+plugin-transform-nullish-coalescing-operator@7.25.9_@babel+core@7.26.0/node_modules/@babel/plugin-transform-nullish-coalescing-operator/lib/index.js"
+      `},wrapReference(ref,payload){if("lazy/function"===payload)return lib.types.callExpression(ref,[])}}))(lazy))},visitor
+      `}},looseHandlers=Object.assign({},specHandlers,{prop(superMember){const{property}=superMember.node;return this.memoiser.has(property)?cloneNode(this.memoiser.get(property))
+      await api.post(`/api/beta-tests/${testId}/apply`)
+      await api.post(`/api/coffee-chat/slots/${slotId}/book`)
+      await api.post(`/api/courses/${courseId}/enroll`)
+      const response = await api.delete('/coffee-chat/calendar/disconnect'); // /api 제거
+      const response = await api.get('/api/mentors/dashboard/monthly-revenue');
+      const response = await api.get('/api/mentors/dashboard/revenue');
+      const response = await api.get('/api/mentors/dashboard/stats');
+      const response = await api.get('/api/mentors/settlements/download', {
+      const response = await api.get('/bookings/my-bookings');
+      const response = await api.get('/coffee-chat/bookings', { // /api 제거
+      const response = await api.get('/coffee-chat/calendar/status'); // /api 제거
+      const response = await api.get('/coffee-chat/mentors', { params
+      const response = await api.get('/coffee-chat/mentors/dashboard'); // /api 제거
+      const response = await api.get('/users/me');
+      const response = await api.get(`/api/admin/mentor-applications?status=${filter}`);
+      const response = await api.get(`/coffee-chat/bookings/${bookingId}`); // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}/availability`, { // /api 제거
+      const response = await api.get(`/coffee-chat/mentors/${mentorId}`); // /api 제거
+      const response = await api.get<BetaTest[]>('/api/beta-tests')
+      const response = await api.get<CoffeeChatSlot[]>('/api/coffee-chat/slots')
+      const response = await api.get<Course[]>('/api/courses')
+      const response = await api.get<Course[]>('/api/courses/my')
+      const response = await api.post('/coffee-chat/bookings', bookingData); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/callback', { code }); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/auth/init'); // /api 제거
+      const response = await api.post('/coffee-chat/calendar/sync'); // /api 제거
+      const response = await api.post('/coffee-chat/mentors/register', mentorData); // /api 제거
+      const response = await api.post(`/api/admin/mentor-applications/${id}/review`, {
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/cancel`, {  // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/confirm-payment`, { // /api 제거
+      const response = await api.post(`/coffee-chat/bookings/${bookingId}/payment`); // /api 제거
+      const response = await api.put('/coffee-chat/mentors/profile', mentorData); // /api 제거
+      const root = pnpapi.getPackageInformation(pnpapi.topLevel).packageLocation;
+      let currentSlice = selector(api.getState());
+    () => selector(api.getInitialState())
+    () => selector(api.getState()),
+    `,prop)}function buildPrivateMethodDeclaration(file,prop,privateNamesMap,privateFieldsAsSymbolsOrProperties=!1){const privateName=privateNamesMap.get(prop.node.key.id.name),{id,methodId,getId,setId,getterDeclared,setterDeclared,static
+    api.getInitialState,
+    api.getState,
+    await api.post('/api/qa-mentor/feedback', {
+    await api.post('/api/qa-mentor/history', {
+    await api.post('/api/worry-solver/collect', {
+    const response = await api.get('/api/qa-mentor/statistics')
+    const response = await api.get('/api/worry-solver/statistics')
+    const response = await api.get<string[]>('/api/qa-mentor/popular-categories')
+    const response = await api.post<ChatResponse>('/api/qa-mentor/chat', {
+    const response = await api.post<WorryResponse>('/api/worry-solver', {
+    const response = await axios.get('/user?ID=12345');
+    const response = await axios.get(`${API_URL}/auth/me`, {
+    const response = await axios.post(`${API_URL}/auth/signup`, data);
+    const response = await axios.post<LoginResponse>(
+    Object.entries(api.stores).map(([key, api2]) => [key, api2.getState()])
+  "sourcesContent"
+  }`}(_core.types.cloneNode(state.fileNameIdentifier),location.start.line,location.start.column)}(path,state)))),path.pushContainer("attributes",attributes)}};return{name,inherits
+  `,moduleExportsVisitor={ReferencedIdentifier(path){const localName=path.node.name;if("module"!==localName&&"exports"!==localName)return;const localBinding=path.scope.getBinding(localName);this.scope.getBinding(localName)!==localBinding||path.parentPath.isObjectProperty({value
+  `,rewriteReferencesVisitor={ReferencedIdentifier(path){const{seen,buildImportReference,scope,imported,requeueInParent}=this;if(seen.has(path.node))return;seen.add(path.node);const localName=path.node.name,importData=imported.get(localName);if(importData){if(function(path){do{switch(path.parent.type){case"TSTypeAnnotation"
+  `;return this.replaceWith(call)[0].get("arguments.0")},exports.splitExportDeclaration=function(){if(!this.isExportDeclaration()||this.isExportAllDeclaration())throw new Error("Only default and named export declarations can be split.");if(this.isExportNamedDeclaration()&&this.get("specifiers").length>0)throw new Error("It doesn't make sense to split exported specifiers.");const declaration=this.get("declaration");if(this.isExportDefaultDeclaration()){const standaloneDeclaration=declaration.isFunctionDeclaration()||declaration.isClassDeclaration(),exportExpr=declaration.isFunctionExpression()||declaration.isClassExpression(),scope=declaration.isScope()?declaration.scope.parent
+  `}},"./node_modules/.pnpm/@babel+preset-typescript@7.26.0_@babel+core@7.26.0/node_modules/@babel/preset-typescript/lib/index.js"
+  api.getInitialState = () => configResult;
+  axios.getAdapter = adapters.getAdapter;
+  const { data } = await axios.get('/user?ID=12345');
+  const initialState = fn(api.setState, get, api);
+  delete<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  get(headerName
+  get<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  getAccept(matcher?
+  getAuthorization(matcher?
+  getContentEncoding(matcher?
+  getContentLength(matcher?
+  getContentType(matcher?
+  getUri(config?
+  getUserAgent(matcher?
+  post<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  postForm<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  put<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  putForm<T = any, R = axios.AxiosResponse<T>, D = any>(url
+  return axios.get('/user/12345');
+  return axios.get('/user/12345/permissions');
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports,require("motion-utils"))
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports,require("react"))
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports)
+./dist/assets/index-Cvrozb2g.js
+./src/components/auth/OAuthCallback.tsx
+./src/components/service/qaMentorApi.ts
+./src/components/service/worrySolverApi.ts
+./src/pages/mentor/MentorDashboard.tsx
+./src/pages/mentor/RevenueDashboard.tsx
+./src/pages/mypage/MyBookings.tsx
+./src/services/auth.service.ts
+./src/stores/serviceStore.ts
+(()=>{var __webpack_modules__={"./node_modules/.pnpm/@ampproject+remapping@2.3.0/node_modules/@ampproject/remapping/dist/remapping.umd.js"
+{"version"
+##### axios.delete(url[, config])
+##### axios.get(url[, config])
+##### axios.post(url[, data[, config]])
+##### axios.put(url[, data[, config]])
+await axios.post('https
+await axios.post(url, data, {
+await axios.postForm('https
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.get('/foo/bar', {
+axios.get('/user?ID=12345')
+axios.get('/user', {
+axios.get('/user/12345', {
+axios.get('/user/12345')
+axios.getAdapter = adapters_default.getAdapter;
+axios.getAdapter = adapters.getAdapter;
+axios.post( 'https
+axios.post('/foo', params);
+axios.post('/foo', qs.stringify({ 'bar'
+axios.post('/user', {
+axios.post('/user/12345', {
+axios.post('http
+axios.post('https
+const {data} = await axios.post(LOCAL_SERVER_URL, myBuffer, {
+const {data} = await axios.post(SERVER_URL, readableStream, {
+const {data} = axios.get(url, {
+src/services/api.ts
+src/services/api.ts-      useAuthStore.getState().logout();
+src/services/auth.service.ts
+src/services/auth.service.ts-    const response = await axios.post<LoginResponse>(
+src/stores/authStore.ts
+src/stores/authStore.ts-            const mentorResponse = await api.get('/mentors/my-status')
+src/stores/authStore.ts-          const response = await api.get<User>('/users/me')
+src/stores/serviceStore.ts
+This example makes a proxy chain through two SOCKS proxies to ip-api.com. Once the connection to the destination is established it sends an HTTP request to get a JSON response that returns ip info for the requesting ip.

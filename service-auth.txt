@@ -1,0 +1,1577 @@
+Generated at: Fri Jun  6 14:34:24 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+--- src/pages/auth/ImwebAdditionalInfo.tsx ---
+// src/pages/auth/ImwebAdditionalInfo.tsx
+
+export default function ImwebAdditionalInfo() {
+  const user = useAuthStore(state => state.user)
+  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    company: '',
+    role: '',
+    purpose: ''
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // 백엔드로 추가 정보 전송
+    // await updateUserProfile(formData)
+    
+    navigate('/dashboard')
+  }
+
+  const handleSkip = () => {
+    navigate('/dashboard')
+  }
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <Card>
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold">환영합니다! 🎉</h2>
+            <p className="text-gray-600 mt-2">
+              {user?.name}님, James Company에 오신 것을 환영합니다.
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              더 나은 서비스를 위해 추가 정보를 입력해주세요.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                회사/조직 (선택)
+              </label>
+              <input
+                type="text"
+                value={formData.company}
+                onChange={(e) => setFormData({...formData, company: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                placeholder="소속된 회사나 조직을 입력하세요"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                직무 (선택)
+              </label>
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({...formData, role: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">선택하세요</option>
+                <option value="qa">QA Engineer</option>
+                <option value="sdet">SDET</option>
+                <option value="developer">Developer</option>
+                <option value="pm">Product Manager</option>
+                <option value="other">기타</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                서비스 이용 목적 (선택)
+              </label>
+              <select
+                value={formData.purpose}
+                onChange={(e) => setFormData({...formData, purpose: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+              >
+                <option value="">선택하세요</option>
+                <option value="casemaker">CaseMaker 사용</option>
+                <option value="education">교육 서비스 수강</option>
+                <option value="coffeechat">커피챗 상담</option>
+                <option value="bugbounty">Bug Bounty 참여</option>
+                <option value="all">모든 서비스</option>
+              </select>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSkip}
+                className="flex-1"
+              >
+                건너뛰기
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+              >
+                시작하기
+              </Button>
+            </div>
+          </form>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+--- src/pages/auth/Login.tsx ---
+// src/pages/auth/Login.tsx
+
+
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [rememberMe, setRememberMe] = useState(false)
+  const [showRememberMeModal, setShowRememberMeModal] = useState(false)
+  
+  const login = useAuthStore(state => state.login)
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const from = location.state?.from?.pathname || '/dashboard'
+
+  // 로그인된 상태에서 접근시 리다이렉트
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, from])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    
+    try {
+      await login(email, password)
+      
+      // rememberMe 옵션에 따라 토큰 저장 방식 결정
+      if (rememberMe) {
+        // 로그인 상태 유지를 선택한 경우 - 이미 localStorage에 저장됨
+        console.log('로그인 상태가 유지됩니다.')
+      } else {
+        // 로그인 상태 유지를 선택하지 않은 경우 - sessionStorage 사용 권장
+        console.log('브라우저를 닫으면 로그아웃됩니다.')
+      }
+      
+      navigate(from, { replace: true })
+    } catch (error: any) {
+      console.error('Login failed:', error)
+      setError(error.message || '로그인에 실패했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = () => {
+    // 현재 페이지 저장 (로그인 후 돌아올 페이지)
+    sessionStorage.setItem('oauth_redirect', from)
+    // Backend OAuth 엔드포인트로 리다이렉트
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/google/login`
+  }
+
+  const handleKakaoLogin = () => {
+    // 현재 페이지 저장 (로그인 후 돌아올 페이지)
+    sessionStorage.setItem('oauth_redirect', from)
+    // Backend OAuth 엔드포인트로 리다이렉트
+    window.location.href = `${import.meta.env.VITE_API_URL}/api/v1/auth/kakao/login`
+  }
+
+  const handleRememberMeChange = (checked: boolean) => {
+    if (checked) {
+      setShowRememberMeModal(true)
+    } else {
+      setRememberMe(false)
+    }
+  }
+
+  const confirmRememberMe = () => {
+    setRememberMe(true)
+    setShowRememberMeModal(false)
+  }
+
+  const cancelRememberMe = () => {
+    setRememberMe(false)
+    setShowRememberMeModal(false)
+  }
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold">로그인</h2>
+        </div>
+
+        <Card>
+          {/* 소셜 로그인 버튼들 - imweb 버튼 제거됨 */}
+          <div className="space-y-3">
+            {/* Google 로그인 버튼 */}
+            <Button
+              onClick={handleGoogleLogin}
+              variant="outline"
+              className="w-full flex items-center justify-center hover:bg-gray-50"
+              size="lg"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Google로 계속하기
+            </Button>
+
+            {/* Kakao 로그인 버튼 */}
+            <Button
+              onClick={handleKakaoLogin}
+              className="w-full flex items-center justify-center bg-[#FEE500] hover:bg-[#FDD835] text-[#000000D9]"
+              size="lg"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
+                <path
+                  fill="#000000"
+                  d="M12 3c5.514 0 10 3.476 10 7.747 0 4.272-4.48 7.748-10 7.748-1.19 0-2.34-.16-3.41-.46l-3.67 2.84c-.16.12-.39.08-.51-.08-.13-.15-.13-.36-.02-.52l1.24-4.02c-2.16-1.55-3.63-3.9-3.63-6.56C2 6.476 6.486 3 12 3z"
+                />
+              </svg>
+              카카오로 계속하기
+            </Button>
+          </div>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="이메일"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="이메일을 입력하세요"
+              autoComplete="email"
+            />
+
+            <div className="relative">
+              <Input
+                label="비밀번호"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="비밀번호를 입력하세요"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
+                <input 
+                  type="checkbox" 
+                  className="mr-2"
+                  checked={rememberMe}
+                  onChange={(e) => handleRememberMeChange(e.target.checked)}
+                />
+                <span className="text-sm text-gray-600">로그인 상태 유지</span>
+              </label>
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                비밀번호 찾기
+              </Link>
+            </div>
+
+            <Button
+              type="submit"
+
+--- src/pages/auth/Signup.tsx ---
+// src/pages/auth/Signup.tsx
+
+
+const latestTerms = getLatestTerms();
+const latestPrivacy = getLatestPrivacy();
+const latestMarketing = getLatestMarketing();
+
+export default function Signup() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [agreements, setAgreements] = useState({
+    terms: false,
+    privacy: false,
+    marketing: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isMarketingOpen, setIsMarketingOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  const signup = useAuthStore((state) => state.signup);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const navigate = useNavigate();
+
+  // 로그인된 상태에서 접근시 리다이렉트
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // 이메일 유효성 검사 함수
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // 폼 유효성 검사
+  useEffect(() => {
+    const isValid = 
+      formData.name.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      validateEmail(formData.email) &&
+      formData.password.length >= 8 &&
+      formData.password === formData.confirmPassword &&
+      agreements.terms &&
+      agreements.privacy;
+    
+    setIsFormValid(isValid);
+  }, [formData, agreements]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    // 이메일 유효성 실시간 검사
+    if (name === "email") {
+      if (value && !validateEmail(value)) {
+        setEmailError("올바른 이메일 형식이 아닙니다.");
+      } else {
+        setEmailError("");
+      }
+    }
+  };
+
+  const handleAgreementChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAgreements({
+      ...agreements,
+      [e.target.name]: e.target.checked,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      alert("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      alert("올바른 이메일 형식이 아닙니다.");
+      return;
+    }
+
+    if (!agreements.terms || !agreements.privacy) {
+      alert("필수 약관에 동의해주세요.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await signup({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+      
+      console.log("Signup successful, redirecting to login...");
+      
+      // 회원가입 성공 메시지와 함께 로그인 페이지로 이동
+      alert("회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
+      
+      // window.location을 사용하여 확실하게 이동
+      window.location.href = "/login";
+      
+    } catch (error: any) {
+      console.error("Signup failed:", error);
+      // 구체적인 에러 메시지 표시
+      if (error.message) {
+        alert(error.message);
+      } else {
+        alert("회원가입에 실패했습니다.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold">회원가입</h2>
+            <p className="mt-2 text-gray-600">
+              이미 계정이 있으신가요?{" "}
+              <Link to="/login" className="text-primary hover:underline">
+                로그인
+              </Link>
+            </p>
+          </div>
+
+          <Card>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <Input
+                label="이름"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                autoComplete="name"
+                placeholder="이름을 입력하세요"
+              />
+
+              <div>
+                <Input
+                  label="이메일"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                  placeholder="이메일을 입력하세요"
+                />
+                {emailError && (
+                  <p className="mt-1 text-sm text-red-600">{emailError}</p>
+                )}
+              </div>
+
+              <div className="relative">
+                <Input
+                  label="비밀번호"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="비밀번호를 입력하세요 (8자 이상)"
+                  required
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+                {formData.password && formData.password.length < 8 && (
+                  <p className="mt-1 text-sm text-red-600">비밀번호는 8자 이상이어야 합니다.</p>
+                )}
+              </div>
+
+--- src/pages/auth/ImwebCallback.tsx ---
+// src/pages/auth/ImwebCallback.tsx
+
+export default function ImwebCallback() {
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const loginWithImweb = useAuthStore(state => state.loginWithImweb)
+
+  useEffect(() => {
+    const handleCallback = async () => {
+      const code = searchParams.get('code')
+      const error = searchParams.get('error')
+
+      if (error) {
+        console.error('OAuth error:', error)
+        alert('로그인에 실패했습니다.')
+        navigate('/login')
+        return
+      }
+
+      if (code) {
+        try {
+          // 백엔드로 code를 보내서 access token을 받아옴
+          await loginWithImweb(code)
+          navigate('/dashboard')
+        } catch (error) {
+          console.error('Login failed:', error)
+          alert('로그인 처리 중 오류가 발생했습니다.')
+          navigate('/login')
+        }
+      }
+    }
+
+    handleCallback()
+  }, [searchParams, navigate, loginWithImweb])
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-gray-600">imweb 계정으로 로그인 중...</p>
+      </div>
+    </div>
+  )
+}
+
+--- src/pages/auth/OAuthCallback.tsx ---
+
+--- src/components/auth/ProtectedRoute.tsx ---
+// src/components/auth/ProtectedRoute.tsx
+
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: 'user' | 'mentor' | 'admin';
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 역할 기반 접근 제어
+  if (requiredRole) {
+    // 멘토 페이지 접근 시
+    if (requiredRole === 'mentor') {
+      // admin은 모든 페이지 접근 가능
+      if (user?.role === 'admin') {
+        return <>{children}</>;
+      }
+      
+      // mentorStatus 체크 (승인된 멘토인지 확인)
+      if (user?.mentorStatus === 'pending') {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">승인 대기 중</h2>
+              <p className="text-gray-600 mb-6">
+                멘토 신청이 검토 중입니다.<br />
+                승인 완료 후 이용 가능합니다.
+              </p>
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                대시보드로 돌아가기
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      if (user?.mentorStatus === 'rejected') {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">접근 불가</h2>
+              <p className="text-gray-600 mb-6">
+                멘토 신청이 거절되었습니다.<br />
+                자세한 내용은 이메일을 확인해주세요.
+              </p>
+              <button
+                onClick={() => window.location.href = '/dashboard'}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                대시보드로 돌아가기
+              </button>
+            </div>
+          </div>
+        );
+      }
+      
+      // mentorStatus가 'approved'인 경우에만 접근 허용
+      if (user?.mentorStatus === 'approved') {
+        return <>{children}</>;
+      }
+      
+      // 멘토가 아닌 경우
+      return <Navigate to="/dashboard" replace />;
+    }
+    
+    // 관리자 페이지 접근 시
+    if (requiredRole === 'admin' && user?.role !== 'admin') {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
+
+--- src/components/auth/RememberMeModal.tsx ---
+// src/components/auth/RememberMeModal.tsx
+
+
+interface RememberMeModalProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+const RememberMeModal: React.FC<RememberMeModalProps> = ({ 
+  isOpen, 
+  onConfirm, 
+  onCancel 
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+        <div className="flex items-center mb-4">
+          <div className="bg-yellow-100 rounded-full p-2 mr-3">
+            <AlertTriangle className="w-6 h-6 text-yellow-600" />
+          </div>
+          <h3 className="text-lg font-semibold">로그인 상태 유지 주의사항</h3>
+        </div>
+        
+        <div className="space-y-3 mb-6">
+          <p className="text-gray-700">
+            브라우저를 닫더라도 로그인이 계속 유지될 수 있습니다.
+          </p>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 font-medium mb-2">
+              다음과 같은 경우에는 사용을 권장하지 않습니다:
+            </p>
+            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+              <li>공공장소의 컴퓨터 (PC방, 도서관, 학교 등)</li>
+              <li>타인과 함께 사용하는 기기</li>
+              <li>회사나 공용 컴퓨터</li>
+            </ul>
+          </div>
+          <p className="text-sm text-gray-500">
+            개인정보 보호를 위해 공용 컴퓨터에서는 사용이 끝나면 반드시 로그아웃해 주세요.
+          </p>
+        </div>
+        
+        <div className="flex gap-3">
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            className="flex-1"
+          >
+            취소
+          </Button>
+          <Button
+            onClick={onConfirm}
+            className="flex-1"
+          >
+            확인
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default RememberMeModal;
+
+--- src/components/auth/OAuthCallback.tsx ---
+// src/components/auth/OAuthCallback.tsx
+
+
+interface OAuthUser {
+  id: string
+  email: string
+  name: string
+  role: 'user' | 'admin'
+  profile_image?: string
+  membership_tier?: string
+}
+
+export default function OAuthCallback() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const setAuth = useAuthStore(state => state.setAuth)
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [message, setMessage] = useState('로그인 처리 중...')
+
+  useEffect(() => {
+    const processOAuthCallback = async () => {
+      try {
+        const params = new URLSearchParams(location.search)
+        const token = params.get('token')
+        const refreshToken = params.get('refresh_token')
+        const error = params.get('error')
+        const isNew = params.get('isNew') === 'true'
+
+        if (error) {
+          throw new Error(getOAuthErrorMessage(error))
+        }
+
+        if (!token) {
+          throw new Error('인증 토큰을 받지 못했습니다.')
+        }
+
+        // 토큰 저장
+        localStorage.setItem('access_token', token)
+        if (refreshToken) {
+          localStorage.setItem('refresh_token', refreshToken)
+        }
+
+        // 사용자 정보 가져오기
+        try {
+          const response = await api.get<OAuthUser>('/api/users/me')
+          const user = {
+            id: response.data.id,
+            email: response.data.email,
+            name: response.data.name,
+            role: response.data.role
+          }
+          
+          // authStore에 인증 상태 설정
+          setAuth(true, user, token)
+        } catch (err) {
+          console.error('Failed to fetch user info:', err)
+          // 사용자 정보를 가져오지 못해도 토큰은 저장되어 있으므로 인증 상태만 설정
+          setAuth(true, null, token)
+        }
+
+        // 성공 메시지
+        setStatus('success')
+        setMessage(isNew ? '회원가입이 완료되었습니다!' : '로그인되었습니다!')
+
+        // 원래 가려던 페이지로 리다이렉트
+        const redirectPath = sessionStorage.getItem('oauth_redirect') || '/dashboard'
+        sessionStorage.removeItem('oauth_redirect')
+
+        setTimeout(() => {
+          navigate(redirectPath)
+        }, 1500)
+      } catch (error) {
+        setStatus('error')
+        setMessage(error instanceof Error ? error.message : '로그인 처리 중 오류가 발생했습니다.')
+      }
+    }
+
+    processOAuthCallback()
+  }, [location, navigate, setAuth])
+
+  const getOAuthErrorMessage = (error: string): string => {
+    const errorMessages: Record<string, string> = {
+      'access_denied': '로그인이 취소되었습니다.',
+      'invalid_request': '잘못된 요청입니다.',
+      'unauthorized_client': '인증되지 않은 클라이언트입니다.',
+      'server_error': '서버 오류가 발생했습니다.',
+      'kakao_auth_failed': '카카오 로그인에 실패했습니다.',
+    }
+    
+    return errorMessages[error] || '로그인 중 오류가 발생했습니다.'
+  }
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        <Card>
+          <div className="text-center">
+            {status === 'loading' && (
+              <div className="space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                </div>
+                <p className="text-gray-600">{message}</p>
+              </div>
+            )}
+
+            {status === 'success' && (
+              <div className="space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-900 font-medium">{message}</p>
+                <p className="text-sm text-gray-500">잠시 후 이동합니다...</p>
+              </div>
+            )}
+
+            {status === 'error' && (
+              <div className="space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full">
+                  <svg
+                    className="w-8 h-8 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-900 font-medium">{message}</p>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="inline-block mt-4 text-sm text-primary hover:underline"
+                >
+                  로그인 페이지로 돌아가기
+                </button>
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+--- src/components/auth/SocialLoginButton.tsx ---
+// src/components/auth/SocialLoginButton.tsx
+
+
+interface SocialLoginButtonProps {
+  provider: 'google' | 'kakao';
+  onClick: () => void;
+  isLoading?: boolean;
+}
+
+const providerConfig = {
+  google: {
+    name: 'Google',
+    bgColor: 'bg-white hover:bg-gray-50',
+    textColor: 'text-gray-700',
+    borderColor: 'border border-gray-300',
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24">
+        <path
+          fill="#4285F4"
+          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+        />
+        <path
+          fill="#34A853"
+          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        />
+        <path
+          fill="#FBBC05"
+          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        />
+        <path
+          fill="#EA4335"
+          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        />
+      </svg>
+    )
+  },
+  kakao: {
+    name: 'Kakao',
+    bgColor: 'bg-[#FEE500] hover:bg-[#FDD835]',
+    textColor: 'text-[#000000D9]',
+    borderColor: 'border border-[#FEE500]',
+    icon: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+        <path
+          fill="#000000"
+          d="M12 3c5.514 0 10 3.476 10 7.747 0 4.272-4.48 7.748-10 7.748-1.19 0-2.34-.16-3.41-.46l-3.67 2.84c-.16.12-.39.08-.51-.08-.13-.15-.13-.36-.02-.52l1.24-4.02c-2.16-1.55-3.63-3.9-3.63-6.56C2 6.476 6.486 3 12 3z"
+        />
+      </svg>
+    )
+  }
+};
+
+const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({ 
+  provider, 
+  onClick, 
+  isLoading = false 
+}) => {
+  const config = providerConfig[provider];
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={isLoading}
+      className={`
+        relative w-full flex items-center justify-center gap-3 px-4 py-3
+        ${config.bgColor} ${config.textColor} ${config.borderColor}
+        rounded-lg font-medium transition-colors duration-200
+        disabled:opacity-50 disabled:cursor-not-allowed
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+      `}
+    >
+      {isLoading ? (
+        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+          <circle 
+            className="opacity-25" 
+            cx="12" 
+            cy="12" 
+            r="10" 
+            stroke="currentColor" 
+            strokeWidth="4" 
+            fill="none" 
+          />
+          <path 
+            className="opacity-75" 
+            fill="currentColor" 
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" 
+          />
+        </svg>
+      ) : (
+        config.icon
+      )}
+      <span>{isLoading ? '로그인 중...' : `${config.name}로 계속하기`}</span>
+    </button>
+  );
+};
+
+export default SocialLoginButton;
+
+--- src/services/auth.service.ts ---
+// src/services/auth.service.ts
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+interface LoginResponse {
+  access_token: string;
+  refresh_token?: string;
+  token_type: string;
+  user: {
+    id: number;
+    email: string;
+    name: string;
+    profile_image?: string;
+    membership_tier: string;
+    is_admin: boolean;
+  };
+}
+
+interface SignupData {
+  email: string;
+  password: string;
+  name: string;
+}
+
+class AuthService {
+  // 이메일/비밀번호 로그인
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const formData = new FormData();
+    formData.append('username', email); // OAuth2PasswordRequestForm은 username 필드 사용
+    formData.append('password', password);
+
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/api/auth/login`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    return response.data;
+  }
+
+  // 회원가입
+  async signup(data: SignupData) {
+    const response = await axios.post(`${API_URL}/auth/signup`, data);
+    return response.data;
+  }
+
+  // 토큰 새로고침
+  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+    const response = await axios.post<LoginResponse>(
+      `${API_URL}/auth/refresh`,
+      { refresh_token: refreshToken }
+    );
+    return response.data;
+  }
+
+  // 현재 사용자 정보 가져오기
+  async getCurrentUser() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('No token found');
+    }
+
+    const response = await axios.get(`${API_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  }
+
+  // 로그아웃
+  logout() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    window.location.href = '/login';
+  }
+
+  // 토큰 유효성 검사
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('access_token');
+  }
+
+  // Axios 인터셉터 설정
+  setupAxiosInterceptors() {
+    // 요청 인터셉터
+    axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // 응답 인터셉터
+    axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const refreshToken = localStorage.getItem('refresh_token');
+            if (refreshToken) {
+              const response = await this.refreshToken(refreshToken);
+              localStorage.setItem('access_token', response.access_token);
+              if (response.refresh_token) {
+                localStorage.setItem('refresh_token', response.refresh_token);
+              }
+              
+              // 원래 요청 재시도
+              originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
+              return axios(originalRequest);
+            }
+          } catch (refreshError) {
+            // 리프레시 토큰도 만료된 경우
+            this.logout();
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }
+}
+
+export const authService = new AuthService();
+export default authService;
+
+--- src/utils/oauth.utils.ts ---
+// src/utils/oauth.utils.ts
+
+// OAuth 프로바이더 설정
+export const OAUTH_CONFIG = {
+    google: {
+      authUrl: `${import.meta.env.VITE_API_URL}/auth/oauth/google`,
+      name: 'Google',
+      icon: '🔵',
+    },
+    kakao: {
+      authUrl: `${import.meta.env.VITE_API_URL}/auth/oauth/kakao`,
+      name: 'Kakao',
+      icon: '🟡',
+    },
+  } as const;
+  
+  export type OAuthProvider = keyof typeof OAUTH_CONFIG;
+  
+  // OAuth 로그인 시작
+  export const startOAuthLogin = (provider: OAuthProvider) => {
+    const config = OAUTH_CONFIG[provider];
+    
+    // 현재 URL을 세션 스토리지에 저장 (로그인 후 돌아올 페이지)
+    sessionStorage.setItem('oauth_redirect', window.location.pathname);
+    
+    // OAuth 프로바이더로 리다이렉트
+    window.location.href = config.authUrl;
+  };
+  
+  // OAuth 콜백 처리
+  export const handleOAuthCallback = async (params: URLSearchParams) => {
+    const token = params.get('token');
+    const refreshToken = params.get('refresh_token');
+    const error = params.get('error');
+    const isNew = params.get('isNew') === 'true';
+    
+    if (error) {
+      throw new Error(error);
+    }
+    
+    if (!token) {
+      throw new Error('No token received');
+    }
+    
+    // 토큰 저장
+    localStorage.setItem('access_token', token);
+    if (refreshToken) {
+      localStorage.setItem('refresh_token', refreshToken);
+    }
+    
+    // 원래 페이지로 리다이렉트할 경로
+    const redirectPath = sessionStorage.getItem('oauth_redirect') || '/';
+    sessionStorage.removeItem('oauth_redirect');
+    
+    return { token, refreshToken, isNew, redirectPath };
+  };
+  
+  // OAuth 에러 메시지 처리
+  export const getOAuthErrorMessage = (error: string): string => {
+    const errorMessages: Record<string, string> = {
+      'access_denied': '로그인이 취소되었습니다.',
+      'invalid_request': '잘못된 요청입니다.',
+      'unauthorized_client': '인증되지 않은 클라이언트입니다.',
+      'unsupported_response_type': '지원하지 않는 응답 유형입니다.',
+      'server_error': '서버 오류가 발생했습니다.',
+      'temporarily_unavailable': '일시적으로 사용할 수 없습니다.',
+      'kakao_auth_failed': '카카오 로그인에 실패했습니다.',
+    };
+    
+    return errorMessages[error] || '로그인 중 오류가 발생했습니다.';
+  };
+
+===== RELATED TYPES =====
+
+===== API CALLS =====
+src/services/auth.service.ts:// src/services/auth.service.ts
+src/services/auth.service.ts-import axios from 'axios';
+src/services/auth.service.ts-
+src/services/auth.service.ts-const API_URL = import.meta.env.VITE_API_URL;
+src/services/auth.service.ts-
+src/services/auth.service.ts-interface LoginResponse {
+src/services/auth.service.ts:  access_token: string;
+src/services/auth.service.ts:  refresh_token?: string;
+src/services/auth.service.ts:  token_type: string;
+src/services/auth.service.ts-  user: {
+src/services/auth.service.ts-    id: number;
+src/services/auth.service.ts-    email: string;
+src/services/auth.service.ts-    name: string;
+src/services/auth.service.ts-    profile_image?: string;
+--
+src/services/auth.service.ts-class AuthService {
+src/services/auth.service.ts-  // 이메일/비밀번호 로그인
+src/services/auth.service.ts:  async login(email: string, password: string): Promise<LoginResponse> {
+src/services/auth.service.ts-    const formData = new FormData();
+src/services/auth.service.ts-    formData.append('username', email); // OAuth2PasswordRequestForm은 username 필드 사용
+src/services/auth.service.ts-    formData.append('password', password);
+src/services/auth.service.ts-
+src/services/auth.service.ts-    const response = await axios.post<LoginResponse>(
+src/services/auth.service.ts:      `${API_URL}/api/auth/login`,
+src/services/auth.service.ts-      formData,
+src/services/auth.service.ts-      {
+src/services/auth.service.ts-        headers: {
+src/services/auth.service.ts-          'Content-Type': 'multipart/form-data',
+src/services/auth.service.ts-        },
+--
+src/services/auth.service.ts-  // 회원가입
+src/services/auth.service.ts-  async signup(data: SignupData) {
+src/services/auth.service.ts:    const response = await axios.post(`${API_URL}/auth/signup`, data);
+src/services/auth.service.ts-    return response.data;
+src/services/auth.service.ts-  }
+src/services/auth.service.ts-
+src/services/auth.service.ts-  // 토큰 새로고침
+src/services/auth.service.ts-  async refreshToken(refreshToken: string): Promise<LoginResponse> {
+src/services/auth.service.ts-    const response = await axios.post<LoginResponse>(
+src/services/auth.service.ts:      `${API_URL}/auth/refresh`,
+src/services/auth.service.ts:      { refresh_token: refreshToken }
+src/services/auth.service.ts-    );
+src/services/auth.service.ts-    return response.data;
+src/services/auth.service.ts-  }
+src/services/auth.service.ts-
+src/services/auth.service.ts-  // 현재 사용자 정보 가져오기
+src/services/auth.service.ts-  async getCurrentUser() {
+src/services/auth.service.ts:    const token = localStorage.getItem('access_token');
+src/services/auth.service.ts:    if (!token) {
+src/services/auth.service.ts:      throw new Error('No token found');
+src/services/auth.service.ts-    }
+src/services/auth.service.ts-
+src/services/auth.service.ts:    const response = await axios.get(`${API_URL}/auth/me`, {
+src/services/auth.service.ts-      headers: {
+src/services/auth.service.ts:        Authorization: `Bearer ${token}`,
+src/services/auth.service.ts-      },
+src/services/auth.service.ts-    });
+src/services/auth.service.ts-
+src/services/auth.service.ts-    return response.data;
+src/services/auth.service.ts-  }
+--
+src/services/auth.service.ts-  // 로그아웃
+src/services/auth.service.ts-  logout() {
+src/services/auth.service.ts:    localStorage.removeItem('access_token');
+src/services/auth.service.ts:    localStorage.removeItem('refresh_token');
+src/services/auth.service.ts:    window.location.href = '/login';
+src/services/auth.service.ts-  }
+src/services/auth.service.ts-
+src/services/auth.service.ts-  // 토큰 유효성 검사
+src/services/auth.service.ts-  isAuthenticated(): boolean {
+src/services/auth.service.ts:    return !!localStorage.getItem('access_token');
+src/services/auth.service.ts-  }
+src/services/auth.service.ts-
+src/services/auth.service.ts-  // Axios 인터셉터 설정
+src/services/auth.service.ts-  setupAxiosInterceptors() {
+src/services/auth.service.ts-    // 요청 인터셉터
+src/services/auth.service.ts-    axios.interceptors.request.use(
+src/services/auth.service.ts-      (config) => {
+src/services/auth.service.ts:        const token = localStorage.getItem('access_token');
+src/services/auth.service.ts:        if (token) {
+src/services/auth.service.ts:          config.headers.Authorization = `Bearer ${token}`;
+src/services/auth.service.ts-        }
+src/services/auth.service.ts-        return config;
+src/services/auth.service.ts-      },
+src/services/auth.service.ts-      (error) => Promise.reject(error)
+src/services/auth.service.ts-    );
+--
+src/services/auth.service.ts-
+src/services/auth.service.ts-          try {
+src/services/auth.service.ts:            const refreshToken = localStorage.getItem('refresh_token');
+src/services/auth.service.ts-            if (refreshToken) {
+src/services/auth.service.ts-              const response = await this.refreshToken(refreshToken);
+src/services/auth.service.ts:              localStorage.setItem('access_token', response.access_token);
+src/services/auth.service.ts:              if (response.refresh_token) {
+src/services/auth.service.ts:                localStorage.setItem('refresh_token', response.refresh_token);
+src/services/auth.service.ts-              }
+src/services/auth.service.ts-              
+src/services/auth.service.ts-              // 원래 요청 재시도
+src/services/auth.service.ts:              originalRequest.headers.Authorization = `Bearer ${response.access_token}`;
+src/services/auth.service.ts-              return axios(originalRequest);
+src/services/auth.service.ts-            }
+src/services/auth.service.ts-          } catch (refreshError) {
+src/services/auth.service.ts-            // 리프레시 토큰도 만료된 경우
+src/services/auth.service.ts-            this.logout();
+--
+src/services/auth.service.ts-}
+src/services/auth.service.ts-
+src/services/auth.service.ts:export const authService = new AuthService();
+src/services/auth.service.ts:export default authService;
+--
+src/services/companyEmailService.ts-  const timestamp = Date.now();
+src/services/companyEmailService.ts-  const random = Math.random().toString(36).substring(2, 15);
+src/services/companyEmailService.ts:  const tokenString = `${companyEmail}-${timestamp}-${random}`;
+src/services/companyEmailService.ts-  
+src/services/companyEmailService.ts-  // Base64 인코딩 (브라우저 호환)
+src/services/companyEmailService.ts:  return btoa(tokenString);
+src/services/companyEmailService.ts-};
+--
+src/services/api.ts-
+src/services/api.ts-import axios from 'axios';
+src/services/api.ts:import { useAuthStore } from '../stores/authStore';
+src/services/api.ts-
+src/services/api.ts-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+src/services/api.ts-
+src/services/api.ts-const api = axios.create({
+src/services/api.ts-  baseURL: API_BASE_URL,
+--
+src/services/api.ts-});
+src/services/api.ts-
+src/services/api.ts:// Request interceptor to add auth token
+src/services/api.ts-api.interceptors.request.use(
+src/services/api.ts-  (config) => {
+src/services/api.ts:    const token = useAuthStore.getState().token;
+src/services/api.ts:    if (token) {
+src/services/api.ts:      config.headers.Authorization = `Bearer ${token}`;
+src/services/api.ts-    }
+src/services/api.ts-    return config;
+src/services/api.ts-  },
+src/services/api.ts-  (error) => {
+src/services/api.ts-    return Promise.reject(error);
+--
+src/services/api.ts-);
+src/services/api.ts-
+src/services/api.ts:// Response interceptor to handle auth errors
+src/services/api.ts-api.interceptors.response.use(
+src/services/api.ts-  (response) => response,
+src/services/api.ts-  (error) => {
+src/services/api.ts-    if (error.response?.status === 401) {
+src/services/api.ts-      useAuthStore.getState().logout();
+src/services/api.ts:      window.location.href = '/login';
+src/services/api.ts-    }
+src/services/api.ts-    return Promise.reject(error);
+src/services/api.ts-  }
+src/services/api.ts-);
+src/services/api.ts-
+
+===== STATE MANAGEMENT =====
+src/stores/authStore.ts:// src/stores/authStore.ts
+src/stores/authStore.ts-
+src/stores/authStore.ts-import { create } from 'zustand'
+src/stores/authStore.ts-import { persist } from 'zustand/middleware'
+src/stores/authStore.ts-import api from '../services/api'
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface User {
+src/stores/authStore.ts-  id: string
+src/stores/authStore.ts-  email: string
+src/stores/authStore.ts-  name: string
+src/stores/authStore.ts-  role: 'user' | 'admin'  // 기존 구조 유지
+--
+src/stores/authStore.ts-  user: User | null
+src/stores/authStore.ts-  isAuthenticated: boolean
+src/stores/authStore.ts:  token: string | null
+src/stores/authStore.ts:  login: (email: string, password: string) => Promise<void>
+src/stores/authStore.ts-  signup: (data: SignupData) => Promise<void>
+src/stores/authStore.ts:  loginWithImweb: (code: string) => Promise<void>
+src/stores/authStore.ts-  logout: () => void
+src/stores/authStore.ts-  checkAuth: () => Promise<void>
+src/stores/authStore.ts:  setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
+src/stores/authStore.ts-  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface SignupData {
+src/stores/authStore.ts-  email: string
+src/stores/authStore.ts-  password: string
+src/stores/authStore.ts-  name: string
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-interface LoginResponse {
+src/stores/authStore.ts:  access_token: string
+src/stores/authStore.ts:  refresh_token?: string
+src/stores/authStore.ts:  token_type: string
+src/stores/authStore.ts-  user: User
+src/stores/authStore.ts-}
+src/stores/authStore.ts-
+src/stores/authStore.ts-export const useAuthStore = create<AuthState>()(
+src/stores/authStore.ts-  persist(
+src/stores/authStore.ts-    (set, get) => ({
+src/stores/authStore.ts-      user: null,
+src/stores/authStore.ts-      isAuthenticated: false,
+src/stores/authStore.ts:      token: null,
+src/stores/authStore.ts-
+src/stores/authStore.ts:      login: async (email: string, password: string) => {
+src/stores/authStore.ts-        try {
+src/stores/authStore.ts:          const response = await api.post('/auth/login', { 
+src/stores/authStore.ts-            email, 
+src/stores/authStore.ts-            password 
+src/stores/authStore.ts-          });
+src/stores/authStore.ts-
+src/stores/authStore.ts:          const { access_token, user } = response.data
+src/stores/authStore.ts-
+src/stores/authStore.ts-          // 토큰 저장
+src/stores/authStore.ts:          localStorage.setItem('access_token', access_token)
+src/stores/authStore.ts-
+src/stores/authStore.ts-          set({
+src/stores/authStore.ts-            user,
+src/stores/authStore.ts-            isAuthenticated: true,
+src/stores/authStore.ts:            token: access_token
+src/stores/authStore.ts-          })
+src/stores/authStore.ts-        } catch (error: any) {
+src/stores/authStore.ts-          console.error('Login error:', error)
+src/stores/authStore.ts-          if (error.response?.status === 401) {
+src/stores/authStore.ts-            throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.')
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-          throw new Error('로그인 중 오류가 발생했습니다.')
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+--
+src/stores/authStore.ts-        try {
+src/stores/authStore.ts-          // 회원가입 - /api/v1 경로 추가
+src/stores/authStore.ts:          const signupResponse = await api.post('/auth/register', data);
+src/stores/authStore.ts-          console.log('Signup response:', signupResponse);
+src/stores/authStore.ts-
+src/stores/authStore.ts-          // 회원가입 성공 후 자동 로그인
+src/stores/authStore.ts-          try {
+src/stores/authStore.ts:            await get().login(data.email, data.password)
+src/stores/authStore.ts:          } catch (loginError) {
+src/stores/authStore.ts:            console.error('Auto-login failed after signup:', loginError)
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-        } catch (error: any) {
+src/stores/authStore.ts-          console.error('Signup error:', error)
+src/stores/authStore.ts-          if (error.response?.data?.detail) {
+src/stores/authStore.ts-            throw new Error(error.response.data.detail)
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-          throw new Error('회원가입 중 오류가 발생했습니다.')
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+src/stores/authStore.ts:      loginWithImweb: async (code: string) => {
+src/stores/authStore.ts-        try {
+src/stores/authStore.ts:          const response = await api.post<LoginResponse>('/auth/imweb/callback', {
+src/stores/authStore.ts-            code,
+src/stores/authStore.ts-          })
+src/stores/authStore.ts-
+src/stores/authStore.ts:          const { access_token, user } = response.data
+src/stores/authStore.ts-
+src/stores/authStore.ts-          // 토큰 저장
+src/stores/authStore.ts:          localStorage.setItem('access_token', access_token)
+src/stores/authStore.ts-
+src/stores/authStore.ts-          set({
+src/stores/authStore.ts-            user,
+src/stores/authStore.ts-            isAuthenticated: true,
+src/stores/authStore.ts:            token: access_token
+src/stores/authStore.ts-          })
+src/stores/authStore.ts-        } catch (error: any) {
+src/stores/authStore.ts:          console.error('Imweb login error:', error)
+src/stores/authStore.ts-          throw new Error('imweb 로그인 중 오류가 발생했습니다.')
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+src/stores/authStore.ts-      logout: () => {
+src/stores/authStore.ts-        // 토큰 삭제
+src/stores/authStore.ts:        localStorage.removeItem('access_token')
+src/stores/authStore.ts:        localStorage.removeItem('refresh_token')
+src/stores/authStore.ts-
+src/stores/authStore.ts-        // 상태 초기화
+src/stores/authStore.ts-        set({
+src/stores/authStore.ts-          user: null,
+src/stores/authStore.ts-          isAuthenticated: false,
+src/stores/authStore.ts:          token: null
+src/stores/authStore.ts-        })
+src/stores/authStore.ts-
+src/stores/authStore.ts-        // 로그아웃 API 호출 (선택사항)
+src/stores/authStore.ts:        api.post('/auth/logout').catch(console.error)
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+src/stores/authStore.ts-      checkAuth: async () => {
+src/stores/authStore.ts:        const token = localStorage.getItem('access_token')
+src/stores/authStore.ts-        const currentState = get()
+src/stores/authStore.ts-        
+src/stores/authStore.ts-        // 이미 인증된 상태이고 토큰이 있으면 API 호출 스킵
+src/stores/authStore.ts:        if (currentState.isAuthenticated && currentState.token && token) {
+src/stores/authStore.ts-          return
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-        
+src/stores/authStore.ts:        if (!token) {
+src/stores/authStore.ts:          set({ isAuthenticated: false, user: null, token: null })
+src/stores/authStore.ts-          return
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-
+src/stores/authStore.ts-        try {
+src/stores/authStore.ts-          const response = await api.get<User>('/users/me')
+src/stores/authStore.ts-          
+src/stores/authStore.ts-          // 멘토 상태 확인 (선택사항)
+src/stores/authStore.ts-          try {
+src/stores/authStore.ts-            const mentorResponse = await api.get('/mentors/my-status')
+src/stores/authStore.ts-            if (mentorResponse.data) {
+--
+src/stores/authStore.ts-            user: response.data,
+src/stores/authStore.ts-            isAuthenticated: true,
+src/stores/authStore.ts:            token
+src/stores/authStore.ts-          })
+src/stores/authStore.ts-        } catch (error) {
+src/stores/authStore.ts-          console.error('Auth check failed:', error)
+src/stores/authStore.ts-          // 네트워크 에러인 경우 상태를 유지
+src/stores/authStore.ts-          if (!navigator.onLine) {
+src/stores/authStore.ts:            console.log('Offline - keeping auth state')
+src/stores/authStore.ts-            return
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-          // 401 에러인 경우만 로그아웃 처리
+src/stores/authStore.ts-          if ((error as any).response?.status === 401) {
+src/stores/authStore.ts:            localStorage.removeItem('access_token')
+src/stores/authStore.ts:            set({ isAuthenticated: false, user: null, token: null })
+src/stores/authStore.ts-          }
+src/stores/authStore.ts-          // 다른 에러는 상태 유지
+src/stores/authStore.ts-        }
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+src/stores/authStore.ts-      // OAuth 로그인 후 인증 상태 설정을 위한 메서드
+src/stores/authStore.ts:      setAuth: (isAuthenticated: boolean, user: User | null = null, token: string | null = null) => {
+src/stores/authStore.ts:        set({ isAuthenticated, user, token })
+src/stores/authStore.ts-      },
+src/stores/authStore.ts-
+src/stores/authStore.ts-      // 멘토 상태 업데이트 (멘토 승인/거절 후 사용)
+src/stores/authStore.ts-      updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => {
+src/stores/authStore.ts-        set((state) => ({
+src/stores/authStore.ts-          user: state.user ? { 
+src/stores/authStore.ts-            ...state.user, 
+src/stores/authStore.ts-            mentorStatus,
+src/stores/authStore.ts-            mentorId: mentorId || state.user.mentorId 
+src/stores/authStore.ts-          } : null
+--
+src/stores/authStore.ts-    }),
+src/stores/authStore.ts-    {
+src/stores/authStore.ts:      name: 'auth-storage',
+src/stores/authStore.ts-      partialize: (state) => ({
+src/stores/authStore.ts-        user: state.user,
+src/stores/authStore.ts-        isAuthenticated: state.isAuthenticated,
+src/stores/authStore.ts:        token: state.token  // token도 persist에 추가
+src/stores/authStore.ts-      }),
+src/stores/authStore.ts-    }
+src/stores/authStore.ts-  )
+src/stores/authStore.ts-)
+
+===== CONFIGURATIONS =====
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.readonly',
+src/config/googleCalendar.ts:      'https://www.googleapis.com/auth/calendar.events'
+
+===== SUMMARY =====
+Components found:
+       9
+
+API endpoints used:
+          const response = await api.get<OAuthUser>('/api/users/me')
+    const response = await axios.get(`${API_URL}/auth/me`, {
+    const response = await axios.post(`${API_URL}/auth/signup`, data);
+    const response = await axios.post<LoginResponse>(

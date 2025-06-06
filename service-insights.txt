@@ -1,0 +1,1024 @@
+Generated at: Fri Jun  6 14:34:55 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+--- src/pages/insights/StudyNote.tsx ---
+// src/pages/insights/StudyNote.tsx
+
+
+interface StudyNote {
+  id: string;
+  title: string;
+  description: string;
+  category: 'testing-basics' | 'automation' | 'tools' | 'best-practices' | 'programming';
+  level: 'beginner' | 'intermediate' | 'advanced';
+  author: string;
+  date: string;
+  readTime: string;
+  views: number;
+  downloads: number;
+  topics: string[];
+  hasCode: boolean;
+  isPremium: boolean;
+}
+
+const studyNotes: StudyNote[] = [
+  {
+    id: '1',
+    title: 'Cypress E2E 테스트 자동화 완벽 가이드',
+    description: 'Cypress를 활용한 End-to-End 테스트 자동화 구축 방법을 단계별로 설명합니다. 실제 프로젝트에 적용할 수 있는 예제 코드 포함.',
+    category: 'automation',
+    level: 'intermediate',
+    author: 'JamesCompany',
+    date: '2024-02-15',
+    readTime: '15분',
+    views: 342,
+    downloads: 89,
+    topics: ['Cypress', 'E2E테스트', '자동화', 'JavaScript'],
+    hasCode: true,
+    isPremium: false
+  },
+  {
+    id: '2',
+    title: '소프트웨어 테스팅의 기초: 테스트 케이스 작성법',
+    description: '효과적인 테스트 케이스를 작성하는 방법과 테스트 설계 기법을 배웁니다. 초보자를 위한 실습 예제 포함.',
+    category: 'testing-basics',
+    level: 'beginner',
+    author: 'JamesCompany',
+    date: '2024-02-12',
+    readTime: '10분',
+    views: 567,
+    downloads: 234,
+    topics: ['테스트케이스', '테스트설계', '기초'],
+    hasCode: false,
+    isPremium: false
+  },
+  {
+    id: '3',
+    title: 'API 테스팅 마스터하기: Postman에서 코드까지',
+    description: 'Postman을 활용한 API 테스팅부터 자동화 스크립트 작성까지, API 테스팅의 모든 것을 다룹니다.',
+    category: 'tools',
+    level: 'intermediate',
+    author: 'JamesCompany',
+    date: '2024-02-10',
+    readTime: '20분',
+    views: 423,
+    downloads: 156,
+    topics: ['API테스팅', 'Postman', 'RestAssured', '자동화'],
+    hasCode: true,
+    isPremium: true
+  },
+  {
+    id: '4',
+    title: 'Python으로 시작하는 테스트 자동화',
+    description: 'Python과 Selenium을 활용한 웹 애플리케이션 테스트 자동화 입문 가이드. pytest 프레임워크 활용법 포함.',
+    category: 'programming',
+    level: 'beginner',
+    author: 'JamesCompany',
+    date: '2024-02-08',
+    readTime: '25분',
+    views: 892,
+    downloads: 345,
+    topics: ['Python', 'Selenium', 'pytest', '자동화'],
+    hasCode: true,
+    isPremium: false
+  },
+  {
+    id: '5',
+    title: '성능 테스팅 베스트 프랙티스',
+    description: 'JMeter를 활용한 성능 테스팅 전략과 결과 분석 방법. 실제 사례를 통한 문제 해결 접근법.',
+    category: 'best-practices',
+    level: 'advanced',
+    author: 'JamesCompany',
+    date: '2024-02-05',
+    readTime: '30분',
+    views: 234,
+    downloads: 78,
+    topics: ['성능테스팅', 'JMeter', '부하테스트', '분석'],
+    hasCode: true,
+    isPremium: true
+  }
+];
+
+const StudyNote = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
+
+  const categories = [
+    { id: 'all', label: '전체' },
+    { id: 'testing-basics', label: '테스팅 기초' },
+    { id: 'automation', label: '자동화' },
+    { id: 'tools', label: '도구' },
+    { id: 'best-practices', label: '베스트 프랙티스' },
+    { id: 'programming', label: '프로그래밍' }
+  ];
+
+  const levels = [
+    { id: 'all', label: '전체' },
+    { id: 'beginner', label: '초급' },
+    { id: 'intermediate', label: '중급' },
+    { id: 'advanced', label: '고급' }
+  ];
+
+  const filteredNotes = studyNotes.filter(note => {
+    const categoryMatch = selectedCategory === 'all' || note.category === selectedCategory;
+    const levelMatch = selectedLevel === 'all' || note.level === selectedLevel;
+    return categoryMatch && levelMatch;
+  });
+
+  const getLevelBadge = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return 'bg-green-100 text-green-800';
+      case 'intermediate':
+        return 'bg-blue-100 text-blue-800';
+      case 'advanced':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getLevelText = (level: string) => {
+    switch (level) {
+      case 'beginner':
+        return '초급';
+      case 'intermediate':
+        return '중급';
+      case 'advanced':
+        return '고급';
+      default:
+        return level;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+            <FileText className="w-8 h-8 mr-3 text-green-600" />
+            학습 자료
+          </h1>
+          <p className="text-gray-600">QA 역량 향상을 위한 체계적인 학습 콘텐츠</p>
+        </div>
+
+        {/* 필터 */}
+        <div className="mb-8 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === category.id
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">난이도</label>
+            <div className="flex flex-wrap gap-2">
+              {levels.map(level => (
+                <button
+                  key={level.id}
+                  onClick={() => setSelectedLevel(level.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedLevel === level.id
+                      ? 'bg-green-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {level.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+--- src/pages/insights/Insights.tsx ---
+// src/pages/insights/Insights.tsx
+
+
+interface InsightItem {
+  id: string;
+  category: 'notice' | 'story' | 'studynote' | 'interview';
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime?: string;
+  author?: string;
+  isPinned?: boolean;
+}
+
+const recentInsights: InsightItem[] = [
+  {
+    id: '1',
+    category: 'notice',
+    title: 'JamesCompany 서비스 업데이트 안내',
+    excerpt: '새로운 기능이 추가되었습니다. 커피챗 서비스가 정식 오픈했습니다.',
+    date: '2024-02-20',
+    isPinned: true
+  },
+  {
+    id: '2',
+    category: 'story',
+    title: '1인 QA로 살아남기: 스타트업에서의 QA 역할',
+    excerpt: '작은 팀에서 QA 엔지니어로 일하며 겪은 경험과 노하우를 공유합니다.',
+    date: '2024-02-18',
+    readTime: '5분',
+    author: '김철수'
+  },
+  {
+    id: '3',
+    category: 'studynote',
+    title: 'Cypress E2E 테스트 자동화 완벽 가이드',
+    excerpt: 'Cypress를 활용한 End-to-End 테스트 자동화 구축 방법을 단계별로 설명합니다.',
+    date: '2024-02-15',
+    readTime: '15분'
+  },
+  {
+    id: '4',
+    category: 'interview',
+    title: '테스트 케이스 작성 과제 해결 전략',
+    excerpt: 'QA 엔지니어 면접에서 자주 나오는 테스트 케이스 작성 과제를 효과적으로 해결하는 방법',
+    date: '2024-02-12',
+    readTime: '10분'
+  }
+];
+
+const categories = [
+  {
+    id: 'notice',
+    title: '공지사항',
+    description: '서비스 업데이트 및 중요 공지사항',
+    icon: Bell,
+    link: '/insights/notice',
+    color: 'bg-red-500'
+  },
+  {
+    id: 'story',
+    title: '스토리',
+    description: 'QA 전문가들의 경험과 인사이트',
+    icon: BookOpen,
+    link: '/insights/story',
+    color: 'bg-blue-500'
+  },
+  {
+    id: 'studynote',
+    title: '학습 자료',
+    description: 'QA 역량 향상을 위한 학습 콘텐츠',
+    icon: FileText,
+    link: '/insights/study-note',
+    color: 'bg-green-500'
+  },
+  {
+    id: 'interview',
+    title: '인터뷰 준비',
+    description: 'QA 취업 및 이직을 위한 면접 가이드',
+    icon: Users,
+    link: '/insights/interview',
+    color: 'bg-purple-500'
+  }
+];
+
+const Insights = () => {
+  const getCategoryInfo = (category: string) => {
+    return categories.find(cat => cat.id === category);
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const info = getCategoryInfo(category);
+    if (!info) return 'bg-gray-100 text-gray-800';
+    
+    switch (category) {
+      case 'notice':
+        return 'bg-red-100 text-red-800';
+      case 'story':
+        return 'bg-blue-100 text-blue-800';
+      case 'studynote':
+        return 'bg-green-100 text-green-800';
+      case 'interview':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            인사이트
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            QA 전문가들의 지식과 경험을 공유하고 함께 성장하세요
+          </p>
+        </div>
+
+        {/* 카테고리 그리드 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {categories.map((category) => {
+            const Icon = category.icon;
+            return (
+              <Link
+                key={category.id}
+                to={category.link}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 group"
+              >
+                <div className={`${category.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {category.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  {category.description}
+                </p>
+                <div className="flex items-center text-blue-600 text-sm font-medium">
+                  <span>바로가기</span>
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* 최근 게시물 */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">최근 게시물</h2>
+          <div className="divide-y divide-gray-200">
+            {recentInsights.map((insight) => {
+              const categoryInfo = getCategoryInfo(insight.category);
+              return (
+                <div key={insight.id} className="py-4 hover:bg-gray-50 -mx-6 px-6 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center mb-2">
+                        {insight.isPinned && (
+                          <span className="text-red-500 mr-2" title="고정됨">📌</span>
+                        )}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryBadge(insight.category)}`}>
+                          {categoryInfo?.title}
+                        </span>
+                        <span className="mx-2 text-gray-400">•</span>
+                        <time className="text-sm text-gray-500">
+                          {new Date(insight.date).toLocaleDateString('ko-KR')}
+                        </time>
+                        {insight.readTime && (
+                          <>
+                            <span className="mx-2 text-gray-400">•</span>
+                            <span className="text-sm text-gray-500">{insight.readTime}</span>
+                          </>
+                        )}
+                      </div>
+                      <Link 
+                        to={`${categoryInfo?.link}/${insight.id}`}
+                        className="group"
+                      >
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors mb-1">
+                          {insight.title}
+                        </h3>
+                        <p className="text-gray-600 line-clamp-2">
+                          {insight.excerpt}
+                        </p>
+                      </Link>
+                      {insight.author && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          작성자: {insight.author}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+
+--- src/pages/insights/Interview.tsx ---
+// src/pages/insights/Interview.tsx
+
+
+interface InterviewContent {
+  id: string;
+  title: string;
+  description: string;
+  category: 'questions' | 'case-study' | 'coding' | 'portfolio' | 'tips';
+  difficulty: 'junior' | 'mid' | 'senior';
+  topics: string[];
+  estimatedTime?: string;
+  views: number;
+  rating: number;
+  isPremium: boolean;
+  questions?: string[];
+}
+
+const interviewContents: InterviewContent[] = [
+  {
+    id: '1',
+    title: 'QA 엔지니어 면접 질문 TOP 50',
+    description: '실제 면접에서 자주 나오는 QA 관련 질문과 모범 답변을 정리했습니다.',
+    category: 'questions',
+    difficulty: 'junior',
+    topics: ['기본개념', '테스트설계', '버그리포팅'],
+    views: 2341,
+    rating: 4.8,
+    isPremium: false,
+    questions: [
+      '테스트와 디버깅의 차이점은 무엇인가요?',
+      '블랙박스 테스팅과 화이트박스 테스팅의 차이점을 설명해주세요.',
+      '좋은 테스트 케이스의 조건은 무엇인가요?',
+      '버그의 라이프사이클을 설명해주세요.'
+    ]
+  },
+  {
+    id: '2',
+    title: '테스트 케이스 작성 실습 과제',
+    description: '실제 면접에서 주어지는 테스트 케이스 작성 과제와 해결 방법을 다룹니다.',
+    category: 'case-study',
+    difficulty: 'mid',
+    topics: ['테스트케이스', '시나리오설계', '엣지케이스'],
+    estimatedTime: '30분',
+    views: 1567,
+    rating: 4.9,
+    isPremium: false
+  },
+  {
+    id: '3',
+    title: 'QA 자동화 코딩 테스트 대비',
+    description: 'Selenium, Cypress를 활용한 자동화 코딩 테스트 문제와 해설',
+    category: 'coding',
+    difficulty: 'mid',
+    topics: ['Selenium', 'Python', 'JavaScript', '자동화'],
+    estimatedTime: '60분',
+    views: 1234,
+    rating: 4.7,
+    isPremium: true
+  },
+  {
+    id: '4',
+    title: '포트폴리오로 어필하는 QA 역량',
+    description: 'QA 포트폴리오 구성 방법과 GitHub 프로젝트 관리 팁',
+    category: 'portfolio',
+    difficulty: 'junior',
+    topics: ['포트폴리오', 'GitHub', '프로젝트'],
+    views: 987,
+    rating: 4.6,
+    isPremium: false
+  },
+  {
+    id: '5',
+    title: '시니어 QA 면접 전략',
+    description: '리더십, 프로세스 개선, 전략 수립 관련 심화 질문 대비',
+    category: 'tips',
+    difficulty: 'senior',
+    topics: ['리더십', '전략', '프로세스'],
+    views: 654,
+    rating: 4.9,
+    isPremium: true
+  },
+  {
+    id: '6',
+    title: 'API 테스팅 기술 면접 가이드',
+    description: 'REST API, GraphQL 테스팅 관련 기술 면접 준비',
+    category: 'questions',
+    difficulty: 'mid',
+    topics: ['API', 'Postman', 'HTTP', 'REST'],
+    views: 876,
+    rating: 4.7,
+    isPremium: false
+  }
+];
+
+const Interview = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
+  const [expandedContent, setExpandedContent] = useState<string | null>(null);
+
+  const categories = [
+    { id: 'all', label: '전체', icon: null },
+    { id: 'questions', label: '면접 질문', icon: Target },
+    { id: 'case-study', label: '케이스 스터디', icon: FileText },
+    { id: 'coding', label: '코딩 테스트', icon: Code },
+    { id: 'portfolio', label: '포트폴리오', icon: Briefcase },
+    { id: 'tips', label: '면접 팁', icon: TrendingUp }
+  ];
+
+  const difficulties = [
+    { id: 'all', label: '전체' },
+    { id: 'junior', label: '주니어' },
+    { id: 'mid', label: '미들' },
+    { id: 'senior', label: '시니어' }
+  ];
+
+  const filteredContents = interviewContents.filter(content => {
+    const categoryMatch = selectedCategory === 'all' || content.category === selectedCategory;
+    const difficultyMatch = selectedDifficulty === 'all' || content.difficulty === selectedDifficulty;
+    return categoryMatch && difficultyMatch;
+  });
+
+  const getDifficultyBadge = (difficulty: string) => {
+    switch (difficulty) {
+      case 'junior':
+        return 'bg-green-100 text-green-800';
+      case 'mid':
+        return 'bg-blue-100 text-blue-800';
+      case 'senior':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const toggleContent = (contentId: string) => {
+    setExpandedContent(expandedContent === contentId ? null : contentId);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+            <Users className="w-8 h-8 mr-3 text-purple-600" />
+            인터뷰 준비
+          </h1>
+          <p className="text-gray-600">QA 취업과 이직을 위한 면접 준비 가이드</p>
+        </div>
+
+        {/* 통계 카드 */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <Target className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">200+</p>
+            <p className="text-sm text-gray-600">면접 질문</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <FileText className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">50+</p>
+            <p className="text-sm text-gray-600">케이스 스터디</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <Code className="w-8 h-8 text-green-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">30+</p>
+            <p className="text-sm text-gray-600">코딩 문제</p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 text-center">
+            <Star className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-gray-900">4.8</p>
+            <p className="text-sm text-gray-600">평균 평점</p>
+          </div>
+        </div>
+
+        {/* 필터 */}
+        <div className="mb-8 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
+                    selectedCategory === category.id
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {category.icon && <category.icon className="w-4 h-4" />}
+                  {category.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">난이도</label>
+            <div className="flex flex-wrap gap-2">
+              {difficulties.map(difficulty => (
+
+--- src/pages/insights/Story.tsx ---
+// src/pages/insights/Story.tsx
+
+
+interface Story {
+  id: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  authorRole: string;
+  date: string;
+  readTime: string;
+  likes: number;
+  comments: number;
+  tags: string[];
+  imageUrl?: string;
+}
+
+const stories: Story[] = [
+  {
+    id: '1',
+    title: '1인 QA로 살아남기: 스타트업에서의 QA 역할',
+    excerpt: '작은 팀에서 QA 엔지니어로 일하며 겪은 경험과 노하우를 공유합니다. 혼자서 모든 테스트를 담당하면서 배운 효율적인 업무 방법들.',
+    content: '스타트업에서 1인 QA로 일한다는 것은...',
+    author: '김철수',
+    authorRole: 'QA Lead @ 스타트업A',
+    date: '2024-02-18',
+    readTime: '5분',
+    likes: 42,
+    comments: 8,
+    tags: ['1인QA', '스타트업', '업무효율화']
+  },
+  {
+    id: '2',
+    title: '테스트 자동화 도입기: 0에서 CI/CD까지',
+    excerpt: '수동 테스트만 하던 팀에 테스트 자동화를 도입하고 CI/CD 파이프라인을 구축한 경험을 공유합니다.',
+    content: '우리 팀은 처음에는 모든 테스트를 수동으로...',
+    author: '이영희',
+    authorRole: 'SDET @ 테크기업B',
+    date: '2024-02-15',
+    readTime: '8분',
+    likes: 67,
+    comments: 12,
+    tags: ['자동화', 'CI/CD', 'DevOps']
+  },
+  {
+    id: '3',
+    title: '개발자에서 QA로 전직한 이유',
+    excerpt: '5년차 백엔드 개발자였던 제가 QA 엔지니어로 전직을 결심한 이유와 그 과정을 솔직하게 이야기합니다.',
+    content: '개발자로 일하면서 항상 품질에 대한 관심이...',
+    author: '박민수',
+    authorRole: 'QA Engineer @ 금융사C',
+    date: '2024-02-10',
+    readTime: '6분',
+    likes: 89,
+    comments: 23,
+    tags: ['커리어전환', 'QA입문', '경험공유']
+  },
+  {
+    id: '4',
+    title: '애자일 환경에서 QA의 역할 재정의',
+    excerpt: '전통적인 워터폴에서 애자일로 전환하면서 QA의 역할이 어떻게 변화했는지, 그리고 어떻게 적응했는지 공유합니다.',
+    content: '애자일 방법론이 도입되면서 QA의 역할은...',
+    author: '정수진',
+    authorRole: 'Agile QA Coach',
+    date: '2024-02-05',
+    readTime: '7분',
+    likes: 55,
+    comments: 15,
+    tags: ['애자일', 'QA역할', '프로세스개선']
+  }
+];
+
+const Story = () => {
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+
+  const allTags = Array.from(new Set(stories.flatMap(story => story.tags)));
+  
+  const filteredStories = selectedTag
+    ? stories.filter(story => story.tags.includes(selectedTag))
+    : stories;
+
+  const handleStoryClick = (story: Story) => {
+    setSelectedStory(story);
+  };
+
+  const handleBackToList = () => {
+    setSelectedStory(null);
+  };
+
+  if (selectedStory) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={handleBackToList}
+            className="mb-6 text-blue-600 hover:text-blue-700 font-medium flex items-center"
+          >
+            ← 목록으로 돌아가기
+          </button>
+
+          <article className="bg-white rounded-lg shadow-lg p-8">
+            <header className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">{selectedStory.title}</h1>
+              
+              <div className="flex items-center justify-between flex-wrap gap-4 text-sm text-gray-600 mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center">
+                    <User className="w-4 h-4 mr-1" />
+                    <span>{selectedStory.author}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    <span>{new Date(selectedStory.date).toLocaleDateString('ko-KR')}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="w-4 h-4 mr-1" />
+                    <span>{selectedStory.readTime}</span>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-gray-600 text-sm mb-4">{selectedStory.authorRole}</p>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {selectedStory.tags.map(tag => (
+                  <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </header>
+
+            <div className="prose max-w-none mb-8">
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">{selectedStory.excerpt}</p>
+              <p className="text-gray-600">{selectedStory.content}</p>
+              <p className="text-gray-600 mt-4">[전체 내용은 준비 중입니다...]</p>
+            </div>
+
+            <footer className="border-t pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors">
+                    <Heart className="w-5 h-5" />
+                    <span>{selectedStory.likes}</span>
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                    <MessageCircle className="w-5 h-5" />
+                    <span>{selectedStory.comments}</span>
+                  </button>
+                </div>
+                <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors">
+                  <Share2 className="w-5 h-5" />
+                  <span>공유</span>
+                </button>
+              </div>
+            </footer>
+          </article>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+            <BookOpen className="w-8 h-8 mr-3 text-blue-600" />
+            스토리
+          </h1>
+          <p className="text-gray-600">QA 전문가들의 경험과 인사이트를 만나보세요</p>
+        </div>
+
+        {/* 태그 필터 */}
+        <div className="mb-8">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                !selectedTag
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              전체
+            </button>
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedTag === tag
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                #{tag}
+
+--- src/pages/insights/Notice.tsx ---
+// src/pages/insights/Notice.tsx
+
+
+interface Notice {
+  id: string;
+  title: string;
+  content: string;
+  category: 'service' | 'update' | 'event' | 'maintenance';
+  date: string;
+  isPinned: boolean;
+  isImportant: boolean;
+}
+
+const notices: Notice[] = [
+  {
+    id: '1',
+    title: 'JamesCompany 커피챗 서비스 정식 오픈',
+    content: '안녕하세요, JamesCompany입니다. 많은 분들이 기다려주신 커피챗 서비스가 정식으로 오픈했습니다. QA 전문가들과 1:1 멘토링을 통해 성장의 기회를 만들어보세요.',
+    category: 'service',
+    date: '2024-02-20',
+    isPinned: true,
+    isImportant: true
+  },
+  {
+    id: '2',
+    title: '시스템 정기 점검 안내 (2/25)',
+    content: '더 나은 서비스 제공을 위해 시스템 점검을 진행합니다. 점검 시간: 2024년 2월 25일 02:00 ~ 06:00 (4시간)',
+    category: 'maintenance',
+    date: '2024-02-18',
+    isPinned: true,
+    isImportant: false
+  },
+  {
+    id: '3',
+    title: 'Bug Bounty Arena 베타 테스트 참여자 모집',
+    content: 'Bug Bounty Arena 서비스의 베타 테스트에 참여하실 분들을 모집합니다. 선착순 100명에게 특별 혜택을 제공합니다.',
+    category: 'event',
+    date: '2024-02-15',
+    isPinned: false,
+    isImportant: false
+  },
+  {
+    id: '4',
+    title: 'QAuto 서비스 업데이트 v2.0',
+    content: 'QAuto 서비스가 v2.0으로 업데이트되었습니다. 새로운 기능: API 테스트 자동화, 리포트 템플릿 추가, 성능 개선',
+    category: 'update',
+    date: '2024-02-10',
+    isPinned: false,
+    isImportant: false
+  },
+  {
+    id: '5',
+    title: '개인정보처리방침 변경 안내',
+    content: '개인정보처리방침이 일부 변경되었습니다. 변경 사항은 2024년 3월 1일부터 적용됩니다.',
+    category: 'service',
+    date: '2024-02-05',
+    isPinned: false,
+    isImportant: true
+  }
+];
+
+const Notice = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [expandedNotice, setExpandedNotice] = useState<string | null>(null);
+
+  const filteredNotices = selectedCategory === 'all'
+    ? notices
+    : notices.filter(notice => notice.category === selectedCategory);
+
+  const getCategoryBadge = (category: string) => {
+    switch (category) {
+      case 'service':
+        return { bg: 'bg-blue-100', text: 'text-blue-800', label: '서비스' };
+      case 'update':
+        return { bg: 'bg-green-100', text: 'text-green-800', label: '업데이트' };
+      case 'event':
+        return { bg: 'bg-purple-100', text: 'text-purple-800', label: '이벤트' };
+      case 'maintenance':
+        return { bg: 'bg-orange-100', text: 'text-orange-800', label: '점검' };
+      default:
+        return { bg: 'bg-gray-100', text: 'text-gray-800', label: category };
+    }
+  };
+
+  const toggleNotice = (noticeId: string) => {
+    setExpandedNotice(expandedNotice === noticeId ? null : noticeId);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center">
+            <Bell className="w-8 h-8 mr-3 text-blue-600" />
+            공지사항
+          </h1>
+          <p className="text-gray-600">JamesCompany의 새로운 소식과 업데이트를 확인하세요</p>
+        </div>
+
+        {/* 필터 */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedCategory === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              전체
+            </button>
+            {['service', 'update', 'event', 'maintenance'].map((category) => {
+              const badge = getCategoryBadge(category);
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedCategory === category
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {badge.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 공지사항 목록 */}
+        <div className="space-y-4">
+          {filteredNotices.map((notice) => {
+            const badge = getCategoryBadge(notice.category);
+            const isExpanded = expandedNotice === notice.id;
+
+            return (
+              <div
+                key={notice.id}
+                className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                  notice.isPinned ? 'ring-2 ring-blue-500' : ''
+                }`}
+              >
+                <div
+                  className="p-6 cursor-pointer"
+                  onClick={() => toggleNotice(notice.id)}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center flex-wrap gap-2">
+                      {notice.isPinned && (
+                        <Pin className="w-4 h-4 text-blue-600" />
+                      )}
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+                        {badge.label}
+                      </span>
+                      {notice.isImportant && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          중요
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      {new Date(notice.date).toLocaleDateString('ko-KR')}
+                    </div>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 flex items-center justify-between">
+                    {notice.title}
+                    <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </h3>
+
+                  {isExpanded && (
+                    <div className="mt-4 text-gray-600 whitespace-pre-line">
+                      {notice.content}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {filteredNotices.length === 0 && (
+          <div className="text-center py-12">
+            <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">해당 카테고리의 공지사항이 없습니다.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Notice;
+
+===== RELATED TYPES =====
+
+===== API CALLS =====
+
+===== STATE MANAGEMENT =====
+
+===== CONFIGURATIONS =====
+
+===== SUMMARY =====
+Components found:
+       5
+
+API endpoints used:

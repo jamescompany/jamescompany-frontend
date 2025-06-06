@@ -8,12 +8,10 @@ interface User {
   id: string
   email: string
   name: string
-  role: 'user' | 'admin'  // 기존 구조 유지
-  imwebId?: string
-  membership_tier?: string
-  // 멘토 관련 추가 필드
-  mentorId?: number  // 멘토로 등록된 경우 멘토 ID
-  mentorStatus?: 'pending' | 'approved' | 'rejected'  // 멘토 승인 상태
+  role: 'user' | 'admin'
+  is_admin?: boolean
+  mentorStatus?: 'pending' | 'approved' | 'rejected'
+  mentorId?: number
 }
 
 interface AuthState {
@@ -26,7 +24,7 @@ interface AuthState {
   logout: () => void
   checkAuth: () => Promise<void>
   setAuth: (isAuthenticated: boolean, user?: User | null, token?: string | null) => void
-  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void  // 멘토 상태 업데이트
+  updateMentorStatus: (mentorStatus: 'pending' | 'approved' | 'rejected', mentorId?: number) => void
 }
 
 interface SignupData {
@@ -51,7 +49,8 @@ export const useAuthStore = create<AuthState>()(
 
       login: async (email: string, password: string) => {
         try {
-          const response = await api.post('/auth/login', { 
+          // /api/v1/auth/login으로 수정 (api.ts의 baseURL이 이미 http://localhost:8000이므로)
+          const response = await api.post('/api/v1/auth/login', { 
             email, 
             password 
           });
@@ -77,8 +76,8 @@ export const useAuthStore = create<AuthState>()(
 
       signup: async (data: SignupData) => {
         try {
-          // 회원가입 - /api/v1 경로 추가
-          const signupResponse = await api.post('/auth/register', data);
+          // /api/v1/auth/register로 수정
+          const signupResponse = await api.post('/api/v1/auth/register', data);
           console.log('Signup response:', signupResponse);
 
           // 회원가입 성공 후 자동 로그인
@@ -98,7 +97,7 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithImweb: async (code: string) => {
         try {
-          const response = await api.post<LoginResponse>('/auth/imweb/callback', {
+          const response = await api.post<LoginResponse>('/api/v1/auth/imweb/callback', {
             code,
           })
 
@@ -131,7 +130,7 @@ export const useAuthStore = create<AuthState>()(
         })
 
         // 로그아웃 API 호출 (선택사항)
-        api.post('/auth/logout').catch(console.error)
+        api.post('/api/v1/auth/logout').catch(console.error)
       },
 
       checkAuth: async () => {
@@ -149,17 +148,17 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await api.get<User>('/users/me')
+          const response = await api.get<User>('/api/v1/users/me')
           
           // 멘토 상태 확인 (선택사항)
           try {
-            const mentorResponse = await api.get('/mentors/my-status')
+            const mentorResponse = await api.get('/api/v1/mentors/my-status')
             if (mentorResponse.data) {
-              response.data.mentorId = mentorResponse.data.mentorId
               response.data.mentorStatus = mentorResponse.data.status
+              response.data.mentorId = mentorResponse.data.id
             }
           } catch (mentorError) {
-            // 멘토가 아닌 경우 에러 무시
+            // 멘토가 아닌 경우 무시
           }
           
           set({
@@ -204,7 +203,7 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,
-        token: state.token  // token도 persist에 추가
+        token: state.token
       }),
     }
   )

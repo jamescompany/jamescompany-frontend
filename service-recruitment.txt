@@ -1,0 +1,2272 @@
+Generated at: Fri Jun  6 14:33:52 KST 2025
+======================================
+
+===== PAGE COMPONENTS =====
+--- src/pages/services/recruitment/index.tsx ---
+// src/pages/services/recruitment/index.tsx
+
+
+const RecruitmentMainPage = () => {
+  const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState(0);
+
+  const sections = [
+    { id: 'hero', component: RecruitmentHero },
+    { id: 'intro', component: ViewIntro },
+    { id: 'culture', component: ViewCulture },
+    { id: 'mission', component: ViewMission },
+    { id: 'rewards', component: ViewRewards },
+    { id: 'action', component: ViewAction }
+  ];
+
+  const handleViewJobListings = () => {
+    navigate('/services/recruitment/jobs');
+  };
+
+  const handlePostJob = () => {
+    navigate('/services/recruitment/post');
+  };
+
+  return (
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      {/* Navigation Dots */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50 hidden lg:block">
+        <div className="space-y-4">
+          {sections.map((section, index) => (
+            <button
+              key={section.id}
+              onClick={() => {
+                setActiveSection(index);
+                document.getElementById(section.id)?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                activeSection === index
+                  ? 'bg-white scale-125'
+                  : 'bg-white/30 hover:bg-white/60'
+              }`}
+              aria-label={`Go to ${section.id} section`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Sections */}
+      {sections.map((section) => {
+        const Component = section.component;
+        return (
+          <section
+            key={section.id}
+            id={section.id}
+            className="relative min-h-screen flex items-center justify-center"
+          >
+            <Component
+              onViewJobs={handleViewJobListings}
+              onPostJob={handlePostJob}
+            />
+          </section>
+        );
+      })}
+
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-8 left-8 z-50 flex gap-4">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleViewJobListings}
+          className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 rounded-full font-semibold flex items-center gap-2 shadow-lg"
+        >
+          <Briefcase className="w-5 h-5" />
+          채용공고 보기
+          <ArrowRight className="w-4 h-4" />
+        </motion.button>
+      </div>
+    </div>
+  );
+};
+
+export default RecruitmentMainPage;
+
+--- src/pages/services/recruitment/RecruitmentPost.tsx ---
+// src/pages/services/recruitment/RecruitmentPost.tsx
+
+  ArrowLeft, 
+  Upload,
+  Check,
+  Info,
+  Sparkles,
+  Plus,
+  X,
+  Users,
+  Monitor,
+  Server,
+  Briefcase,
+  Shield,
+  Code,
+  Cloud,
+  Bug,
+  UserCheck
+} from 'lucide-react';
+
+interface TeamMember {
+  role: string;
+  count: number;
+  icon: React.ReactNode;
+}
+
+interface FormData {
+  // 기본 정보
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  companyIntro: string;
+  
+  // 채용 정보 (구조화된 데이터)
+  position: string;
+  mainTasks: string[];
+  preferredQualifications: string[];
+  tools: string[];
+  teamMembers: TeamMember[];
+  
+  // 급여 및 복지 (구조화된 데이터)
+  salaryMin: string;
+  salaryMax: string;
+  benefits: string[];
+  
+  // 근무 정보
+  workType: 'onsite' | 'remote' | 'hybrid';
+  location: string;
+  
+  // 지원 방법
+  applicationUrl: string;
+  applicationEmail: string;
+  
+  // 게시 옵션
+  packageType: 'basic' | 'standard' | 'premium';
+  postingDuration: string;
+  includeCelebrationBonus: boolean;
+  
+  // 기타
+  uploadMethod: 'form' | 'word' | 'googledocs';
+  uploadUrl: string;
+  memo: string;
+}
+
+const packages = [
+  {
+    type: 'basic' as const,
+    name: '기본형',
+    price: '₩50,000',
+    features: [
+      'QA 전문 포맷 적용',
+      '슬랙/뉴스레터 노출',
+      '기본 통계 제공'
+    ]
+  },
+  {
+    type: 'standard' as const,
+    name: '스탠다드형',
+    price: '₩100,000',
+    features: [
+      '기본형 혜택 모두 포함',
+      '뉴스레터 상단 노출',
+      '성과형 축하금 적용 가능',
+      '상세 통계 리포트'
+    ],
+    popular: true
+  },
+  {
+    type: 'premium' as const,
+    name: '프리미엄형',
+    price: '₩350,000',
+    features: [
+      '스탠다드형 혜택 모두 포함',
+      '메인 페이지 상단 고정',
+      '추천 공고 섹션 포함',
+      '합격 축하금 기본 포함',
+      '전담 매니저 지원'
+    ]
+  }
+];
+
+const teamRoles = [
+  { role: 'QA', icon: <Bug className="w-5 h-5" /> },
+  { role: '프론트엔드', icon: <Monitor className="w-5 h-5" /> },
+  { role: '백엔드', icon: <Server className="w-5 h-5" /> },
+  { role: 'PO', icon: <UserCheck className="w-5 h-5" /> },
+  { role: 'PM', icon: <Briefcase className="w-5 h-5" /> },
+  { role: 'DevOps', icon: <Cloud className="w-5 h-5" /> },
+  { role: '보안', icon: <Shield className="w-5 h-5" /> },
+  { role: '개발', icon: <Code className="w-5 h-5" /> },
+  { role: '기타', icon: <Users className="w-5 h-5" /> }
+];
+
+const RecruitmentPost = () => {
+  const navigate = useNavigate();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    companyName: '',
+    contactName: '',
+    contactEmail: '',
+    companyIntro: '',
+    position: '',
+    mainTasks: [''],
+    preferredQualifications: [''],
+    tools: [''],
+    teamMembers: [],
+    salaryMin: '',
+    salaryMax: '',
+    benefits: [''],
+    workType: 'onsite',
+    location: '',
+    applicationUrl: '',
+    applicationEmail: '',
+    packageType: 'standard',
+    postingDuration: '30',
+    includeCelebrationBonus: false,
+    uploadMethod: 'form',
+    uploadUrl: '',
+    memo: ''
+  });
+
+  const totalSteps = 5;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  // 배열 항목 추가
+  const addArrayItem = (field: 'mainTasks' | 'preferredQualifications' | 'tools' | 'benefits') => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: [...prev[field], '']
+    }));
+  };
+
+  // 배열 항목 제거
+  const removeArrayItem = (field: 'mainTasks' | 'preferredQualifications' | 'tools' | 'benefits', index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index)
+    }));
+  };
+
+  // 배열 항목 업데이트
+  const updateArrayItem = (field: 'mainTasks' | 'preferredQualifications' | 'tools' | 'benefits', index: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: prev[field].map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  // 팀 멤버 추가/제거
+  const toggleTeamMember = (role: string, icon: React.ReactNode) => {
+    setFormData(prev => {
+      const existing = prev.teamMembers.find(tm => tm.role === role);
+      if (existing) {
+        return {
+          ...prev,
+          teamMembers: prev.teamMembers.filter(tm => tm.role !== role)
+        };
+      } else {
+        return {
+          ...prev,
+          teamMembers: [...prev.teamMembers, { role, count: 1, icon }]
+        };
+      }
+    });
+  };
+
+  // 팀 멤버 수 업데이트
+  const updateTeamMemberCount = (role: string, count: number) => {
+    if (count < 1) return;
+    setFormData(prev => ({
+      ...prev,
+      teamMembers: prev.teamMembers.map(tm => 
+
+--- src/pages/services/recruitment/QARecruitment.tsx ---
+// src/pages/services/recruitment/QARecruitment.tsx
+
+
+const QARecruitment = () => {
+  const navigate = useNavigate();
+  const { userLocation } = useLocationStore();
+  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
+  const [currentSection, setCurrentSection] = useState(0);
+  const sectionsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  // 프리미엄 회사만 필터링
+  const premiumJobs = sampleJobs.filter(job => job.packageType === 'premium');
+
+  // 섹션 스크롤 감지
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+      
+      sectionsRef.current.forEach((section, index) => {
+        if (section) {
+          const { offsetTop, offsetHeight } = section;
+          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+            setCurrentSection(index);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (index: number) => {
+    sectionsRef.current[index]?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <div className="bg-black text-white overflow-x-hidden">
+      {/* Navigation Dots */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50 hidden lg:block">
+        <div className="space-y-4">
+          {['프리미엄 채용', ...premiumJobs.map(job => job.companyName), '전체 보기'].map((name, index) => (
+            <button
+              key={index}
+              onClick={() => scrollToSection(index)}
+              className={`group relative flex items-center justify-end transition-all duration-300 ${
+                currentSection === index ? 'scale-125' : ''
+              }`}
+            >
+              <span className={`absolute right-8 whitespace-nowrap text-sm font-medium transition-all duration-300 ${
+                currentSection === index ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+              } group-hover:opacity-100 group-hover:translate-x-0`}>
+                {name}
+              </span>
+              <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentSection === index 
+                  ? 'bg-white scale-100' 
+                  : 'bg-white/30 scale-75 hover:bg-white/60'
+              }`} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <section
+        ref={(el) => {
+          if (el) sectionsRef.current[0] = el as HTMLDivElement;
+        }}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      >
+        {/* Animated Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+          <div className="absolute top-20 left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+        </div>
+
+        {/* Particle Effect */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(50)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-float"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 10}s`,
+                animationDuration: `${10 + Math.random() * 20}s`,
+              }}
+            >
+              <div className="w-1 h-1 bg-white/30 rounded-full" />
+            </div>
+          ))}
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 text-center px-4">
+          <div className="mb-8 inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full">
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+            <span className="text-sm font-medium">프리미엄 QA 채용 쇼케이스</span>
+          </div>
+          
+          <h1 className="text-7xl md:text-9xl font-black mb-6 tracking-tighter">
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+              PREMIUM
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent text-5xl md:text-7xl">
+              QA CAREERS
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+            엄선된 프리미엄 기업들의 특별한 QA 포지션을 소개합니다
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-6 mb-12">
+            <div className="bg-white/10 backdrop-blur-sm px-8 py-4 rounded-2xl">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                {premiumJobs.length}+
+              </div>
+              <div className="text-sm text-gray-400">프리미엄 포지션</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm px-8 py-4 rounded-2xl">
+              <div className="text-3xl font-bold bg-gradient-to-r from-pink-400 to-blue-400 bg-clip-text text-transparent">
+                98%
+              </div>
+              <div className="text-sm text-gray-400">채용 성공률</div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm px-8 py-4 rounded-2xl">
+              <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                ₩5.8M
+              </div>
+              <div className="text-sm text-gray-400">평균 연봉</div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => scrollToSection(1)}
+            className="animate-bounce bg-white/10 backdrop-blur-sm p-4 rounded-full hover:bg-white/20 transition-all duration-300"
+          >
+            <ArrowDown className="w-6 h-6" />
+          </button>
+        </div>
+      </section>
+
+      {/* Job Sections */}
+      {premiumJobs.map((job, index) => {
+        const theme = getTheme(job.companyName);
+        let distance: number | null = null;
+        
+        if (userLocation?.coordinates && job.coordinates) {
+          distance = calculateDistance(
+            userLocation.coordinates.lat,
+            userLocation.coordinates.lng,
+            job.coordinates.lat,
+            job.coordinates.lng
+          );
+        }
+
+        return (
+          <section
+            key={job.id}
+            ref={(el) => {
+              if (el) sectionsRef.current[index + 1] = el as HTMLDivElement;
+            }}
+            className="relative min-h-screen flex items-center overflow-hidden"
+            style={{ background: theme.bgPattern }}
+          >
+            {/* Background Gradient */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${theme.bgGradient}`} />
+            
+            {/* Floating Elements */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className={`absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-br ${theme.gradient} rounded-full blur-3xl opacity-20 animate-pulse`} />
+              <div className={`absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-br ${theme.gradient} rounded-full blur-3xl opacity-20 animate-pulse animation-delay-2000`} />
+            </div>
+
+            {/* Content Grid */}
+            <div className="relative z-10 max-w-7xl mx-auto px-4 py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left Column - Company Story */}
+              <div className="space-y-8">
+                <div className="inline-flex items-center gap-3 text-5xl">
+                  <span>{theme.icon}</span>
+                  <h2 className="font-black tracking-tight">{job.companyName}</h2>
+                </div>
+
+                <div className="space-y-6">
+                  <h3 className={`text-4xl md:text-5xl font-bold leading-tight bg-gradient-to-r ${theme.gradient} bg-clip-text text-transparent`}>
+                    {job.position}
+                  </h3>
+                  
+                  <p className="text-xl text-gray-300 leading-relaxed">
+                    {job.summary}
+                  </p>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-4 mt-8">
+                    <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+
+--- src/pages/services/recruitment/QARecruitmentWithMap.tsx ---
+// src/pages/services/recruitment/QARecruitmentWithMap.tsx
+
+
+const QARecruitmentWithMap = () => {
+  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [filterType, setFilterType] = useState<'all' | 'remote' | 'onsite' | 'hybrid'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // 필터링된 채용공고
+  const filteredJobs = sampleJobs.filter(job => {
+    const matchesType = filterType === 'all' || job.workType === filterType;
+    const matchesSearch = searchQuery === '' || 
+      job.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesType && matchesSearch;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">전체 QA 채용공고</h1>
+              <p className="text-sm text-gray-600 mt-1">프리미엄부터 일반 채용공고까지 모두 확인하세요</p>
+            </div>
+            
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-4">
+              {/* Search */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+
+              {/* Filter Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Filter className="w-5 h-5" />
+                <span>필터</span>
+              </button>
+
+              {/* View Mode */}
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-white shadow-sm text-blue-600' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <List className="w-5 h-5" />
+                  <span>목록</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-md transition-all ${
+                    viewMode === 'map' 
+                      ? 'bg-white shadow-sm text-blue-600' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <MapPin className="w-5 h-5" />
+                  <span>지도</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-gray-700">근무형태:</span>
+                <div className="flex gap-2">
+                  {(['all', 'onsite', 'hybrid', 'remote'] as const).map((type) => (
+                    <button
+                      key={type}
+                      onClick={() => setFilterType(type)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        filterType === type
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {type === 'all' ? '전체' :
+                       type === 'onsite' ? '사무실' :
+                       type === 'hybrid' ? '하이브리드' : '재택근무'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Results Count */}
+        <div className="mb-6">
+          <p className="text-gray-600">
+            총 <span className="font-semibold text-gray-900">{filteredJobs.length}개</span>의 채용공고
+          </p>
+        </div>
+
+        {/* List View */}
+        {viewMode === 'list' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJobs.map((job) => (
+              <div
+                key={job.id}
+                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                onClick={() => setSelectedJob(job)}
+              >
+                <div className="p-6">
+                  {/* Company & Position */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      {job.position}
+                    </h3>
+                    <p className="text-gray-600">{job.companyName}</p>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                      {job.workType === 'onsite' ? '사무실' :
+                       job.workType === 'hybrid' ? '하이브리드' : '재택근무'}
+                    </span>
+                    {job.isCertified && (
+                      <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+                        인증
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Location & Salary */}
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-900">
+                        ₩{job.salaryRange.min / 10000}-{job.salaryRange.max / 10000}만원
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* James Note Preview */}
+                  {job.jamesNote && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-700 line-clamp-2">
+                        💡 {job.jamesNote}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Map View */}
+        {viewMode === 'map' && (
+          <KakaoMapView 
+            jobs={filteredJobs} 
+            onJobSelect={setSelectedJob}
+          />
+        )}
+      </div>
+
+      {/* Job Detail Modal */}
+      {selectedJob && (
+        <JobDetailModal
+          job={selectedJob}
+          isOpen={!!selectedJob}
+          onClose={() => setSelectedJob(null)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default QARecruitmentWithMap;
+
+--- src/pages/services/recruitment/components/RecruitmentHero.tsx ---
+// src/pages/services/recruitment/components/RecruitmentHero.tsx
+
+
+interface RecruitmentHeroProps {
+  onViewJobs?: () => void;
+  onPostJob?: () => void;
+}
+
+const RecruitmentHero = ({ onViewJobs }: RecruitmentHeroProps) => {
+  const stats = [
+    { value: `${sampleJobs.length}+`, label: '엄선된 포지션' },
+    { value: '98%', label: '채용 성공률' },
+    { value: '₩5.8M', label: '평균 연봉' }
+  ];
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+        <div className="absolute top-20 left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+      </div>
+
+      {/* Particle Effect */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute animate-float"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${10 + Math.random() * 20}s`,
+            }}
+          >
+            <div className="w-1 h-1 bg-white/30 rounded-full" />
+          </div>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="relative z-10 text-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="mb-8 inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full"
+        >
+          <Sparkles className="w-5 h-5 text-yellow-400" />
+          <span className="text-sm font-medium">제임스컴퍼니가 큐레이션하는 특별한 기회</span>
+        </motion.div>
+        
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="text-7xl md:text-9xl font-black mb-6 tracking-tighter"
+        >
+          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            QA CAREERS
+          </span>
+        </motion.h1>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed"
+        >
+          단순한 채용공고가 아닌, 당신의 커리어 스토리가 시작되는 곳
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="flex flex-wrap justify-center gap-6 mb-12"
+        >
+          {stats.map((stat, index) => (
+            <div key={index} className="bg-white/10 backdrop-blur-sm px-8 py-4 rounded-2xl">
+              <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                {stat.value}
+              </div>
+              <div className="text-sm text-gray-400">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-col items-center gap-6"
+        >
+          <button
+            onClick={onViewJobs}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform duration-300"
+          >
+            채용공고 보러가기
+          </button>
+          
+          <div className="animate-bounce bg-white/10 backdrop-blur-sm p-4 rounded-full">
+            <ArrowDown className="w-6 h-6" />
+          </div>
+        </motion.div>
+      </div>
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+        
+        .animate-float {
+          animation: float 20s ease-in-out infinite;
+        }
+        
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default RecruitmentHero;
+
+--- src/pages/services/recruitment/components/JobApplicationModal.tsx ---
+// src/pages/services/recruitment/components/JobApplicationModal.tsx
+
+
+interface JobApplicationModalProps {
+  job: JobPosting;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface ApplicationData {
+  resumeType: 'upload' | 'existing' | 'profile';
+  resumeFile?: File;
+  existingResumeId?: string;
+  coverLetter: string;
+  expectedSalary: string;
+  availableDate: string;
+  phoneNumber: string;
+  portfolioUrl?: string;
+  agreedToTracking: boolean;
+}
+
+const JobApplicationModal = ({ job, isOpen, onClose }: JobApplicationModalProps) => {
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
+  const [applicationData, setApplicationData] = useState<ApplicationData>({
+    resumeType: 'upload',
+    coverLetter: '',
+    expectedSalary: '',
+    availableDate: '',
+    phoneNumber: '',
+    portfolioUrl: '',
+    agreedToTracking: false
+  });
+
+  // 기존 이력서 목록 (실제로는 API에서 가져옴)
+  const existingResumes = [
+    { id: '1', name: '이력서_2025_QA엔지니어.pdf', updatedAt: '2025-01-15' },
+    { id: '2', name: '이력서_자동화전문.pdf', updatedAt: '2025-01-10' }
+  ];
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    
+    // API 호출 시뮬레이션
+    setTimeout(() => {
+      // 지원 ID 생성 (실제로는 서버에서 반환)
+      const newApplicationId = `APP-${Date.now()}`;
+      setApplicationId(newApplicationId);
+      setStep(3); // 완료 단계로 이동
+      setIsSubmitting(false);
+    }, 2000);
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1: // 이력서 선택
+        return (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">지원서 작성</h3>
+              <p className="text-gray-600">
+                {job.companyName}의 {job.position} 포지션에 지원합니다
+              </p>
+            </div>
+
+            {/* 이력서 선택 옵션 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                이력서 선택 <span className="text-red-500">*</span>
+              </label>
+              
+              <div className="space-y-3">
+                {/* 새 이력서 업로드 */}
+                <label className={`
+                  relative block p-4 rounded-lg border-2 cursor-pointer transition-all
+                  ${applicationData.resumeType === 'upload' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400'}
+                `}>
+                  <input
+                    type="radio"
+                    name="resumeType"
+                    value="upload"
+                    checked={applicationData.resumeType === 'upload'}
+                    onChange={(e) => setApplicationData({...applicationData, resumeType: 'upload' as const})}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center gap-4">
+                    <Upload className="w-6 h-6 text-gray-600" />
+                    <div>
+                      <p className="font-medium">새 이력서 업로드</p>
+                      <p className="text-sm text-gray-500">PDF, DOC, DOCX (최대 10MB)</p>
+                    </div>
+                  </div>
+                  {applicationData.resumeType === 'upload' && (
+                    <div className="mt-4">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => setApplicationData({
+                          ...applicationData, 
+                          resumeFile: e.target.files?.[0]
+                        })}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                    </div>
+                  )}
+                </label>
+
+                {/* 기존 이력서 선택 */}
+                <label className={`
+                  relative block p-4 rounded-lg border-2 cursor-pointer transition-all
+                  ${applicationData.resumeType === 'existing' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400'}
+                `}>
+                  <input
+                    type="radio"
+                    name="resumeType"
+                    value="existing"
+                    checked={applicationData.resumeType === 'existing'}
+                    onChange={(e) => setApplicationData({...applicationData, resumeType: 'existing' as const})}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center gap-4">
+                    <FileText className="w-6 h-6 text-gray-600" />
+                    <div>
+                      <p className="font-medium">기존 이력서 사용</p>
+                      <p className="text-sm text-gray-500">이전에 업로드한 이력서 중 선택</p>
+                    </div>
+                  </div>
+                  {applicationData.resumeType === 'existing' && existingResumes.length > 0 && (
+                    <div className="mt-4 space-y-2">
+                      {existingResumes.map(resume => (
+                        <label
+                          key={resume.id}
+                          className="flex items-center gap-3 p-3 bg-white rounded-lg border hover:bg-gray-50 cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            name="existingResumeId"
+                            value={resume.id}
+                            onChange={(e) => setApplicationData({
+                              ...applicationData,
+                              existingResumeId: e.target.value
+                            })}
+                          />
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{resume.name}</p>
+                            <p className="text-xs text-gray-500">업데이트: {resume.updatedAt}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </label>
+
+                {/* 프로필로 지원 */}
+                <label className={`
+                  relative block p-4 rounded-lg border-2 cursor-pointer transition-all
+                  ${applicationData.resumeType === 'profile' 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : 'border-gray-300 hover:border-gray-400'}
+                `}>
+                  <input
+                    type="radio"
+                    name="resumeType"
+                    value="profile"
+                    checked={applicationData.resumeType === 'profile'}
+                    onChange={(e) => setApplicationData({...applicationData, resumeType: 'profile' as const})}
+                    className="sr-only"
+                  />
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                      {user?.name?.[0] || 'J'}
+                    </div>
+                    <div>
+                      <p className="font-medium">제임스 프로필로 지원</p>
+                      <p className="text-sm text-gray-500">작성한 프로필 정보로 간편 지원</p>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* 추가 정보 */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  연락처 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={applicationData.phoneNumber}
+                  onChange={(e) => setApplicationData({...applicationData, phoneNumber: e.target.value})}
+
+--- src/pages/services/recruitment/components/JobDetailModal.tsx ---
+// src/pages/services/recruitment/components/JobDetailModal.tsx
+
+
+
+interface JobDetailModalProps {
+  job: JobPosting;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface TeamInfo {
+  name: string;
+  count: number;
+  icon: React.ReactNode;
+  color: string;
+  bgColor: string;
+}
+
+const JobDetailModal = ({ job, isOpen, onClose }: JobDetailModalProps) => {
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  
+  if (!isOpen) return null;
+  
+  const tabs = [
+    { id: 'overview', label: '개요', icon: '🎯' },
+    { id: 'tasks', label: '업무', icon: '💼' },
+    { id: 'tech', label: '기술', icon: '⚡' },
+    { id: 'benefits', label: '혜택', icon: '🎁' },
+  ];
+  
+  // 조직 구조 파싱 함수
+  const parseTeamStructure = (structure: string): TeamInfo[] => {
+    const teams: TeamInfo[] = [];
+    const parts = structure.split('/').map(part => part.trim());
+    
+    const teamIcons: { [key: string]: { icon: React.ReactNode; color: string; bgColor: string } } = {
+      'QA': { 
+        icon: <Bug className="w-6 h-6" />, 
+        color: 'from-green-400 to-emerald-500',
+        bgColor: 'from-green-600/20 to-emerald-600/10'
+      },
+      '프론트엔드': { 
+        icon: <Monitor className="w-6 h-6" />, 
+        color: 'from-blue-400 to-cyan-500',
+        bgColor: 'from-blue-600/20 to-cyan-600/10'
+      },
+      '백엔드': { 
+        icon: <Server className="w-6 h-6" />, 
+        color: 'from-purple-400 to-violet-500',
+        bgColor: 'from-purple-600/20 to-violet-600/10'
+      },
+      'PO': { 
+        icon: <UserCheck className="w-6 h-6" />, 
+        color: 'from-orange-400 to-amber-500',
+        bgColor: 'from-orange-600/20 to-amber-600/10'
+      },
+      'PM': { 
+        icon: <Briefcase className="w-6 h-6" />, 
+        color: 'from-orange-400 to-amber-500',
+        bgColor: 'from-orange-600/20 to-amber-600/10'
+      },
+      'DevOps': { 
+        icon: <Cloud className="w-6 h-6" />, 
+        color: 'from-pink-400 to-rose-500',
+        bgColor: 'from-pink-600/20 to-rose-600/10'
+      },
+      '보안': { 
+        icon: <Shield className="w-6 h-6" />, 
+        color: 'from-red-400 to-rose-500',
+        bgColor: 'from-red-600/20 to-rose-600/10'
+      },
+      '개발': { 
+        icon: <Code className="w-6 h-6" />, 
+        color: 'from-indigo-400 to-blue-500',
+        bgColor: 'from-indigo-600/20 to-blue-600/10'
+      }
+    };
+    
+    parts.forEach(part => {
+      // 숫자 추출 (예: "QA 2인" -> 2)
+      const match = part.match(/(\d+)인?/);
+      if (match) {
+        const count = parseInt(match[1]);
+        let teamName = part.replace(/\s*\d+인.*/, '').replace(/팀/, '').trim();
+        
+        // 팀 이름에서 키워드 찾기
+        let teamConfig = null;
+        for (const [key, config] of Object.entries(teamIcons)) {
+          if (teamName.includes(key)) {
+            teamConfig = config;
+            break;
+          }
+        }
+        
+        // 기본값
+        if (!teamConfig) {
+          teamConfig = { 
+            icon: <Users className="w-6 h-6" />, 
+            color: 'from-gray-400 to-gray-500',
+            bgColor: 'from-gray-600/20 to-gray-600/10'
+          };
+        }
+        
+        teams.push({
+          name: teamName,
+          count: count,
+          icon: teamConfig.icon,
+          color: teamConfig.color,
+          bgColor: teamConfig.bgColor
+        });
+      }
+    });
+    
+    return teams;
+  };
+  
+  const teamStructureData = parseTeamStructure(job.teamStructure);
+  const totalMembers = teamStructureData.reduce((sum, team) => sum + team.count, 0);
+  
+  return (
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop with blur */}
+      <div 
+        className="absolute inset-0 bg-black/90 backdrop-blur-xl" 
+        onClick={onClose}
+      />
+      
+      {/* Modal Container */}
+      <div className="fixed inset-4 md:inset-8 lg:inset-12 flex items-center justify-center">
+        <div 
+          className="relative w-full h-full max-w-6xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl overflow-hidden shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            transform: 'perspective(1000px) rotateX(2deg)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 100px rgba(59, 130, 246, 0.3)',
+          }}
+        >
+          {/* Animated Background */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-0 left-0 w-96 h-96 bg-blue-600 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-600 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+          </div>
+          
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 z-20 w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+          >
+            <X className="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+          
+          {/* Content */}
+          <div className="relative z-10 h-full flex flex-col">
+            {/* Header */}
+            <div className="p-8 pb-0">
+              <div className="flex items-start gap-6">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-3xl shadow-xl">
+                  🚀
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-4xl font-black text-white mb-2">{job.position}</h2>
+                  <div className="flex items-center gap-4 text-gray-300">
+                    <span className="text-xl">{job.companyName}</span>
+                    <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full text-sm">
+                      {job.workType}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Tab Navigation */}
+              <div className="flex gap-2 mt-8">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-6 py-3 rounded-2xl font-medium transition-all duration-300 flex items-center gap-2 ${
+                      activeTab === tab.id
+                        ? 'bg-white text-gray-900 shadow-lg shadow-white/20'
+                        : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                    }`}
+                  >
+                    <span className="text-xl">{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Tab Content */}
+            <div className="flex-1 overflow-y-auto p-8 pt-6">
+              {activeTab === 'overview' && (
+                <div className="space-y-8 animate-fade-in">
+                  {/* Summary Card */}
+                  <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-6 border border-white/10">
+                    <h3 className="text-2xl font-bold text-white mb-4">포지션 소개</h3>
+                    <p className="text-gray-300 leading-relaxed text-lg">{job.summary}</p>
+                  </div>
+                  
+
+--- src/pages/services/recruitment/components/ViewAction.tsx ---
+// src/pages/services/recruitment/components/ViewAction.tsx
+
+
+interface ViewActionProps {
+  onViewJobs?: () => void;
+  onPostJob?: () => void;
+}
+
+const ViewAction = ({ onViewJobs, onPostJob }: ViewActionProps) => {
+  return (
+    <div className="relative w-full px-4 py-20">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-t from-purple-900/20 via-black to-blue-900/20" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Main CTA */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-6xl md:text-8xl font-black mb-8">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              지금 시작하세요
+            </span>
+          </h2>
+          <p className="text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+            QA 커리어의 새로운 가능성을 발견하거나,
+            <br />
+            최고의 QA 인재를 만나보세요
+          </p>
+        </motion.div>
+
+        {/* CTA Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* For Job Seekers */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="group"
+          >
+            <div className="relative bg-gradient-to-br from-blue-900/50 to-purple-900/50 backdrop-blur-sm rounded-3xl p-8 border border-blue-500/30 hover:border-blue-500/60 transition-all duration-300 h-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
+                  <Briefcase className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-3xl font-bold mb-4">QA 엔지니어라면</h3>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  엄선된 QA 포지션과 제임스의 인사이트로 
+                  당신의 커리어를 한 단계 업그레이드하세요
+                </p>
+                
+                <button
+                  onClick={onViewJobs}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-300"
+                >
+                  채용공고 보러가기
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* For Companies */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="group"
+          >
+            <div className="relative bg-gradient-to-br from-purple-900/50 to-pink-900/50 backdrop-blur-sm rounded-3xl p-8 border border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 h-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mb-6">
+                  <Building2 className="w-8 h-8 text-white" />
+                </div>
+                
+                <h3 className="text-3xl font-bold mb-4">기업이라면</h3>
+                <p className="text-gray-300 mb-8 leading-relaxed">
+                  QA 전문 큐레이션 서비스로 검증된 
+                  QA 인재를 효율적으로 채용하세요
+                </p>
+                
+                <button
+                  onClick={onPostJob}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 hover:scale-105 transition-transform duration-300"
+                >
+                  채용공고 등록하기
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Contact Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mt-20 text-center"
+        >
+          <p className="text-gray-400 mb-4">궁금한 점이 있으신가요?</p>
+          <a
+            href="mailto:recruit@jamescompany.kr"
+            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors duration-300"
+          >
+            <Mail className="w-5 h-5" />
+            recruit@jamescompany.kr
+          </a>
+        </motion.div>
+
+        {/* Bottom Decoration */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.6 }}
+          className="mt-20 flex justify-center gap-2"
+        >
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"
+              style={{ animationDelay: `${i * 0.2}s` }}
+            />
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewAction;
+
+--- src/pages/services/recruitment/components/ViewRewards.tsx ---
+// src/pages/services/recruitment/components/ViewRewards.tsx
+
+
+const ViewRewards = () => {
+  const plans = [
+    {
+      name: "기본형",
+      price: "₩50,000",
+      duration: "1개월",
+      features: [
+        "QA 전문 포맷 적용",
+        "슬랙/뉴스레터 노출",
+        "기본 통계 제공"
+      ],
+      gradient: "from-gray-600 to-gray-700"
+    },
+    {
+      name: "스탠다드형",
+      price: "₩100,000",
+      duration: "1개월",
+      features: [
+        "기본형 혜택 모두 포함",
+        "뉴스레터 상단 노출",
+        "성과형 축하금 적용 가능",
+        "상세 통계 리포트"
+      ],
+      popular: true,
+      gradient: "from-blue-600 to-purple-600"
+    },
+    {
+      name: "프리미엄형",
+      price: "₩350,000",
+      duration: "1개월",
+      features: [
+        "스탠다드형 혜택 모두 포함",
+        "메인 페이지 상단 고정",
+        "추천 공고 섹션 포함",
+        "합격 축하금 기본 포함",
+        "전담 매니저 지원"
+      ],
+      gradient: "from-purple-600 to-pink-600"
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: <Gift className="w-8 h-8" />,
+      title: "합격 축하금",
+      description: "채용 성공 시 ₩30,000~₩50,000 지급"
+    },
+    {
+      icon: <Trophy className="w-8 h-8" />,
+      title: "QA 인증 뱃지",
+      description: "검증된 QA 문화 기업 인증"
+    },
+    {
+      icon: <Sparkles className="w-8 h-8" />,
+      title: "제임스의 한마디",
+      description: "QA 전문가의 인사이트 제공"
+    }
+  ];
+
+  return (
+    <div className="relative w-full px-4 py-20">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-6xl font-black mb-6">
+            합리적인 가격, 확실한 효과
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            QA 전문 채용 플랫폼만의 특별한 혜택을 경험하세요
+          </p>
+        </motion.div>
+
+        {/* Pricing Plans */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          {plans.map((plan, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              className="relative"
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-1 rounded-full text-sm font-semibold">
+                  가장 인기
+                </div>
+              )}
+              
+              <div className={`relative bg-gray-900/60 backdrop-blur-sm rounded-3xl p-8 border ${
+                plan.popular ? 'border-purple-500' : 'border-gray-800'
+              } hover:border-gray-600 transition-all duration-300 h-full flex flex-col`}>
+                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                <div className="mb-6">
+                  <span className={`text-4xl font-black bg-gradient-to-r ${plan.gradient} bg-clip-text text-transparent`}>
+                    {plan.price}
+                  </span>
+                  <span className="text-gray-400 ml-2">/ {plan.duration}</span>
+                </div>
+                
+                <ul className="space-y-3 mb-8 flex-grow">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className={`w-5 h-5 rounded-full bg-gradient-to-r ${plan.gradient} flex-shrink-0 flex items-center justify-center mt-0.5`}>
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                      <span className="text-gray-300">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <button className={`w-full py-3 rounded-full font-semibold bg-gradient-to-r ${plan.gradient} hover:scale-105 transition-transform duration-300`}>
+                  선택하기
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Additional Benefits */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 backdrop-blur-sm rounded-3xl p-12 border border-white/10"
+        >
+          <h3 className="text-3xl font-bold text-center mb-12">추가 혜택</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
+                  {benefit.icon}
+                </div>
+                <h4 className="text-xl font-semibold mb-2">{benefit.title}</h4>
+                <p className="text-gray-400">{benefit.description}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Bottom Stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="mt-16 text-center"
+        >
+          <p className="text-gray-400 mb-4">이미 50개 이상의 기업이 함께하고 있습니다</p>
+          <div className="flex items-center justify-center gap-2">
+            <DollarSign className="w-5 h-5 text-green-400" />
+            <span className="text-green-400 font-semibold">평균 채용 비용 70% 절감</span>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewRewards;
+
+--- src/pages/services/recruitment/components/ViewMission.tsx ---
+// src/pages/services/recruitment/components/ViewMission.tsx
+
+
+interface ViewMissionProps {
+  onViewJobs?: () => void;
+  onPostJob?: () => void;
+}
+
+const ViewMission = ({ onPostJob }: ViewMissionProps) => {
+  const missions = [
+    {
+      icon: <Target className="w-16 h-16" />,
+      number: "01",
+      title: "QA 전문성",
+      description: "QA의 시각으로 검증하고 큐레이션하는 유일한 채용 플랫폼"
+    },
+    {
+      icon: <Rocket className="w-16 h-16" />,
+      number: "02",
+      title: "커리어 성장",
+      description: "단순 이직이 아닌 QA 엔지니어의 장기적 성장을 지원"
+    },
+    {
+      icon: <Heart className="w-16 h-16" />,
+      number: "03",
+      title: "신뢰의 연결",
+      description: "기업과 인재를 투명하고 정직하게 연결하는 브릿지"
+    }
+  ];
+
+  const stats = [
+    { value: "98%", label: "채용 성공률" },
+    { value: "500+", label: "활성 QA 커뮤니티" },
+    { value: "50+", label: "파트너 기업" },
+    { value: "4.8", label: "평균 만족도" }
+  ];
+
+  return (
+    <div className="relative w-full px-4 py-20">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black" />
+      
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-5xl md:text-6xl font-black mb-6">
+            우리의 미션
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            QA 엔지니어와 기업이 함께 성장하는 생태계를 만듭니다
+          </p>
+        </motion.div>
+
+        {/* Mission Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          {missions.map((mission, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: index * 0.2 }}
+              className="relative"
+            >
+              {/* Number Background */}
+              <div className="absolute -top-10 -left-10 text-8xl font-black text-gray-800/20">
+                {mission.number}
+              </div>
+              
+              {/* Card */}
+              <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-8 border border-gray-700 hover:border-gray-600 transition-all duration-300">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 w-20 h-20 rounded-2xl flex items-center justify-center mb-6 text-white">
+                  {mission.icon}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{mission.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{mission.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Stats Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 backdrop-blur-sm rounded-3xl p-12 border border-white/10"
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-gray-400">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* CTA for Companies */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="text-center mt-16"
+        >
+          <p className="text-gray-400 mb-6">QA 인재를 찾고 계신가요?</p>
+          <button
+            onClick={onPostJob}
+            className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform duration-300 flex items-center gap-2 mx-auto"
+          >
+            <Star className="w-5 h-5" />
+            채용공고 등록하기
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewMission;
+
+--- src/pages/services/recruitment/components/ViewCulture.tsx ---
+// src/pages/services/recruitment/components/ViewCulture.tsx
+
+
+const ViewCulture = () => {
+  const cultureValues = [
+    {
+      icon: <Shield className="w-8 h-8" />,
+      title: "품질 우선 문화",
+      description: "개발 초기부터 QA가 참여하는 Shift-Left 문화",
+      color: "text-blue-400"
+    },
+    {
+      icon: <Code2 className="w-8 h-8" />,
+      title: "자동화 지향",
+      description: "반복 작업은 자동화로, 창의적 테스팅에 집중",
+      color: "text-purple-400"
+    },
+    {
+      icon: <Users className="w-8 h-8" />,
+      title: "협업 중심",
+      description: "개발자와 QA가 함께 성장하는 문화",
+      color: "text-green-400"
+    },
+    {
+      icon: <Zap className="w-8 h-8" />,
+      title: "지속적 개선",
+      description: "더 나은 품질을 위한 끊임없는 혁신",
+      color: "text-orange-400"
+    }
+  ];
+
+  return (
+    <div className="relative w-full px-4 py-20">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-6xl font-black mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            QA가 존중받는 문화
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            제임스컴퍼니는 QA의 가치를 이해하고 존중하는 기업만을 엄선합니다
+          </p>
+        </motion.div>
+
+        {/* Culture Values Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {cultureValues.map((value, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="relative group"
+            >
+              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-2xl p-6 hover:border-gray-600 transition-all duration-300">
+                <div className={`${value.color} mb-4`}>{value.icon}</div>
+                <h3 className="text-lg font-bold mb-2">{value.title}</h3>
+                <p className="text-gray-400 text-sm">{value.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Quote Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="relative"
+        >
+          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm rounded-3xl p-12 border border-white/10">
+            <blockquote className="text-2xl md:text-3xl font-light text-center leading-relaxed">
+              "QA는 단순한 버그 찾기가 아닌,
+              <br />
+              <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                제품의 품질과 사용자 경험을 책임지는 핵심 역할
+              </span>
+              입니다"
+            </blockquote>
+            <p className="text-center mt-6 text-gray-400">- 제임스, QA 엔지니어</p>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewCulture;
+
+--- src/pages/services/recruitment/components/ViewIntro.tsx ---
+// src/pages/services/recruitment/components/ViewIntro.tsx
+
+
+interface ViewIntroProps {
+  onViewJobs?: () => void;
+  onPostJob?: () => void;
+}
+
+const ViewIntro = ({ onViewJobs }: ViewIntroProps) => {
+  const features = [
+    {
+      icon: <CheckCircle className="w-12 h-12" />,
+      title: "엄선된 QA 포지션",
+      description: "QA 전문가가 직접 검증한 양질의 채용공고만을 소개합니다",
+      gradient: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: <Users className="w-12 h-12" />,
+      title: "큐레이션 서비스",
+      description: "단순 게시가 아닌 QA 관점에서 분석한 인사이트를 제공합니다",
+      gradient: "from-purple-500 to-pink-500"
+    },
+    {
+      icon: <Award className="w-12 h-12" />,
+      title: "QA 인증 뱃지",
+      description: "QA 조직 문화가 검증된 기업에만 부여되는 특별한 인증",
+      gradient: "from-orange-500 to-red-500"
+    },
+    {
+      icon: <TrendingUp className="w-12 h-12" />,
+      title: "커리어 성장 지원",
+      description: "연봉 정보부터 성장 가능성까지 투명하게 공개합니다",
+      gradient: "from-green-500 to-teal-500"
+    }
+  ];
+
+  return (
+    <div className="relative w-full px-4 py-20">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+      
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-5xl md:text-6xl font-black mb-6">
+            왜 제임스컴퍼니인가?
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            기존 채용 플랫폼과는 차원이 다른 QA 전문 큐레이션 서비스를 경험하세요
+          </p>
+        </motion.div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              className="group relative"
+            >
+              {/* Card */}
+              <div className="relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800 hover:border-gray-700 transition-all duration-300">
+                {/* Gradient Background */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 rounded-2xl transition-opacity duration-300`} />
+                
+                {/* Icon */}
+                <div className={`w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 text-white`}>
+                  {feature.icon}
+                </div>
+                
+                {/* Content */}
+                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="text-center mt-16"
+        >
+          <button
+            onClick={onViewJobs}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform duration-300"
+          >
+            큐레이션된 채용공고 보기
+          </button>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewIntro;
+
+--- src/pages/company/CompanyRecruitmentDashboard.tsx ---
+// src/pages/company/CompanyRecruitmentDashboard.tsx
+
+  Building, 
+  Eye, 
+  Users, 
+  Calendar,
+  Edit,
+  Trash2,
+  BarChart,
+  FileText,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Download,
+  Mail,
+  Shield
+} from 'lucide-react';
+
+interface ApplicationSummary {
+  id: string;
+  applicantName: string;
+  appliedDate: string;
+  status: 'new' | 'reviewed' | 'shortlisted' | 'rejected';
+  resumeUrl?: string;
+  jamesScore?: number;
+}
+
+interface Job {
+  id: string;
+  position: string;
+  status: 'pending' | 'active' | 'paused' | 'expired';
+  postedDate: string;
+  expiryDate: string;
+  viewCount: number;
+  applicationCount: number;
+  packageType: 'basic' | 'standard' | 'premium';
+  applications: ApplicationSummary[];
+}
+
+const CompanyRecruitmentDashboard = () => {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedJob, setSelectedJob] = useState<string | null>(null);
+  
+  // 샘플 데이터 (실제로는 API에서 가져옴)
+  const companyData = {
+    name: '테크스타트업 A',
+    email: 'hr@techstartup.com',
+    jobs: [
+      {
+        id: '1',
+        position: 'QA 자동화 엔지니어',
+        status: 'active' as const,
+        postedDate: '2025-01-10',
+        expiryDate: '2025-02-10',
+        viewCount: 342,
+        applicationCount: 28,
+        packageType: 'premium' as const,
+        applications: [
+          {
+            id: 'app1',
+            applicantName: '김철수',
+            appliedDate: '2025-01-15',
+            status: 'new' as const,
+            jamesScore: 85
+          },
+          {
+            id: 'app2',
+            applicantName: '이영희',
+            appliedDate: '2025-01-16',
+            status: 'reviewed' as const,
+            jamesScore: 92
+          }
+        ]
+      }
+    ] as Job[]
+  };
+
+  const stats = {
+    totalViews: companyData.jobs.reduce((sum, job) => sum + job.viewCount, 0),
+    totalApplications: companyData.jobs.reduce((sum, job) => sum + job.applicationCount, 0),
+    activeJobs: companyData.jobs.filter(job => job.status === 'active').length,
+    avgApplicationsPerJob: Math.round(
+      companyData.jobs.reduce((sum, job) => sum + job.applicationCount, 0) / companyData.jobs.length
+    )
+  };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">접근 권한이 없습니다</h2>
+          <p className="text-gray-600">이메일로 받은 링크를 통해 접속해주세요.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white">
+                <Building className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{companyData.name}</h1>
+                <p className="text-sm text-gray-600">채용 관리 대시보드</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <span className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                제임스 인증 기업
+              </span>
+              <button
+                onClick={() => navigate('/services/recruitment/post')}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+              >
+                새 채용공고 등록
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">총 조회수</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalViews}</p>
+              </div>
+              <Eye className="w-8 h-8 text-blue-500" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">총 지원자</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.totalApplications}</p>
+              </div>
+              <Users className="w-8 h-8 text-green-500" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">진행중 공고</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.activeJobs}</p>
+              </div>
+              <FileText className="w-8 h-8 text-purple-500" />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">평균 지원율</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.avgApplicationsPerJob}</p>
+              </div>
+              <BarChart className="w-8 h-8 text-orange-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="border-b">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'overview'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'text-gray-600 border-transparent hover:text-gray-900'
+                }`}
+              >
+                채용공고 관리
+              </button>
+              <button
+                onClick={() => setActiveTab('applications')}
+                className={`px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'applications'
+                    ? 'text-blue-600 border-blue-600'
+                    : 'text-gray-600 border-transparent hover:text-gray-900'
+                }`}
+              >
+                지원자 관리
+              </button>
+
+===== RELATED TYPES =====
+src/types/recruitment.ts:export interface JobPosting {
+src/types/recruitment.ts:export interface PricingPlan {
+src/types/recruitment.ts:export interface JobRegistrationForm {
+
+===== API CALLS =====
+src/services/companyEmailService.ts:// src/services/companyEmailService.ts
+src/services/companyEmailService.ts-
+src/services/companyEmailService.ts-interface EmailData {
+src/services/companyEmailService.ts:  companyName: string;
+src/services/companyEmailService.ts-  contactEmail: string;
+src/services/companyEmailService.ts-  position: string;
+src/services/companyEmailService.ts-  managementToken: string;
+src/services/companyEmailService.ts-  status: 'pending' | 'approved' | 'rejected';
+src/services/companyEmailService.ts-}
+src/services/companyEmailService.ts-
+src/services/companyEmailService.ts:export const companyEmailTemplates = {
+src/services/companyEmailService.ts-  // 채용공고 접수 확인 이메일
+src/services/companyEmailService.ts:  applicationReceived: (data: EmailData) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] ${data.companyName}님의 채용공고가 접수되었습니다`,
+src/services/companyEmailService.ts-    html: `
+src/services/companyEmailService.ts-      <!DOCTYPE html>
+src/services/companyEmailService.ts-      <html>
+src/services/companyEmailService.ts-      <head>
+src/services/companyEmailService.ts-        <style>
+--
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <p><strong>"${data.position}"</strong> 포지션의 채용공고가 성공적으로 접수되었습니다.</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <div class="info-box">
+src/services/companyEmailService.ts-              <h3>다음 단계</h3>
+--
+src/services/companyEmailService.ts-
+src/services/companyEmailService.ts-  // 채용공고 승인 및 관리 링크 이메일
+src/services/companyEmailService.ts:  applicationApproved: (data: EmailData) => ({
+src/services/companyEmailService.ts-    subject: `[제임스컴퍼니] 축하합니다! ${data.position} 채용공고가 게시되었습니다`,
+src/services/companyEmailService.ts-    html: `
+src/services/companyEmailService.ts-      <!DOCTYPE html>
+src/services/companyEmailService.ts-      <html>
+src/services/companyEmailService.ts-      <head>
+--
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <p><strong>"${data.position}"</strong> 포지션이 제임스컴퍼니에 성공적으로 게시되었습니다.</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts-                채용 관리 대시보드 바로가기
+src/services/companyEmailService.ts-              </a>
+src/services/companyEmailService.ts-            </center>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <div class="info-box">
+--
+src/services/companyEmailService.ts-            </div>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts:            <p>더 많은 기능을 원하시나요? <a href="https://jamescompany.kr/company/signup">기업 회원으로 가입</a>하시면 더 강력한 채용 도구를 사용하실 수 있습니다.</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <p>성공적인 채용을 기원합니다!<br>
+src/services/companyEmailService.ts-            제임스컴퍼니 팀 드림</p>
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-          <div class="footer">
+src/services/companyEmailService.ts:            <p>관리 링크: <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">https://jamescompany.kr/company/dashboard/${data.managementToken}</code></p>
+src/services/companyEmailService.ts-            <p>이 이메일은 ${data.contactEmail}로 발송되었습니다.</p>
+src/services/companyEmailService.ts-            <p>© 2025 JamesCompany. All rights reserved.</p>
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-        </div>
+src/services/companyEmailService.ts-      </body>
+--
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <div class="stat-box">
+src/services/companyEmailService.ts-              <h2 style="color: #8B5CF6; margin: 0;">${data.applicantCount}명</h2>
+src/services/companyEmailService.ts-              <p style="margin: 5px 0;">새로운 지원자</p>
+src/services/companyEmailService.ts-            </div>
+--
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts-                지원자 확인하기
+src/services/companyEmailService.ts-              </a>
+src/services/companyEmailService.ts-            </center>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <p style="background: #EDE9FE; padding: 15px; border-radius: 8px; border-left: 4px solid #8B5CF6;">
+--
+src/services/companyEmailService.ts-  // 주간 리포트 이메일
+src/services/companyEmailService.ts-  weeklyReport: (data: EmailData & { stats: any }) => ({
+src/services/companyEmailService.ts:    subject: `[제임스컴퍼니] ${data.companyName}님의 주간 채용 리포트`,
+src/services/companyEmailService.ts-    html: `
+src/services/companyEmailService.ts-      <!DOCTYPE html>
+src/services/companyEmailService.ts-      <html>
+src/services/companyEmailService.ts-      <head>
+src/services/companyEmailService.ts-        <style>
+--
+src/services/companyEmailService.ts-          </div>
+src/services/companyEmailService.ts-          <div class="content">
+src/services/companyEmailService.ts:            <p>안녕하세요, ${data.companyName}님</p>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <div class="stats-grid">
+src/services/companyEmailService.ts-              <div class="stat-card">
+src/services/companyEmailService.ts-                <div class="stat-number">${data.stats.weeklyViews}</div>
+src/services/companyEmailService.ts-                <div class="stat-label">조회수</div>
+--
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <center>
+src/services/companyEmailService.ts:              <a href="https://jamescompany.kr/company/dashboard/${data.managementToken}" class="button">
+src/services/companyEmailService.ts-                상세 리포트 보기
+src/services/companyEmailService.ts-              </a>
+src/services/companyEmailService.ts-            </center>
+src/services/companyEmailService.ts-            
+src/services/companyEmailService.ts-            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+--
+src/services/companyEmailService.ts-// 이메일 발송 서비스 (실제 구현시 백엔드에서 처리)
+src/services/companyEmailService.ts-export const sendCompanyEmail = async (
+src/services/companyEmailService.ts:  type: keyof typeof companyEmailTemplates,
+src/services/companyEmailService.ts-  data: any
+src/services/companyEmailService.ts-) => {
+src/services/companyEmailService.ts:  const template = companyEmailTemplates[type](data);
+src/services/companyEmailService.ts-  
+src/services/companyEmailService.ts-  // 실제로는 백엔드 API 호출
+src/services/companyEmailService.ts-  const response = await fetch('/api/email/send', {
+src/services/companyEmailService.ts-    method: 'POST',
+src/services/companyEmailService.ts-    headers: {
+src/services/companyEmailService.ts:      'Content-Type': 'application/json',
+src/services/companyEmailService.ts-    },
+src/services/companyEmailService.ts-    body: JSON.stringify({
+src/services/companyEmailService.ts-      to: data.contactEmail,
+src/services/companyEmailService.ts-      subject: template.subject,
+src/services/companyEmailService.ts-      html: template.html,
+--
+src/services/companyEmailService.ts-
+src/services/companyEmailService.ts-// 토큰 생성 유틸리티 (브라우저 환경용)
+src/services/companyEmailService.ts:export const generateManagementToken = (companyEmail: string): string => {
+src/services/companyEmailService.ts-  // 브라우저 환경에서 사용 가능한 방법
+src/services/companyEmailService.ts-  const timestamp = Date.now();
+src/services/companyEmailService.ts-  const random = Math.random().toString(36).substring(2, 15);
+src/services/companyEmailService.ts:  const tokenString = `${companyEmail}-${timestamp}-${random}`;
+src/services/companyEmailService.ts-  
+src/services/companyEmailService.ts-  // Base64 인코딩 (브라우저 호환)
+src/services/companyEmailService.ts-  return btoa(tokenString);
+src/services/companyEmailService.ts-};
+--
+src/services/api.ts-  baseURL: API_BASE_URL,
+src/services/api.ts-  headers: {
+src/services/api.ts:    'Content-Type': 'application/json',
+src/services/api.ts-  },
+src/services/api.ts-});
+src/services/api.ts-
+src/services/api.ts-// Request interceptor to add auth token
+src/services/api.ts-api.interceptors.request.use(
+
+===== STATE MANAGEMENT =====
+
+===== CONFIGURATIONS =====
+src/config/companyThemes.ts:// src/styles/recruitment/companyThemes.ts
+src/config/companyThemes.ts:  export const companyThemes: Record<string, CompanyTheme> = {
+src/config/companyThemes.ts:  export const getTheme = (companyName: string): CompanyTheme => {
+src/config/companyThemes.ts:    return companyThemes[companyName] || companyThemes['테크스타트업 A'];
+src/config/api.ts:    'Content-Type': 'application/json',
+
+===== SUMMARY =====
+Components found:
+      13
+
+API endpoints used:
