@@ -1,0 +1,178 @@
+src
+├── admin
+│   ├── JobApproval.tsx
+│   └── RecruitmentApprovalPage.tsx
+├── api
+│   └── recruitment.ts
+├── assets
+│   └── react.svg
+├── components
+│   ├── auth
+│   │   ├── OAuthCallback.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   ├── RememberMeModal.tsx
+│   │   └── SocialLoginButton.tsx
+│   ├── layout
+│   │   ├── Footer.tsx
+│   │   ├── Header.tsx
+│   │   ├── Layout.tsx
+│   │   └── ProfileMenu.tsx
+│   ├── profile
+│   │   ├── BookingHistory.tsx
+│   │   ├── LocationSettings.tsx
+│   │   ├── MembershipInfo.tsx
+│   │   └── ProfileInfo.tsx
+│   ├── recruitment
+│   │   ├── JamesScoreDisplay.tsx
+│   │   ├── JobCard.tsx
+│   │   ├── KakaoMapView.tsx
+│   │   ├── LocationMap.tsx
+│   │   ├── MapJobCard.tsx
+│   │   ├── MapView.tsx
+│   │   ├── NoteManager.tsx
+│   │   ├── PricingCard.tsx
+│   │   └── TagManager.tsx
+│   ├── service
+│   │   ├── qaMentorApi.ts
+│   │   └── worrySolverApi.ts
+│   ├── ui
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── Input.tsx
+│   │   └── Popover.tsx
+│   ├── Layout.tsx
+│   ├── MapComponent.tsx
+│   ├── PolicyModal.tsx
+│   ├── QAMentorChatbot.tsx
+│   ├── QAMentorEnhancements.tsx
+│   ├── QAMentorSection.tsx
+│   ├── ScrollToTop.tsx
+│   ├── ServiceTransitionModal.tsx
+│   ├── WorrySolver.tsx
+│   └── WorrySolverBanner.tsx
+├── config
+│   ├── advancedPrompts.ts
+│   ├── api.ts
+│   ├── companyThemes.ts
+│   ├── googleCalendar.ts
+│   ├── qaMentorPrompts.ts
+│   └── worryPrompts.ts
+├── data
+│   ├── policies
+│   │   ├── marketing
+│   │   │   ├── index.ts
+│   │   │   ├── v1.0.0.ts
+│   │   │   ├── v2.0.0.ts
+│   │   │   └── v2.0.1.ts
+│   │   ├── privacy
+│   │   │   ├── index.ts
+│   │   │   ├── v1.0.0.ts
+│   │   │   ├── v2.0.0.ts
+│   │   │   └── v2.0.1.ts
+│   │   └── terms
+│   │       ├── index.ts
+│   │       ├── v1.0.0.ts
+│   │       ├── v2.0.0.ts
+│   │       └── v2.0.1.ts
+│   ├── recriutment
+│   │   └── sampleJobs.ts
+│   ├── locationData.ts
+│   └── policies.ts
+├── hooks
+│   ├── useClickOutside.ts
+│   └── useKakaoMap.ts
+├── pages
+│   ├── admin
+│   │   ├── MentorApprovalPage.tsx
+│   │   └── RecruitmentApprovalPage.tsx
+│   ├── auth
+│   │   ├── ImwebAdditionalInfo.tsx
+│   │   ├── ImwebCallback.tsx
+│   │   ├── Login.tsx
+│   │   ├── OAuthCallback.tsx
+│   │   └── Signup.tsx
+│   ├── company
+│   │   └── CompanyRecruitmentDashboard.tsx
+│   ├── insights
+│   │   ├── Insights.tsx
+│   │   ├── Interview.tsx
+│   │   ├── Notice.tsx
+│   │   ├── Story.tsx
+│   │   └── StudyNote.tsx
+│   ├── mentor
+│   │   ├── MentorDashboard.tsx
+│   │   └── RevenueDashboard.tsx
+│   ├── mypage
+│   │   ├── MyApplications.tsx
+│   │   ├── MyBookings.tsx
+│   │   └── MyPageLayout.tsx
+│   ├── services
+│   │   ├── bug-bounty
+│   │   │   └── BugBountyArena.tsx
+│   │   ├── casemaker
+│   │   │   └── CaseMaker.tsx
+│   │   ├── coffee-chat
+│   │   │   ├── api.ts
+│   │   │   ├── BookingFailed.tsx
+│   │   │   ├── BookingSuccess.tsx
+│   │   │   ├── CalendarCallback.tsx
+│   │   │   ├── CoffeeChat.tsx
+│   │   │   ├── CoffeeChatBooking.tsx
+│   │   │   └── MentorRegistration.tsx
+│   │   ├── education
+│   │   │   └── Education.tsx
+│   │   ├── recruitment
+│   │   │   ├── components
+│   │   │   │   ├── JobApplicationModal.tsx
+│   │   │   │   ├── JobDetailModal.tsx
+│   │   │   │   ├── RecruitmentHero.tsx
+│   │   │   │   ├── ViewAction.tsx
+│   │   │   │   ├── ViewCulture.tsx
+│   │   │   │   ├── ViewIntro.tsx
+│   │   │   │   ├── ViewMission.tsx
+│   │   │   │   └── ViewRewards.tsx
+│   │   │   ├── PaymentFail.tsx
+│   │   │   ├── PaymentSuccess.tsx
+│   │   │   ├── QARecruitment.tsx
+│   │   │   ├── QARecruitmentWithMap.tsx
+│   │   │   ├── RecruitmentPost.tsx
+│   │   │   └── RecruitmentPostComplete.tsx
+│   │   ├── CaseMaker.tsx
+│   │   ├── QAuto.tsx
+│   │   └── Services.tsx
+│   ├── About.tsx
+│   ├── Contact.tsx
+│   ├── Dashboard.tsx
+│   ├── Home.tsx
+│   ├── Profile.tsx
+│   └── Services.tsx
+├── services
+│   ├── api.ts
+│   ├── auth.service.ts
+│   ├── companyEmailService.ts
+│   ├── paymentService.ts
+│   └── recruitmentApi.ts
+├── stores
+│   ├── authStore.ts
+│   ├── coffeeChatStore.ts
+│   ├── locationStore.ts
+│   └── serviceStore.ts
+├── styles
+│   └── globals.css
+├── types
+│   ├── index.ts
+│   ├── kakao.d.ts
+│   └── recruitment.ts
+├── utils
+│   ├── dateUtils.ts
+│   ├── distanceCalculator.ts
+│   ├── kakaoMapLoader.ts
+│   ├── oauth.utils.ts
+│   └── recruitmentHelpers.ts
+├── App.css
+├── App.tsx
+├── index.css
+├── main.tsx
+└── vite-env.d.ts
+
+38 directories, 138 files

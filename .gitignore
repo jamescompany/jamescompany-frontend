@@ -34,3 +34,5 @@ frontend-all.txt
 .env.production
 .env.production.local
 .vercel
+
+.venv/

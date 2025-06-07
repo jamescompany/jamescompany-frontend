@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/layout/Layout";
-import ServiceTransitionModal from "./components/ServiceTransitionModal";
-import ScrollToTop from "./components/ScrollToTop";
+import Layout from "./shared/component/layout/Layout";
+import ServiceTransitionModal from "./features/external-services/components/ServiceTransitionModal";
+import ScrollToTop from "./shared/component/ScrollToTop";
 
 // Import pages
 import Home from "./pages/Home";
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
-import Profile from "./pages/Profile";
+import Login from "./features/auth/pages/Login";
+import Signup from "./features/auth/pages/Signup";
+import Profile from "./features/profile/pages/Profile";
 
 // Dashboard
 import Dashboard from "./pages/Dashboard";
@@ -19,44 +19,49 @@ import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 
 // Services
-import Services from "./pages/services/Services";
+import Services from "./features/main/pages/ServiceHub";
+import ServiceHub from "./features/main/pages/ServiceHub";
 
 // Coffee Chat
-import CoffeeChat from "./pages/services/coffee-chat/CoffeeChat";
-import CoffeeChatBooking from "./pages/services/coffee-chat/CoffeeChatBooking";
-import CalendarCallback from "./pages/services/coffee-chat/CalendarCallback";
-import MentorRegistration from "./pages/services/coffee-chat/MentorRegistration";
+import CoffeeChat from "./features/coffee-chat/pages/CoffeeChat";
+import CoffeeChatBooking from "./features/coffee-chat/pages/CoffeeChatBooking";
+import CalendarCallback from "./features/coffee-chat/pages/CalendarCallback";
+import MentorRegistration from "./features/coffee-chat/pages/MentorRegistration";
 
-import BookingSuccess from './pages/services/coffee-chat/BookingSuccess';
-import BookingFailed from './pages/services/coffee-chat/BookingFailed';
+import BookingSuccess from './features/coffee-chat/pages/BookingSuccess';
+import BookingFailed from './features/coffee-chat/pages/BookingFailed';
 
-import MyBookings from "./pages/mypage/MyBookings";
-import MyApplications from "./pages/mypage/MyApplications";
-import MentorDashboard from "./pages/mentor/MentorDashboard";
+import PaymentSuccess from "./features/recruitment/pages/PaymentSuccess";
+import PaymentFail from "./features/recruitment/pages/PaymentFail";
+
+import MyBookings from "./features/profile/pages/MyBookings";
+import MyApplications from "./features/profile/pages/MyApplications";
+import MentorDashboard from "./features/mentor/pages/MentorDashboard";
 
 // Recruitment
-import QARecruitment from './pages/services/recruitment/QARecruitment';
-import QARecruitmentWithMap from './pages/services/recruitment/QARecruitmentWithMap';
-import RecruitmentPost from './pages/services/recruitment/RecruitmentPost';
+import QARecruitment from './features/recruitment/pages/QARecruitment';
+import QARecruitmentWithMap from './features/recruitment/pages/QARecruitmentWithMap';
+import RecruitmentPost from './features/recruitment/pages/RecruitmentPost';
+import RecruitmentPostComplete from './features/recruitment/pages/RecruitmentPostComplete';
 
 // Company
-import CompanyRecruitmentDashboard from "./pages/company/CompanyRecruitmentDashboard";
+import CompanyRecruitmentDashboard from "./features/company/pages/CompanyRecruitmentDashboard";
 
 // Application
 
 
 // Other Services
-import CaseMaker from "./pages/services/CaseMaker";
-import QAuto from "./pages/services/QAuto";
-import Education from "./pages/services/education/Education";
-import BugBountyArena from "./pages/services/bug-bounty/BugBountyArena";
+import CaseMaker from "./features/external-services/pages/CaseMakerIntro";
+import QAuto from "./features/external-services/pages/QAuto";
+import Education from "./features/education/pages/Education";
+import BugBountyArena from "./features/bug-bounty/pages/BugBountyArena";
 
 // Insights
-import Insights from "./pages/insights/Insights";
-import Notice from "./pages/insights/Notice";
-import Story from "./pages/insights/Story";
-import StudyNote from "./pages/insights/StudyNote";
-import Interview from "./pages/insights/Interview";
+import Insights from "./features/insights/pages/Insights";
+import Notice from "./features/insights/pages/Notice";
+import Story from "./features/insights/pages/Story";
+import StudyNote from "./features/insights/pages/StudyNote";
+import Interview from "./features/insights/pages/Interview";
 
 // Contact
 import Contact from "./pages/Contact";
@@ -106,6 +111,7 @@ function App() {
 
           {/* Services */}
           <Route path="services" element={<Services />} />
+          <Route path="services-hub" element={<ServiceHub />} />
           <Route path="services/coffee-chat" element={<CoffeeChat />} />
           <Route path="services/coffee-chat/mentor-registration" element={<MentorRegistration />} />
           <Route path="services/coffee-chat/booking/:mentorId" element={<CoffeeChatBooking />} />
@@ -114,12 +120,16 @@ function App() {
           <Route path="services/coffee-chat/booking-success" element={<BookingSuccess />} />
           <Route path="services/coffee-chat/booking-failed" element={<BookingFailed />} />
           
+          <Route path="services/recruitment/payment/success" element={<PaymentSuccess />} />
+          <Route path="services/recruitment/payment/fail" element={<PaymentFail />} />
+          
           {/* Recruitment */}
           <Route path="services/recruitment" element={<QARecruitment />} />
           <Route path="services/recruitment/with-map" element={<QARecruitmentWithMap />} />
           <Route path="/services/recruitment/jobs" element={<QARecruitmentWithMap />} />
           <Route path="/services/recruitment/post" element={<RecruitmentPost />} />
-
+          <Route path="/services/recruitment/post/complete" element={<RecruitmentPostComplete />} />  
+          
           {/* Company */}
           <Route path="/company/dashboard/:token" element={<CompanyRecruitmentDashboard />} />
 
